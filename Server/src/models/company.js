@@ -1,5 +1,5 @@
-// models/company.js
-const mongoose = require('mongoose');
+// models/job.js
+import mongoose from 'mongoose';
 
 const CompanySchema = new mongoose.Schema({
   user: {
@@ -23,4 +23,5 @@ const CompanySchema = new mongoose.Schema({
   }]
 });
 
-module.exports = mongoose.model('Company', CompanySchema);
+const Company = mongoose.model('Company', CompanySchema);
+export default Company;

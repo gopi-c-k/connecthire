@@ -1,5 +1,4 @@
-// models/jobSeeker.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const JobSeekerSchema = new mongoose.Schema({
   user: {
@@ -12,7 +11,7 @@ const JobSeekerSchema = new mongoose.Schema({
   },
   skills: [String],
   experience: {
-    type: Number, 
+    type: Number,
     default: 0
   },
   education: {
@@ -20,10 +19,13 @@ const JobSeekerSchema = new mongoose.Schema({
     institution: String,
     year: Number
   },
-  jobsApplied: [{
+  jobsApplied: [
+    {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Job' 
-    }]
+      ref: 'Job'
+    }
+  ]
 });
 
-module.exports = mongoose.model('JobSeeker', JobSeekerSchema);
+const JobSeeker = mongoose.model('JobSeeker', JobSeekerSchema);
+export default JobSeeker;
