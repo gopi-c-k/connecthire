@@ -1,4 +1,6 @@
 import logo from './logo.svg';
+import React from 'react';
+import Signup from './Signup';
 import './App.css';
 
 function App() {
@@ -15,6 +17,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
+            <Signup />
           Learn React
         </a>
       </header>
