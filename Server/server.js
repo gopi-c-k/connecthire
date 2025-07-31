@@ -4,6 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import connectDB from './src/config/db.js';
 import userRoutes from './src/route/userRoute.js';
+import JobSeekerRoute from './src/route/jobSeekerRoute.js';
 
 connectDB();
 
@@ -26,7 +27,8 @@ const app = express();
 
 app.use(cookieParser());
 app.use(express.json());
-app.use('/user',userRoutes)
+app.use('/user',userRoutes);
+app.use('/jobseeker', JobSeekerRoute);
 app.get('/', (req, res) => {
   res.send('Connecthire Backend is Running 🚀');
 });

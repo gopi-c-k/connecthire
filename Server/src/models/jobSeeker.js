@@ -6,26 +6,62 @@ const JobSeekerSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  resume: {
-    type: String // URL or file path to resume
+  fullName: {
+    type: String,
+    required: true,
+    trim: true
   },
-  skills: [String],
+  profilePicture: {
+    type: String, // URL for profile picture
+    default: ''
+  },
+  resume: {
+    type: String, // URL or file path to resume
+  },
+  bio: {
+    type: String,
+    maxlength: 500
+  },
+  contact: {
+    phone: String,
+    address: String,
+    linkedin: String,
+    portfolio: String,
+  },
+  skills: {
+    type: [String],
+    default: []
+  },
   experience: {
     type: Number,
     default: 0
   },
-  education: {
-    degree: String,
-    institution: String,
-    year: Number
-  },
+  education: [
+    {
+      degree: String,
+      institution: String,
+      year: Number
+    }
+  ],
   jobsApplied: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Job'
     }
-  ]
-});
+  ],
+  certifications: [
+    {
+      title: String,
+      issuer: String,
+      year: Number
+    }
+  ],
+  availability: {
+    type: String,
+    enum: ['Full-Time', 'Part-Time', 'Freelance', 'Internship'],
+    default: 'Full-Time'
+  }
+}, { timestamps: true });
 
 const JobSeeker = mongoose.model('JobSeeker', JobSeekerSchema);
 export default JobSeeker;
