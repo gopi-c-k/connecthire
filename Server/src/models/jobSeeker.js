@@ -32,10 +32,15 @@ const JobSeekerSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
-  experience: {
-    type: Number,
-    default: 0
-  },
+  experience: [
+    {
+      company: String,
+      role: String,
+      startDate: Date,
+      endDate: Date,
+      description: String
+    }
+  ],
   education: [
     {
       degree: String,

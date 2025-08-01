@@ -7,36 +7,38 @@ export const verifyJobSeeker = asyncHandler(async (req, res, next) => {
   const token = req.cookies.accessToken || req.headers.authorization?.split(' ')[1];
 
   if (!token) {
-    res.status(401);
-    throw new Error('Not authorized, token missing');
+    return res.status(401).json({ message: 'Not authorized, token missing' });
   }
 
   try {
+    // ✅ Verify token
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const user = await User.findById(decoded.userId);
 
     if (!user) {
-      res.status(404);
-      throw new Error('User not found');
+      return res.status(404).json({ message: 'User not found' });
     }
 
     if (user.role !== 'jobseeker') {
-      res.status(403);
-      throw new Error('Access denied: Not a jobseeker account');
+      return res.status(403).json({ message: 'Access denied: Not a jobseeker account' });
     }
 
-    // Find jobseeker profile for this user
+    // ✅ Check if JobSeeker profile exists
     let jobSeeker = await JobSeeker.findOne({ user: user._id });
+
     if (!jobSeeker) {
-        res.status(404);
-        throw new Error('JobSeeker profile not found');
+      jobSeeker = await JobSeeker.create({
+        user: user._id,
+        fullName: user.name || '', 
+        contact: { email: user.email }
+      });
     }
 
-    req.user = user;
     req.jobSeeker = jobSeeker;
     next();
+
   } catch (err) {
-    res.status(401);
-    throw new Error('Not authorized, invalid token');
+    console.error('JWT Verify Error:', err.message);
+    return res.status(401).json({ message: 'Invalid or expired token' });
   }
 });
