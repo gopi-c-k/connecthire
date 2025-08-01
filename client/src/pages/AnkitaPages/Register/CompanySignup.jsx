@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, Building2 } from "lucide-react";
 
-const UserLogin = () => {
+const CompanySignup = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,16 +18,15 @@ const UserLogin = () => {
     setIsLoading(true);
     setError("");
     try {
-      const res = await fetch("http://localhost:5000/user/signin", {
+      const res = await fetch("http://localhost:5000/user/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email, password: form.password }),
+        body: JSON.stringify({ name: form.name, email: form.email, password: form.password, role: "company" }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Login failed");
-      localStorage.setItem("accessToken", data.accessToken);
-      // Redirect to user dashboard (adjust path as needed)
-      navigate("/user-dashboard");
+      if (!res.ok) throw new Error(data.message || "Signup failed");
+      if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
+      navigate("/company-login");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -36,13 +35,28 @@ const UserLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-emerald-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-100 px-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 space-y-4">
-        <h2 className="text-2xl font-bold text-center text-blue-700">User Login</h2>
+        <h2 className="text-2xl font-bold text-center text-indigo-700">Company Signup</h2>
         {error && (
           <div className="text-red-600 bg-red-100 p-2 rounded text-sm">{error}</div>
         )}
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block mb-1 text-sm font-semibold">Company Name</label>
+            <div className="relative">
+              <Building2 className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+              <input
+                name="name"
+                type="text"
+                required
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Your company name"
+                className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              />
+            </div>
+          </div>
           <div>
             <label className="block mb-1 text-sm font-semibold">Email</label>
             <div className="relative">
@@ -53,8 +67,8 @@ const UserLogin = () => {
                 required
                 value={form.email}
                 onChange={handleChange}
-                placeholder="you@example.com"
-                className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="company@example.com"
+                className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-indigo-400"
               />
             </div>
           </div>
@@ -69,22 +83,22 @@ const UserLogin = () => {
                 value={form.password}
                 onChange={handleChange}
                 placeholder="********"
-                className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-indigo-400"
               />
             </div>
           </div>
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 flex justify-center disabled:opacity-50"
+            className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 flex justify-center disabled:opacity-50"
           >
-            {isLoading ? "Signing In..." : "Sign In"}
+            {isLoading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
         <p className="text-sm text-center text-gray-600">
-          Don’t have an account?{" "}
-          <Link to="/user/signup" className="text-blue-600 hover:underline">
-            Sign up
+          Already have an account?{" "}
+          <Link to="/company/login" className="text-indigo-600 hover:underline">
+            Sign in
           </Link>
         </p>
       </div>
@@ -92,4 +106,4 @@ const UserLogin = () => {
   );
 };
 
-export default UserLogin;
+export default CompanySignup;
