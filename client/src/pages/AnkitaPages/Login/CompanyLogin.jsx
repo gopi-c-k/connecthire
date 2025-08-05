@@ -1,58 +1,71 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Mail, Lock } from "lucide-react";
+import InputWithIcon from "../../../components/InputWithIcon";
+import Button from "../../../components/Button";
+import { loginCompany } from "../../../services/authService";
 
 const CompanyLogin = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+    setError("");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsLoading(true);
+    setError("");
     try {
-      const res = await fetch("http://localhost:5000/user/signin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-      if (data.role !== "company") {
-        alert("This is not a company account.");
-        return;
-      }
-
-      console.log("Company Login Successful:", data);
-      alert("Company logged in!");
+      const data = await loginCompany(form.email, form.password);
+      if (data.role !== "company") throw new Error("Not a company account.");
+      localStorage.setItem("accessToken", data.accessToken);
+      navigate("/company-dashboard");
     } catch (err) {
-      console.error("Login failed", err);
-      alert("Login failed.");
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center text-violet-700">Company Login</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
+    <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-surface rounded-2xl shadow-lg p-8 space-y-6">
+        <h2 className="text-3xl font-bold text-center text-lightText">Company Login</h2>
+        {error && <div className="text-errorText bg-errorBg p-2 rounded text-sm">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <InputWithIcon
+            icon={Mail}
+            name="email"
             type="email"
-            placeholder="Company Email"
+            placeholder="company@example.com"
+            value={form.email}
+            onChange={handleChange}
             required
-            className="w-full px-4 py-2 border rounded"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
           />
-          <input
+          <InputWithIcon
+            icon={Lock}
+            name="password"
             type="password"
-            placeholder="Password"
+            placeholder="********"
+            value={form.password}
+            onChange={handleChange}
             required
-            className="w-full px-4 py-2 border rounded"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
           />
-          <button type="submit" className="w-full bg-violet-700 text-white py-2 rounded hover:bg-violet-800">
-            Sign In
-          </button>
+          <Button type="submit" variant="primary" disabled={isLoading}>
+            {isLoading ? "Signing In..." : "Sign In"}
+          </Button>
         </form>
+        <p className="text-sm text-center text-muted">
+          Don’t have an account?{" "}
+          <Link to="/company/signup" className="text-primary hover:underline">
+            Sign up
+          </Link>
+        </p>
       </div>
     </div>
   );
