@@ -16,9 +16,9 @@ const AuthModal = ({ type, onClose }) => {
     console.log("Selected Role:", selectedRole);
     console.log("Route to Navigate:", path);
 
-    // ✅ Do NOT close modal before navigating
+    
     navigate(path);
-    // ✅ Then close modal AFTER navigating (safe)
+    
     setTimeout(() => {
       onClose();
     }, 100); // slight delay to avoid unmount issue
