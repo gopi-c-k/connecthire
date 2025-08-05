@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-import AuthModal from "../../../components/AuthModal"; // ✅ exact case-sensitive path
+import AuthModal from "../../../components/AuthModal"; //  exact case-sensitive path
 
 export default function MainLayout() {
   const [authType, setAuthType] = useState(null);
@@ -41,7 +41,7 @@ export default function MainLayout() {
       </header>
 
       <main className="flex-1 pt-20">
-        <Outlet /> {/* ✅ Ensures login/signup pages render */}
+        <Outlet /> {/*  Ensures login/signup pages render */}
       </main>
 
       {authType && (
