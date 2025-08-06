@@ -18,14 +18,27 @@ const UserSignup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!form.name.trim()) {
+      setError("Name is required");
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(form.email)) {
+      setError("Enter a valid email address");
+      return;
+    }
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
     setIsLoading(true);
-    setError("");
     try {
       const data = await signupUser({ ...form, role: "freelancer" });
       if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
       navigate("/user/login");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Signup failed");
     } finally {
       setIsLoading(false);
     }

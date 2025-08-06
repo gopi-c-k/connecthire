@@ -13,19 +13,30 @@ const UserLogin = () => {
 
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-    setError("");
+    setError(""); // Clear error as user types
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError("");
+
+    // ✅ Email and password validation
+    if (!/\S+@\S+\.\S+/.test(form.email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    setIsLoading(true);
     try {
       const data = await loginUser(form.email, form.password);
       localStorage.setItem("accessToken", data.accessToken);
       navigate("/user-dashboard");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Login failed");
     } finally {
       setIsLoading(false);
     }
@@ -35,7 +46,13 @@ const UserLogin = () => {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-surface rounded-2xl shadow-lg p-8 space-y-6">
         <h2 className="text-3xl font-bold text-center text-lightText">User Login</h2>
-        {error && <div className="text-errorText bg-errorBg p-2 rounded text-sm">{error}</div>}
+        
+        {error && (
+          <div className="text-errorText bg-errorBg p-2 rounded text-sm">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <InputWithIcon
             icon={Mail}
@@ -59,6 +76,7 @@ const UserLogin = () => {
             {isLoading ? "Signing In..." : "Sign In"}
           </Button>
         </form>
+
         <p className="text-sm text-center text-muted">
           Don’t have an account?{" "}
           <Link to="/user/signup" className="text-primary hover:underline">
@@ -71,3 +89,5 @@ const UserLogin = () => {
 };
 
 export default UserLogin;
+
+

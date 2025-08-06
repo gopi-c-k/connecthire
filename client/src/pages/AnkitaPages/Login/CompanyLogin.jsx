@@ -18,15 +18,24 @@ const CompanyLogin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!/\S+@\S+\.\S+/.test(form.email)) {
+      setError("Enter a valid email address");
+      return;
+    }
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
     setIsLoading(true);
-    setError("");
     try {
       const data = await loginCompany(form.email, form.password);
       if (data.role !== "company") throw new Error("Not a company account.");
       localStorage.setItem("accessToken", data.accessToken);
       navigate("/company-dashboard");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Login failed");
     } finally {
       setIsLoading(false);
     }
