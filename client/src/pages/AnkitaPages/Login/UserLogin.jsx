@@ -20,7 +20,7 @@ const UserLogin = () => {
     e.preventDefault();
     setError("");
 
-    // ✅ Email and password validation
+    //  Email and password validation
     if (!/\S+@\S+\.\S+/.test(form.email)) {
       setError("Please enter a valid email address");
       return;
@@ -78,7 +78,7 @@ const UserLogin = () => {
         </form>
 
         <p className="text-sm text-center text-muted">
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <Link to="/user/signup" className="text-primary hover:underline">
             Sign up
           </Link>

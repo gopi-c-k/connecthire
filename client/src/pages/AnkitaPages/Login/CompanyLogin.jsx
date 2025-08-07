@@ -70,7 +70,7 @@ const CompanyLogin = () => {
           </Button>
         </form>
         <p className="text-sm text-center text-muted">
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <Link to="/company/signup" className="text-primary hover:underline">
             Sign up
           </Link>
