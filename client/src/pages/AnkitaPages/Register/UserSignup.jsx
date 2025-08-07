@@ -34,7 +34,7 @@ const UserSignup = () => {
 
     setIsLoading(true);
     try {
-      const data = await signupUser({ ...form, role: "freelancer" });
+      const data = await signupUser({ ...form, role: "jobseeker" });
       if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
       navigate("/user/login");
     } catch (err) {
