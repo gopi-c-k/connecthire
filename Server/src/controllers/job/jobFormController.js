@@ -20,7 +20,6 @@ export const createJob = async (req, res) => {
             industry,
             additionalTags,
         } = req.body;
-
         const companyId = req.companyId || req.company?._id;
 
         if (!companyId) {
@@ -57,6 +56,7 @@ export const createJob = async (req, res) => {
         if (jobId) {
             job = await Job.findById(jobId);
             if (job) {
+                console.log("Job found, updating existing job with ID:", jobId);
                 job = await Job.findByIdAndUpdate(jobId, { $set: updateData }, { new: true });
             } else {
                 job = await Job.create(updateData);

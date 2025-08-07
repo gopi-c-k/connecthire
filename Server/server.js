@@ -30,7 +30,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use('/user',userRoutes);
 app.use('/jobseeker', JobSeekerRoute);
-app.use('/company',CompanyRoute);
+app.use('/job',CompanyRoute);
 app.get('/', (req, res) => {
   res.send('Connecthire Backend is Running 🚀');
 });

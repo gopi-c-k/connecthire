@@ -26,9 +26,10 @@ const JobSchema = new mongoose.Schema({
   },
   salaryRange: {
     min: Number,
-    max: Number
+    max: Number,
+    currency: String
   },
-  experienceLvel: {
+  experienceLevel: {
     type: String,
     required: true,
   },
@@ -38,7 +39,7 @@ const JobSchema = new mongoose.Schema({
   }],
   jobType: {
     type: String,
-    enum: ['full-time', 'part-time', 'contract', 'internship', 'remote'],
+    enum: ['full-time', 'part-time', 'contract', 'internship', 'remote', 'permanent','temporary'],
     default: 'full-time'
   },
   requirements: [String],
