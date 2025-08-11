@@ -57,6 +57,9 @@ export const createJob = async (req, res) => {
             job = await Job.findById(jobId);
             if (job) {
                 console.log("Job found, updating existing job with ID:", jobId);
+                if(req.companyId && job.company.toString() !== req.companyId.toString()) {
+                    return res.status(403).json({ message: "You do not have permission to update this job." });
+                }
                 job = await Job.findByIdAndUpdate(jobId, { $set: updateData }, { new: true });
             } else {
                 job = await Job.create(updateData);
