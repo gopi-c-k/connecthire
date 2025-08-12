@@ -1,4 +1,5 @@
 import Job from "../../models/job.js";
+import Company from "../../models/company.js";
 
 export const createJob = async (req, res) => {
     try {
@@ -27,7 +28,7 @@ export const createJob = async (req, res) => {
         }
 
         const updateData = {
-            company: companyId 
+            company: companyId
         };
 
         if (title !== undefined) updateData.title = title;
@@ -57,15 +58,27 @@ export const createJob = async (req, res) => {
             job = await Job.findById(jobId);
             if (job) {
                 console.log("Job found, updating existing job with ID:", jobId);
-                if(req.companyId && job.company.toString() !== req.companyId.toString()) {
+                if (req.companyId && job.company.toString() !== req.companyId.toString()) {
                     return res.status(403).json({ message: "You do not have permission to update this job." });
                 }
                 job = await Job.findByIdAndUpdate(jobId, { $set: updateData }, { new: true });
             } else {
                 job = await Job.create(updateData);
+                const company = await Company.findById(companyId);
+                if (!company) {
+                    return res.status(404).json({ message: "Company not found." });
+                }
+                company.jobsPosted.push(job._id);
+                await company.save();
             }
         } else {
             job = await Job.create(updateData);
+            const company = await Company.findById(companyId);
+            if (!company) {
+                return res.status(404).json({ message: "Company not found." });
+            }
+            company.jobsPosted.push(job._id);
+            await company.save();
         }
 
         res.status(200).json({ message: "Job successfully created or updated", job });
