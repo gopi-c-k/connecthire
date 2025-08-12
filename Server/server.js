@@ -5,7 +5,8 @@ import cookieParser from 'cookie-parser';
 import connectDB from './src/config/db.js';
 import userRoutes from './src/route/userRoute.js';
 import JobSeekerRoute from './src/route/jobSeekerRoute.js';
-import CompanyRoute from './src/route/companyRoute.js'
+import CompanyRoute from './src/route/companyRoute.js';
+import jobRoute from './src/route/jobRoute.js';
 
 connectDB();
 
@@ -30,7 +31,8 @@ app.use(cookieParser());
 app.use(express.json());
 app.use('/user',userRoutes);
 app.use('/jobseeker', JobSeekerRoute);
-app.use('/job',CompanyRoute);
+app.use('/company',CompanyRoute);
+app.use('/job', jobRoute);
 app.get('/', (req, res) => {
   res.send('Connecthire Backend is Running 🚀');
 });

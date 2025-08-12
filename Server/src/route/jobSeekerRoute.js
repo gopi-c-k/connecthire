@@ -5,7 +5,7 @@ import verifyMiddleware from '../middleware/userVerify.js';
 import { getJobSeekerProfile } from '../controllers/jobSeeker/getJobSeekerProfile.js';
 const router = express.Router();
 
-router.put('/fill-form',verifyMiddleware, verifyJobSeeker, fillJobSeekerForm);
+router.put('/profile',verifyMiddleware, verifyJobSeeker, fillJobSeekerForm);
 router.get('/profile', verifyMiddleware, verifyJobSeeker, getJobSeekerProfile);
 
 export default router;
