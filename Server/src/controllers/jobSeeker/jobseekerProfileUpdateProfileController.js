@@ -1,10 +1,10 @@
-import JobSeeker from '../models/jobSeeker.js';
+import JobSeeker from "../../models/jobSeeker.js";
 
 export const fillJobSeekerForm = async (req, res) => {
   try {
     const jobSeekerId = req.jobSeeker._id || req.jobSeeker;
 
-    const {
+    const { 
       fullName,
       profilePicture,
       bio,

@@ -17,6 +17,9 @@ const CompanySchema = new mongoose.Schema({
   description: {
     type: String
   },
+  companyLogo: {
+    type: String
+  },
   jobsPosted: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Job' 
