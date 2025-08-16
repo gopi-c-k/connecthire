@@ -20,9 +20,21 @@ const CompanySchema = new mongoose.Schema({
   companyLogo: {
     type: String
   },
+  location: {
+    type: String
+  },
+  industry: String,
+  size: String,
+  founded: Number,
+  contactEmail: String,
+  socialLinks: {
+    linkedin: String,
+    twitter: String,
+    facebook: String
+  },
   jobsPosted: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Job' 
+    ref: 'Job'
   }]
 });
 
