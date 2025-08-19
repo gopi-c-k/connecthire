@@ -3,9 +3,12 @@ import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, Building2 } from "lucide-react";
 import InputWithIcon from "../../../components/InputWithIcon";
 import Button from "../../../components/Button";
-import { signupCompany } from "../../../services/authService";
 
 const CompanySignup = () => {
+  console.log("Base URL is:", process.env.REACT_APP_BASE);
+
+  // rest of your state and functions...
+
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
@@ -31,14 +34,38 @@ const CompanySignup = () => {
       setError("Password must be at least 6 characters");
       return;
     }
-
     setIsLoading(true);
+
+    const baseURL = process.env.REACT_APP_BASE;
+    if (!baseURL) {
+      setError("API base URL is not defined. Check your .env file.");
+      console.error("Missing REACT_APP_BASE in .env");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const data = await signupCompany({
-        companyName: form.name,
-        email: form.email,
-        password: form.password,
+      const res = await fetch(`${baseURL}/user/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          role: "company"
+        }),
       });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        const text = await res.text();
+        throw new Error(`Invalid JSON response: ${text}`);
+      }
+
+      if (!res.ok) throw new Error(data.message || "Signup failed");
+
       if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
       navigate("/company/login");
     } catch (err) {
