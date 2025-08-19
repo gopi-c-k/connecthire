@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, User } from "lucide-react";
 import InputWithIcon from "../../../components/InputWithIcon";
 import Button from "../../../components/Button";
-import { signupUser } from "../../../services/authService";
 
 const UserSignup = () => {
   const navigate = useNavigate();
@@ -34,7 +33,15 @@ const UserSignup = () => {
 
     setIsLoading(true);
     try {
-      const data = await signupUser({ ...form, role: "jobseeker" });
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/user/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, role: "jobseeker" })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Signup failed");
+
       if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
       navigate("/user/login");
     } catch (err) {
@@ -50,33 +57,9 @@ const UserSignup = () => {
         <h2 className="text-3xl font-bold text-center text-lightText">User Signup</h2>
         {error && <div className="text-errorText bg-errorBg p-2 rounded text-sm">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-5">
-          <InputWithIcon
-            icon={User}
-            name="name"
-            type="text"
-            placeholder="Your name"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
-          <InputWithIcon
-            icon={Mail}
-            name="email"
-            type="email"
-            placeholder="you@example.com"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-          <InputWithIcon
-            icon={Lock}
-            name="password"
-            type="password"
-            placeholder="********"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+          <InputWithIcon icon={User} name="name" type="text" placeholder="Your name" value={form.name} onChange={handleChange} required />
+          <InputWithIcon icon={Mail} name="email" type="email" placeholder="you@example.com" value={form.email} onChange={handleChange} required />
+          <InputWithIcon icon={Lock} name="password" type="password" placeholder="********" value={form.password} onChange={handleChange} required />
           <Button type="submit" variant="primary" disabled={isLoading}>
             {isLoading ? "Signing Up..." : "Sign Up"}
           </Button>
