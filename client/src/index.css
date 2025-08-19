@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  @apply font-sans bg-bg text-lightText;
+  @apply font-sans bg-bg text-inherit;
 }
 
 code {
