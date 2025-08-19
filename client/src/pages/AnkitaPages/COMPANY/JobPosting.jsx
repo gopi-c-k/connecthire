@@ -48,7 +48,7 @@ const JobPosting = () => {
     };
 
     try {
-      const res = await api.post("/job/fill-form", payload);
+      const res = await api.put("/job/fill-form", payload);
       setMessage({ type: "success", text: "Job posted successfully!" });
       console.log(res.data);
 
@@ -211,9 +211,10 @@ const JobPosting = () => {
               className={inputClasses}
             >
               <option value="">Select...</option>
-              <option value="Full-time">Full-time</option>
-              <option value="Part-time">Part-time</option>
-              <option value="Internship">Internship</option>
+              <option value="full-time">Full-time</option>
+              <option value="part-time">Part-time</option>
+              <option value="internship">Internship</option>
+              <option value="temporary">Temporary</option>
             </select>
           </label>
 

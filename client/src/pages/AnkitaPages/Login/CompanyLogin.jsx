@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock,Eye, EyeOff, } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, } from "lucide-react";
 import InputWithIcon from "../../../components/InputWithIcon";
 import Button from "../../../components/Button";
+import api from "../../../services/secureApi"
 
 const CompanyLogin = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const CompanyLogin = () => {
     }
 
     setIsLoading(true);
-    const baseURL = process.env.REACT_APP_BASE;
+    const baseURL = "http://localhost:5000" || process.env.REACT_APP_BASE;
     if (!baseURL) {
       setError("API base URL is not defined. Check your .env file.");
       console.error("Missing REACT_APP_BASE in .env");
@@ -40,27 +41,22 @@ const CompanyLogin = () => {
     }
 
     try {
-      const res = await fetch(`${baseURL}/user/signin`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-        //  This lets the browser accept Set-Cookie from the backend.
-        
-        credentials: "include",
-      });
+
+      const res = await api.post("/user/signin", form);
+      // console.log("Login response:", res.data);
+
 
       // Try to parse JSON; if the backend sent HTML for errors, handle 
       let data = {};
       try {
-        data = await res.json();
+        data = res.data;
       } catch {
-        
+
       }
 
-      if (!res.ok) {
+      if (res.status !== 200) {
         throw new Error(data?.message || "Login failed");
       }
-
       //  if backend also returns a token in JSON, keep your current localStorage behavior
       if (data.accessToken) {
         localStorage.setItem("accessToken", data.accessToken);
@@ -69,7 +65,7 @@ const CompanyLogin = () => {
       if (data.id) localStorage.setItem("companyId", data.id);
 
       // After successful login, the cookie is now stored by the browser.
-      
+
       navigate("/company-dashboard");
     } catch (err) {
       setError(err.message || "Login failed");
@@ -99,27 +95,27 @@ const CompanyLogin = () => {
             autoComplete="username"
           />
           <InputWithIcon
-  icon={Lock}
-  name="password"
-  type={showPassword ? "text" : "password"}
-  placeholder="********"
-  value={form.password}
-  onChange={handleChange}
-  required
-  autoComplete="current-password"
-  rightIcon={
-    showPassword ? (
-      <EyeOff
-        className="w-5 h-5 text-muted"
-        onClick={() => setShowPassword(false)}
-      />
-    ) : (
-      <Eye
-        className="w-5 h-5 text-muted"
-        onClick={() => setShowPassword(true)}
-      />
-    )}
-/>
+            icon={Lock}
+            name="password"
+            type={showPassword ? "text" : "password"}
+            placeholder="********"
+            value={form.password}
+            onChange={handleChange}
+            required
+            autoComplete="current-password"
+            rightIcon={
+              showPassword ? (
+                <EyeOff
+                  className="w-5 h-5 text-muted"
+                  onClick={() => setShowPassword(false)}
+                />
+              ) : (
+                <Eye
+                  className="w-5 h-5 text-muted"
+                  onClick={() => setShowPassword(true)}
+                />
+              )}
+          />
           <Button type="submit" variant="primary" disabled={isLoading}>
             {isLoading ? "Signing In..." : "Sign In"}
           </Button>
