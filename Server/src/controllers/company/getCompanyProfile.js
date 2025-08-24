@@ -8,7 +8,7 @@ export const getCompanyProfile = async (req, res) => {
         }
         const company = await Company.findById(companyId)
             .populate('user', 'name email') // Populate user details
-            .populate('jobsPosted'); // Populate jobs posted by the company
+            .populate('jobsPosted', 'title description location duration openings'); // Populate jobs posted by the company
         if (!company) {
             return res.status(404).json({ message: "Company not found." });
         }
