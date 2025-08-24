@@ -12,8 +12,10 @@
 
 // export default router;
 
+
 import express from 'express';
 import multer from 'multer';
+import path from 'path';
 import { createJob } from '../controllers/job/jobFormController.js';
 import { verifyCompany } from '../middleware/verifyCompany.js';
 import verifyMiddleware from '../middleware/userVerify.js';
@@ -22,21 +24,19 @@ import { updateCompanyProfile } from '../controllers/company/companyProfileUpdat
 
 const router = express.Router();
 
-// Multer setup for logo upload
+// Multer config
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname),
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // make sure "uploads" folder exists
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
 });
 const upload = multer({ storage });
 
-// Update profile (with logo upload support)
-router.put(
-  '/profile',
-  verifyMiddleware,
-  verifyCompany,
-  upload.single('companyLogo'), // <-- added for file upload
-  updateCompanyProfile
-);
+// Update with file upload
+router.put('/profile', verifyMiddleware, verifyCompany, upload.single('companyLogo'), updateCompanyProfile);
 
 // Get profile
 router.get('/profile', verifyMiddleware, verifyCompany, getCompanyProfile);
