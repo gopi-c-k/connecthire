@@ -1,4 +1,4 @@
- import Company from "../../models/company.js";
+import Company from "../../models/company.js";
 
 // export const updateCompanyProfile = async (req, res) => {
 //     try {
@@ -42,43 +42,44 @@
 //     }
 // }
 
+
+  //   import Company from '../../models/companyModel.js';
+
 export const updateCompanyProfile = async (req, res) => {
   try {
-    const {
-      name,
-      website,
-      description,
-      location,
-      industry,
-      teamSize,
-      foundingDate,
-      contactEmail,
-      phone,
-    } = req.body;
+    const companyId = req.company.id;
 
     const updateData = {
-      name,
-      website,
-      description,
-      location,
-      industry,
-      size: teamSize,
-      founded: foundingDate,
-      contactEmail,
-      phone,
+      name: req.body.name,
+      foundingDate: req.body.foundingDate,
+      description: req.body.description,
+      location: req.body.location,
+      website: req.body.website,
+      email: req.body.email,
+      phone: req.body.phone,
+      teamSize: req.body.teamSize
     };
 
     if (req.file) {
-      updateData.companyLogo = `/uploads/${req.file.filename}`;
+      updateData.logo = `/uploads/${req.file.filename}`;
     }
 
-    await Company.findByIdAndUpdate(req.user.companyId, updateData, {
-      new: true,
-    });
+    const updatedProfile = await Company.findByIdAndUpdate(
+      companyId,
+      { $set: updateData },
+      { new: true }
+    );
 
-    res.json({ message: "Profile updated successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    if (!updatedProfile) {
+      return res.status(404).json({ message: 'Company not found' });
+    }
+
+    res.json({
+      message: 'Profile updated successfully',
+      profile: updatedProfile
+    });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
