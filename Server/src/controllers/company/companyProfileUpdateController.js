@@ -1,4 +1,4 @@
-// import Company from "../../models/company.js";
+ import Company from "../../models/company.js";
 
 // export const updateCompanyProfile = async (req, res) => {
 //     try {
