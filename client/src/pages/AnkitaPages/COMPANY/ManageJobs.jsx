@@ -74,7 +74,7 @@ const ManageJobs = () => {
           >
             <option value="">All Status</option>
             <option value="open">Open</option>
-            <option value="closed">Closed</option>
+            <option value="close">Closed</option>
           </select>
           <input
             type="text"
