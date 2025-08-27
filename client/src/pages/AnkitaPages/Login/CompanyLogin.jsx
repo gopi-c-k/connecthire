@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, } from "lucide-react";
 import InputWithIcon from "../../../components/InputWithIcon";
 import Button from "../../../components/Button";
-import api from "../../../services/secureApi"
 
 const CompanyLogin = () => {
   const navigate = useNavigate();
@@ -11,18 +10,14 @@ const CompanyLogin = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
     setError("");
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    if (!/\S+@\S+\.\S+/.test(form.email)) {
+     if (!/\S+@\S+\.\S+/.test(form.email)) {
       setError("Please enter a valid email address");
       return;
     }
@@ -30,9 +25,8 @@ const CompanyLogin = () => {
       setError("Password must be at least 6 characters");
       return;
     }
-
     setIsLoading(true);
-    const baseURL = "http://localhost:5000" || process.env.REACT_APP_BASE;
+    const baseURL = process.env.REACT_APP_BASE;
     if (!baseURL) {
       setError("API base URL is not defined. Check your .env file.");
       console.error("Missing REACT_APP_BASE in .env");
@@ -41,20 +35,24 @@ const CompanyLogin = () => {
     }
 
     try {
-
-      const res = await api.post("/user/signin", form);
-      // console.log("Login response:", res.data);
-
+      const res = await fetch(`${baseURL}/user/signin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+        //  This lets the browser accept Set-Cookie from the backend.
+        
+        credentials: "include",
+      });
 
       // Try to parse JSON; if the backend sent HTML for errors, handle 
       let data = {};
       try {
         data = res.data;
       } catch {
-
+        
       }
 
-      if (res.status !== 200) {
+      if (!res.ok) {
         throw new Error(data?.message || "Login failed");
       }
       //  if backend also returns a token in JSON, keep your current localStorage behavior
@@ -65,16 +63,15 @@ const CompanyLogin = () => {
       if (data.id) localStorage.setItem("companyId", data.id);
 
       // After successful login, the cookie is now stored by the browser.
-
+      
       navigate("/company-dashboard");
     } catch (err) {
       setError(err.message || "Login failed");
     } finally {
       setIsLoading(false);
     }
-  };
-
-  return (
+    };
+   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-surface rounded-2xl shadow-lg p-8 space-y-6">
         <h2 className="text-3xl font-bold text-center text-lightText">Company Login</h2>
@@ -95,27 +92,27 @@ const CompanyLogin = () => {
             autoComplete="username"
           />
           <InputWithIcon
-            icon={Lock}
-            name="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="********"
-            value={form.password}
-            onChange={handleChange}
-            required
-            autoComplete="current-password"
-            rightIcon={
-              showPassword ? (
-                <EyeOff
-                  className="w-5 h-5 text-muted"
-                  onClick={() => setShowPassword(false)}
-                />
-              ) : (
-                <Eye
-                  className="w-5 h-5 text-muted"
-                  onClick={() => setShowPassword(true)}
-                />
-              )}
-          />
+  icon={Lock}
+  name="password"
+  type={showPassword ? "text" : "password"}
+  placeholder="********"
+  value={form.password}
+  onChange={handleChange}
+  required
+  autoComplete="current-password"
+  rightIcon={
+    showPassword ? (
+      <EyeOff
+        className="w-5 h-5 text-muted"
+        onClick={() => setShowPassword(false)}
+      />
+    ) : (
+      <Eye
+        className="w-5 h-5 text-muted"
+        onClick={() => setShowPassword(true)}
+      />
+    )}
+/>
           <Button type="submit" variant="primary" disabled={isLoading}>
             {isLoading ? "Signing In..." : "Sign In"}
           </Button>

@@ -5,7 +5,7 @@ const links = [
   { name: "Dashboard", icon: Home, path: "/company-dashboard" },
   { name: "Post Job", icon: FilePlus, path: "/company/job-post" },
   { name: "Manage Jobs", icon: Briefcase, path: "/company/jobs" },
-  { name: "Applicants", icon: Users, path: "/company/jobs/applicants" },
+  { name: "Applicants", icon: Users, path: "/company/applicants" },
   { name: "Messages", icon: MessageSquare, path: "/company/messages" },
   { name: "Settings", icon: Settings, path: "/company/settings" },
 ];
