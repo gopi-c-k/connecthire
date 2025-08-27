@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import CompanyLayout from "../layouts/CompanyLayout";
 import api from "../../../services/secureApi";
 
 const JobPosting = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -21,7 +24,8 @@ const JobPosting = () => {
     additionalTags: "",
   });
 
-  const [message, setMessage] = useState({ type: "", text: "" });
+  const inputClasses =
+    "mt-1 block w-full border border-muted p-2 rounded bg-bg text-lightText focus:outline-none focus:ring-2 focus:ring-primary";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,62 +42,38 @@ const JobPosting = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Ensure jobType has a default if not selected (match select option values)
+    const safeJobType =
+      formData.jobType && formData.jobType.trim() !== ""
+        ? formData.jobType
+        : "full-time";
+
     const payload = {
       ...formData,
-      skills: formData.skills.split(",").map((s) => s.trim()),
-      requirements: formData.requirements.split(",").map((r) => r.trim()),
-      responsibilities: formData.responsibilities.split(",").map((r) => r.trim()),
-      qualifications: formData.qualifications.split(",").map((q) => q.trim()),
-      additionalTags: formData.additionalTags.split(",").map((t) => t.trim()),
+      jobType: safeJobType,
+      skills: formData.skills ? formData.skills.split(",").map((s) => s.trim()).filter(Boolean) : [],
+      requirements: formData.requirements ? formData.requirements.split(",").map((r) => r.trim()).filter(Boolean) : [],
+      responsibilities: formData.responsibilities ? formData.responsibilities.split(",").map((r) => r.trim()).filter(Boolean) : [],
+      qualifications: formData.qualifications ? formData.qualifications.split(",").map((q) => q.trim()).filter(Boolean) : [],
+      additionalTags: formData.additionalTags ? formData.additionalTags.split(",").map((t) => t.trim()).filter(Boolean) : [],
     };
 
     try {
       const res = await api.put("/job/fill-form", payload);
-      setMessage({ type: "success", text: "Job posted successfully!" });
       console.log(res.data);
-
-      setFormData({
-        title: "",
-        description: "",
-        location: "",
-        duration: "",
-        salaryRange: { min: "", max: "", currency: "USD" },
-        experienceLevel: "",
-        skills: "",
-        jobType: "",
-        requirements: "",
-        responsibilities: "",
-        qualifications: "",
-        openings: "",
-        applicationDeadline: "",
-        industry: "",
-        additionalTags: "",
-      });
+      alert("✅ Job posted successfully!");
+      navigate("/company/jobs", { state: { JobPosted: true } });
     } catch (err) {
       console.error("Error posting job:", err);
-      setMessage({ type: "error", text: "Failed to post job" });
+      alert("❌ Failed to post job");
     }
   };
-
-  const inputClasses =
-    "mt-1 block w-full border border-muted p-2 rounded bg-bg text-lightText focus:outline-none focus:ring-2 focus:ring-primary";
 
   return (
     <CompanyLayout>
       <div className="max-w-3xl mx-auto p-6 bg-surface text-lightText shadow rounded-lg font-sans">
         <h1 className="text-2xl font-bold mb-6 text-primary">Post a New Job</h1>
-
-        {message.text && (
-          <div
-            className={`mb-4 p-3 rounded ${
-              message.type === "success"
-                ? "bg-green-800 text-green-200"
-                : "bg-red-800 text-red-200"
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Job Title */}

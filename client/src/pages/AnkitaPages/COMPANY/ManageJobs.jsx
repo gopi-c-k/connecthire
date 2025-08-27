@@ -1,7 +1,6 @@
-// src/pages/AnkitaPages/COMPANY/ManageJobs.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../../services/secureApi"; 
+import api from "../../../services/secureApi";
 import CompanyLayout from "../layouts/CompanyLayout";
 
 const ManageJobs = () => {
@@ -17,37 +16,38 @@ const ManageJobs = () => {
 
   const navigate = useNavigate();
 
-  // ✅ Fetch jobs
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const res = await api.get("/company/jobs", {
-          params: {
-            page,
-            search,
-            status: statusFilter,
-            location: locationFilter,
-          },
-        });
-
-        // Assuming backend response: { jobs: [], totalPages: 5 }
-        setJobs(res.data.jobs || []);
-        setTotalPages(res.data.totalPages || 1);
-      } catch (err) {
-        console.error("Error fetching jobs:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchJobs();
+  // ✅ Fetch jobs function (reusable)
+  const fetchJobs = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await api.get("/company/jobs", {
+        params: {
+          page,
+          search,
+          status: statusFilter,
+          location: locationFilter,
+        },
+      });
+      setJobs(res.data.jobs || []);
+      setTotalPages(res.data.totalPages || 1);
+    } catch (err) {
+      console.error("Error fetching jobs:", err);
+    } finally {
+      setLoading(false);
+    }
   }, [page, search, statusFilter, locationFilter]);
 
-  // ✅ Delete a job
+  // ✅ Load jobs when page opens
+  useEffect(() => {
+    fetchJobs();
+  }, [fetchJobs]);
+
+  // ✅ Delete job and refresh list
   const handleDelete = async (jobId) => {
     if (!window.confirm("Are you sure you want to delete this job?")) return;
     try {
       await api.delete(`/job/${jobId}`);
-      setJobs(jobs.filter((job) => job._id !== jobId));
+      fetchJobs(); // 🔄 Refresh list after delete
     } catch (err) {
       console.error("Error deleting job:", err);
     }
@@ -108,8 +108,6 @@ const ManageJobs = () => {
                     <td className="px-6 py-3">{job.title}</td>
                     <td className="px-6 py-3">{job.location}</td>
                     <td className="px-6 py-3">{job.jobType}</td>
-
-                    {/* ✅ Status Badge */}
                     <td className="px-6 py-3">
                       <span
                         className={`px-2 py-1 rounded text-sm ${
@@ -121,23 +119,20 @@ const ManageJobs = () => {
                         {job.status || "N/A"}
                       </span>
                     </td>
-
-                    {/* ✅ Applicant Count */}
                     <td className="px-6 py-3">
                       <span className="px-2 py-1 bg-blue-800 rounded text-white text-sm">
                         Applicants: {job.applicantCount || 0}
                       </span>
                     </td>
-
-                    {/* ✅ Actions */}
                     <td className="p-3 space-x-2">
                       <button
                         className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                        onClick={() => navigate(`/company/job/edit/${job._id}`)}
+                        onClick={() =>
+                          navigate(`/company/job/edit/${job._id}`)
+                        }
                       >
                         Edit
                       </button>
-
                       <button
                         className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
                         onClick={() =>
@@ -146,7 +141,6 @@ const ManageJobs = () => {
                       >
                         View Applicants
                       </button>
-
                       <button
                         className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
                         onClick={() => handleDelete(job._id)}
