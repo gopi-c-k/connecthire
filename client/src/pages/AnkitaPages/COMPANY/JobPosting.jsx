@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import CompanyLayout from "../layouts/CompanyLayout";
 import api from "../../../services/secureApi";
 
 const JobPosting = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -21,8 +24,6 @@ const JobPosting = () => {
     additionalTags: "",
   });
 
-  const [message, setMessage] = useState({ type: "", text: "" });
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name.startsWith("salaryRange.")) {
@@ -36,44 +37,45 @@ const JobPosting = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const payload = {
-      ...formData,
-      skills: formData.skills.split(",").map((s) => s.trim()),
-      requirements: formData.requirements.split(",").map((r) => r.trim()),
-      responsibilities: formData.responsibilities.split(",").map((r) => r.trim()),
-      qualifications: formData.qualifications.split(",").map((q) => q.trim()),
-      additionalTags: formData.additionalTags.split(",").map((t) => t.trim()),
-    };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      const res = await api.post("/job/fill-form", payload);
-      setMessage({ type: "success", text: "Job posted successfully!" });
-      console.log(res.data);
+  // Ensure jobType has a default if not selected
+  const safeJobType = formData.jobType && formData.jobType.trim() !== "" 
+    ? formData.jobType 
+    : "Full-time"; // Default value (change if needed)
 
-      setFormData({
-        title: "",
-        description: "",
-        location: "",
-        duration: "",
-        salaryRange: { min: "", max: "", currency: "USD" },
-        experienceLevel: "",
-        skills: "",
-        jobType: "",
-        requirements: "",
-        responsibilities: "",
-        qualifications: "",
-        openings: "",
-        applicationDeadline: "",
-        industry: "",
-        additionalTags: "",
-      });
-    } catch (err) {
-      console.error("Error posting job:", err);
-      setMessage({ type: "error", text: "Failed to post job" });
-    }
+  const payload = {
+    ...formData,
+    jobType: safeJobType,
+    skills: formData.skills
+      ? formData.skills.split(",").map((s) => s.trim())
+      : [],
+    requirements: formData.requirements
+      ? formData.requirements.split(",").map((r) => r.trim())
+      : [],
+    responsibilities: formData.responsibilities
+      ? formData.responsibilities.split(",").map((r) => r.trim())
+      : [],
+    qualifications: formData.qualifications
+      ? formData.qualifications.split(",").map((q) => q.trim())
+      : [],
+    additionalTags: formData.additionalTags
+      ? formData.additionalTags.split(",").map((t) => t.trim())
+      : [],
   };
+
+  try {
+    const res = await api.put("/job/fill-form", payload);
+    console.log(res.data);
+    alert("✅ Job posted successfully!");
+    navigate("/company/jobs", { state: { JobPosted: true } });
+  } catch (err) {
+    console.error("Error posting job:", err);
+    alert("❌ Failed to post job");
+  }
+};
+
 
   const inputClasses =
     "mt-1 block w-full border border-muted p-2 rounded bg-bg text-lightText focus:outline-none focus:ring-2 focus:ring-primary";
@@ -82,18 +84,6 @@ const JobPosting = () => {
     <CompanyLayout>
       <div className="max-w-3xl mx-auto p-6 bg-surface text-lightText shadow rounded-lg font-sans">
         <h1 className="text-2xl font-bold mb-6 text-primary">Post a New Job</h1>
-
-        {message.text && (
-          <div
-            className={`mb-4 p-3 rounded ${
-              message.type === "success"
-                ? "bg-green-800 text-green-200"
-                : "bg-red-800 text-red-200"
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Job Title */}
@@ -211,9 +201,10 @@ const JobPosting = () => {
               className={inputClasses}
             >
               <option value="">Select...</option>
-              <option value="Full-time">Full-time</option>
-              <option value="Part-time">Part-time</option>
-              <option value="Internship">Internship</option>
+              <option value="full-time">Full-time</option>
+              <option value="part-time">Part-time</option>
+              <option value="internship">Internship</option>
+              <option value="temporary">Temporary</option>
             </select>
           </label>
 
