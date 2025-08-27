@@ -24,6 +24,9 @@ const JobPosting = () => {
     additionalTags: "",
   });
 
+  const inputClasses =
+    "mt-1 block w-full border border-muted p-2 rounded bg-bg text-lightText focus:outline-none focus:ring-2 focus:ring-primary";
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name.startsWith("salaryRange.")) {
@@ -37,48 +40,35 @@ const JobPosting = () => {
     }
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // Ensure jobType has a default if not selected
-  const safeJobType = formData.jobType && formData.jobType.trim() !== "" 
-    ? formData.jobType 
-    : "Full-time"; // Default value (change if needed)
+    // Ensure jobType has a default if not selected (match select option values)
+    const safeJobType =
+      formData.jobType && formData.jobType.trim() !== ""
+        ? formData.jobType
+        : "full-time";
 
-  const payload = {
-    ...formData,
-    jobType: safeJobType,
-    skills: formData.skills
-      ? formData.skills.split(",").map((s) => s.trim())
-      : [],
-    requirements: formData.requirements
-      ? formData.requirements.split(",").map((r) => r.trim())
-      : [],
-    responsibilities: formData.responsibilities
-      ? formData.responsibilities.split(",").map((r) => r.trim())
-      : [],
-    qualifications: formData.qualifications
-      ? formData.qualifications.split(",").map((q) => q.trim())
-      : [],
-    additionalTags: formData.additionalTags
-      ? formData.additionalTags.split(",").map((t) => t.trim())
-      : [],
+    const payload = {
+      ...formData,
+      jobType: safeJobType,
+      skills: formData.skills ? formData.skills.split(",").map((s) => s.trim()).filter(Boolean) : [],
+      requirements: formData.requirements ? formData.requirements.split(",").map((r) => r.trim()).filter(Boolean) : [],
+      responsibilities: formData.responsibilities ? formData.responsibilities.split(",").map((r) => r.trim()).filter(Boolean) : [],
+      qualifications: formData.qualifications ? formData.qualifications.split(",").map((q) => q.trim()).filter(Boolean) : [],
+      additionalTags: formData.additionalTags ? formData.additionalTags.split(",").map((t) => t.trim()).filter(Boolean) : [],
+    };
+
+    try {
+      const res = await api.put("/job/fill-form", payload);
+      console.log(res.data);
+      alert("✅ Job posted successfully!");
+      navigate("/company/jobs", { state: { JobPosted: true } });
+    } catch (err) {
+      console.error("Error posting job:", err);
+      alert("❌ Failed to post job");
+    }
   };
-
-  try {
-    const res = await api.put("/job/fill-form", payload);
-    console.log(res.data);
-    alert("✅ Job posted successfully!");
-    navigate("/company/jobs", { state: { JobPosted: true } });
-  } catch (err) {
-    console.error("Error posting job:", err);
-    alert("❌ Failed to post job");
-  }
-};
-
-
-  const inputClasses =
-    "mt-1 block w-full border border-muted p-2 rounded bg-bg text-lightText focus:outline-none focus:ring-2 focus:ring-primary";
 
   return (
     <CompanyLayout>
