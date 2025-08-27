@@ -12,6 +12,7 @@ import ManageJobs from"./pages/AnkitaPages/COMPANY/ManageJobs";
 import EditJob from"./pages/AnkitaPages/COMPANY/EditJob.jsx";
 import JobDetails from"./pages/AnkitaPages/COMPANY/JobDetails";
 import ViewApplicants from"./pages/AnkitaPages/COMPANY/ViewApplicants";
+import EditCompanyProfile from "./pages/AnkitaPages/COMPANY/EditCompanyProfile.jsx";
 //import FreelancerProfile from"./pages/AnkitaPages/COMPANY/FreelancerProfile";
 import CompanyProfile from "./pages/AnkitaPages/COMPANY/CompanyProfile";
 
@@ -35,6 +36,7 @@ function App() {
 
          <Route path="/company/jobs" element={<ManageJobs />} />
          <Route path="/company/job/edit/:id" element={<EditJob />} />
+         <Route path="/company/profile/edit" element={<EditCompanyProfile />} />
 
          <Route path="/company/jobs/:id" element={<JobDetails />} />
          <Route path="/company/jobs/:id/applicants" element={<ViewApplicants />} />

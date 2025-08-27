@@ -1,5 +1,4 @@
-// models/jobSeeker.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const JobSeekerSchema = new mongoose.Schema({
   user: {
@@ -7,23 +6,67 @@ const JobSeekerSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  fullName: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  profilePicture: {
+    type: String, // URL for profile picture
+    default: ''
+  },
   resume: {
-    type: String // URL or file path to resume
+    type: String, // URL or file path to resume
   },
-  skills: [String],
-  experience: {
-    type: Number, 
-    default: 0
+  bio: {
+    type: String,
+    maxlength: 500
   },
-  education: {
-    degree: String,
-    institution: String,
-    year: Number
+  contact: {
+    phone: String,
+    address: String,
+    linkedin: String,
+    portfolio: String,
   },
-  jobsApplied: [{
+  skills: {
+    type: [String],
+    default: []
+  },
+  experience: [
+    {
+      company: String,
+      role: String,
+      startDate: Date,
+      endDate: Date,
+      description: String
+    }
+  ],
+  education: [
+    {
+      degree: String,
+      institution: String,
+      year: Number
+    }
+  ],
+  jobsApplied: [
+    {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Job' 
-    }]
-});
+      ref: 'Job'
+    }
+  ],
+  certifications: [
+    {
+      title: String,
+      issuer: String,
+      year: Number
+    }
+  ],
+  availability: {
+    type: String,
+    enum: ['Full-Time', 'Part-Time', 'Freelance', 'Internship'],
+    default: 'Full-Time'
+  }
+}, { timestamps: true });
 
-module.exports = mongoose.model('JobSeeker', JobSeekerSchema);
+const JobSeeker = mongoose.model('JobSeeker', JobSeekerSchema);
+export default JobSeeker;

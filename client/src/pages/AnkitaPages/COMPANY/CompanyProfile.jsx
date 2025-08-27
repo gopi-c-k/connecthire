@@ -18,21 +18,20 @@ const CompanyProfile = () => {
     setLoading(true);
     try {
       const { data } = await api.get(
-        `${BASE_URL}/company/profile?t=${Date.now()}`
+        `${BASE_URL}/company/profile`
       );
       const company = data.company;
 
       setProfile({
         name: company.companyName || "Not provided",
-        logo: company.logo?.url || DEFAULT_LOGO,
-        foundingDate: company.foundingDate || "Not provided",
+        logo: company.companyLogo || DEFAULT_LOGO,
+        foundingDate: company.founded || "Not provided",
         description: company.description || "Not provided",
         location: company.location || "Not provided",
         website: company.website || "Not provided",
         industry: company.industry || "Not provided",
-        teamSize: company.teamSize || "Not provided",
+        teamSize: company.size || "Not provided",
         contactEmail: company.contactEmail || "Not provided",
-        phone: company.phone || "Not provided",
       });
     } catch (err) {
       console.error("Error fetching profile:", err);
@@ -65,7 +64,7 @@ const CompanyProfile = () => {
         {/* Company Header */}
         <div className="flex items-center gap-6">
           <img
-            src={profile.logo || DEFAULT_LOGO}
+            src={profile.logo}
             alt="Company Logo"
             className="w-28 h-28 object-cover rounded-full border-4 border-primary shadow-glowPrimary"
           />
@@ -110,10 +109,6 @@ const CompanyProfile = () => {
           <p>
             <strong className="text-lightGray">Email:</strong>{" "}
             {profile.contactEmail || "Not provided"}
-          </p>
-          <p>
-            <strong className="text-lightGray">Phone:</strong>{" "}
-            {profile.phone || "Not provided"}
           </p>
         </div>
 

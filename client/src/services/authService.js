@@ -1,5 +1,6 @@
 const BASE = "https://connecthire.onrender.com";
 
+
 function getHeaders(withAuth = false) {
   const headers = { "Content-Type": "application/json" };
   if (withAuth) {

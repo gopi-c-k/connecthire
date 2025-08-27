@@ -1,0 +1,128 @@
+.user-profile-container {
+  max-width: 700px;
+  margin: 50px auto;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+.user-profile-container h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+/* Profile Details Styles */
+.profile-details {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.profile-picture {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 20px;
+  border: 3px solid #eee;
+}
+
+.profile-details p {
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #555;
+}
+
+.profile-details strong {
+  font-weight: bold;
+  color: #333;
+  margin-right: 5px;
+}
+
+.profile-details button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.profile-details button:hover {
+  background-color: #0056b3;
+}
+
+/* Profile Form Styles */
+.profile-form {
+  margin-top: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.profile-picture-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-top: 10px;
+  border: 2px solid #eee;
+}
+
+.form-actions {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.form-actions button {
+  background-color: #28a745;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 0 10px;
+  transition: background-color 0.3s ease;
+}
+
+.form-actions button:hover {
+  background-color: #218838;
+}
+
+.form-actions button[type="button"] {
+  background-color: #dc3545;
+}
+
+.form-actions button[type="button"]:hover {
+  background-color: #c82333;
+}
+
+/* Error Message */
+.error-message {
+  color: red;
+  margin-top: 10px;
+  text-align: center;
+}

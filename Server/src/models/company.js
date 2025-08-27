@@ -1,5 +1,5 @@
-// models/company.js
-const mongoose = require('mongoose');
+// models/job.js
+import mongoose from 'mongoose';
 
 const CompanySchema = new mongoose.Schema({
   user: {
@@ -17,10 +17,26 @@ const CompanySchema = new mongoose.Schema({
   description: {
     type: String
   },
+  companyLogo: {
+    type: String
+  },
+  location: {
+    type: String
+  },
+  industry: String,
+  size: String,
+  founded: Number,
+  contactEmail: String,
+  socialLinks: {
+    linkedin: String,
+    twitter: String,
+    facebook: String
+  },
   jobsPosted: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Job' 
+    ref: 'Job'
   }]
 });
 
-module.exports = mongoose.model('Company', CompanySchema);
+const Company = mongoose.model('Company', CompanySchema);
+export default Company;

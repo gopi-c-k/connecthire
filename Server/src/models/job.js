@@ -1,5 +1,5 @@
 // models/job.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const JobSchema = new mongoose.Schema({
   title: {
@@ -20,13 +20,26 @@ const JobSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  duration: {
+    type: String,
+    required: true
+  },
   salaryRange: {
     min: Number,
-    max: Number
+    max: Number,
+    currency: String
   },
+  experienceLevel: {
+    type: String,
+    required: true,
+  },
+  skills: [{
+    type: String,
+    required: true
+  }],
   jobType: {
     type: String,
-    enum: ['full-time', 'part-time', 'contract', 'internship', 'remote'],
+    enum: ['full-time', 'part-time', 'contract', 'internship', 'temporary'],
     default: 'full-time'
   },
   requirements: [String],
@@ -42,7 +55,28 @@ const JobSchema = new mongoose.Schema({
     type: String,
     enum: ['open', 'closed'],
     default: 'open'
+  },
+
+  // Optional fields
+  responsibilities: [String],
+  qualifications: [String],
+  openings: {
+    type: Number,
+    default: 10
+  },
+  applicationDeadline: {
+    type: Date,
+    required: false
+  },
+  industry: {
+    type: String,
+    required: false
+  },
+  additionalTags: {
+    type: [String],
+    required: false
   }
 });
 
-module.exports = mongoose.model('Job', JobSchema);
+const Job = mongoose.model('Job', JobSchema);
+export default Job;

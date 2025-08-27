@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../services/secureApi";
+import axios from "axios";
 
 const EditCompanyProfile = () => {
   const [profile, setProfile] = useState({
@@ -67,6 +68,7 @@ const EditCompanyProfile = () => {
   };
 
   // Handle logo file selection & preview
+  // Handle logo file selection & preview
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -77,6 +79,7 @@ const EditCompanyProfile = () => {
       }
       setLogoFile(file);
 
+      // Show preview instantly
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfile((prev) => ({ ...prev, logo: reader.result }));
@@ -85,11 +88,47 @@ const EditCompanyProfile = () => {
     }
   };
 
+  // Upload to Cloudinary
+  const uploadToCloudinary = async (file) => {
+    try {
+
+      const data = new FormData();
+      data.append("file", file);
+      data.append(
+        "upload_preset",
+        process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET
+      );
+
+      const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+      let url;
+      // ✅ Correct Cloudinary endpoint: /image/upload
+      await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        data
+      ).then((res) => {
+        url = res.data.secure_url;
+      });
+
+      return url;
+    } catch (err) {
+      console.error("❌ Cloudinary upload failed:", err.response?.data || err.message);
+      throw err;
+    }
+  };
+
+
+
   // Save profile
   const handleSave = async () => {
     setSaving(true);
     try {
       const payload = {};
+      let logoUrl = profile.logo;
+
+      // If a new logo file is selected, upload it first
+      if (logoFile) {
+        logoUrl = await uploadToCloudinary(logoFile);
+      }
       if (profile.name) payload.companyName = profile.name;
       if (profile.description) payload.description = profile.description;
       if (profile.location) payload.location = profile.location;
@@ -98,8 +137,7 @@ const EditCompanyProfile = () => {
       if (profile.teamSize) payload.size = Number(profile.teamSize);
       if (profile.contactEmail) payload.contactEmail = profile.contactEmail;
       if (profile.foundingDate) payload.founded = profile.foundingDate;
-      if (profile.phone) payload.phone = profile.phone;
-
+      if (logoUrl) payload.companyLogo = logoUrl;
       // Send JSON only,backend handles Cloudinary upload
       await api.put(`${BASE_URL}/company/profile`, payload, {
         withCredentials: true,
@@ -153,15 +191,15 @@ const EditCompanyProfile = () => {
 
         {/* Input Fields */}
         {[
-          { label: "Company Name", name: "name" },
-          { label: "Founding Date", name: "foundingDate", type: "date" },
-          { label: "Description", name: "description" },
-          { label: "Location", name: "location" },
-          { label: "Website", name: "website" },
-          { label: "Industry", name: "industry" },
-          { label: "Team Size", name: "teamSize" },
+          { label: "Company Name", name: "name", type: "text" },
+          { label: "Founding Year", name: "foundingDate", type: "number" },
+          { label: "Description", name: "description", type: "textarea" }, // multiline
+          { label: "Location", name: "location", type: "text" },
+          { label: "Website", name: "website", type: "url" },
+          { label: "Industry", name: "industry", type: "text" },
+          { label: "Team Size", name: "teamSize", type: "number" },
           { label: "Contact Email", name: "contactEmail", type: "email" },
-          { label: "Phone", name: "phone" },
+
         ].map((field) => (
           <div key={field.name}>
             <label className="block mb-1 font-medium text-lightGray">
@@ -191,9 +229,8 @@ const EditCompanyProfile = () => {
         <button
           onClick={handleSave}
           disabled={saving}
-          className={`bg-success px-6 py-3 rounded-lg transition text-white font-semibold shadow-glowSuccess ${
-            saving ? "opacity-70 cursor-not-allowed" : "hover:bg-successDark"
-          }`}
+          className={`bg-success px-6 py-3 rounded-lg transition text-white font-semibold shadow-glowSuccess ${saving ? "opacity-70 cursor-not-allowed" : "hover:bg-successDark"
+            }`}
         >
           {saving ? "Saving..." : "Save Profile"}
         </button>
