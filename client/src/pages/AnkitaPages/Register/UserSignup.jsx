@@ -1,3 +1,4 @@
+// src/pages/AnkitaPages/Register/UserSignup.jsx
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, User } from "lucide-react";
@@ -32,17 +33,40 @@ const UserSignup = () => {
     }
 
     setIsLoading(true);
+
+    const baseURL = process.env.REACT_APP_BASE;
+    if (!baseURL) {
+      setError("API base URL is not defined. Check REACT_APP_BASE in your .env.");
+      console.error("Missing REACT_APP_BASE in .env");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/user/signup`, {
+      const res = await fetch(`${baseURL}/user/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, role: "jobseeker" })
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          role: "jobseeker",
+        }),
       });
 
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        const text = await res.text();
+        throw new Error(`Invalid JSON response: ${text}`);
+      }
+
       if (!res.ok) throw new Error(data.message || "Signup failed");
 
+      // optional, if backend returns token
       if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
+
       navigate("/user/login");
     } catch (err) {
       setError(err.message || "Signup failed");
@@ -57,15 +81,39 @@ const UserSignup = () => {
         <h2 className="text-3xl font-bold text-center text-lightText">User Signup</h2>
         {error && <div className="text-errorText bg-errorBg p-2 rounded text-sm">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-5">
-          <InputWithIcon icon={User} name="name" type="text" placeholder="Your name" value={form.name} onChange={handleChange} required />
-          <InputWithIcon icon={Mail} name="email" type="email" placeholder="you@example.com" value={form.email} onChange={handleChange} required />
-          <InputWithIcon icon={Lock} name="password" type="password" placeholder="********" value={form.password} onChange={handleChange} required />
+          <InputWithIcon
+            icon={User}
+            name="name"
+            type="text"
+            placeholder="Your name"
+            value={form.name}
+            onChange={handleChange}
+            required
+          />
+          <InputWithIcon
+            icon={Mail}
+            name="email"
+            type="email"
+            placeholder="you@example.com"
+            value={form.email}
+            onChange={handleChange}
+            required
+          />
+          <InputWithIcon
+            icon={Lock}
+            name="password"
+            type="password"
+            placeholder="********"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
           <Button type="submit" variant="primary" disabled={isLoading}>
             {isLoading ? "Signing Up..." : "Sign Up"}
           </Button>
         </form>
         <p className="text-sm text-center text-muted">
-          Already have an account?{" "}
+          Already have an account{" "}
           <Link to="/user/login" className="text-primary hover:underline">
             Sign in
           </Link>
