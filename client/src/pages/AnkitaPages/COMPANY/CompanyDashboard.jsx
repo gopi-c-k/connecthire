@@ -76,7 +76,7 @@ const CompanyDashboard = () => {
           <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
           <div className="flex flex-wrap gap-4">
             <QuickActionButton label="Post a Job" href="/company/job-post" />
-            <QuickActionButton label="View Applicants" href="/company/applicants" />
+            <QuickActionButton label="View Applicants" href="/company/jobs/applicants" />
             <QuickActionButton label="Company Profile" href="/company/profile" />
           </div>
         </div>
