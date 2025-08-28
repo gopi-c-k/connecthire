@@ -15,13 +15,10 @@ import ViewApplicants from"./pages/AnkitaPages/COMPANY/ViewApplicants";
 import EditCompanyProfile from "./pages/AnkitaPages/COMPANY/EditCompanyProfile.jsx";
 //import FreelancerProfile from"./pages/AnkitaPages/COMPANY/FreelancerProfile";
 import CompanyProfile from "./pages/AnkitaPages/COMPANY/CompanyProfile";
-import EditCompanyProfile from "./pages/AnkitaPages/COMPANY/EditCompanyProfile";
-import ApplicantsHub from "./pages/AnkitaPages/COMPANY/ApplicantsHub";
-import Messages from "./pages/AnkitaPages/COMPANY/Messages.jsx";
-import Settings from "./pages/AnkitaPages/COMPANY/Settings.jsx";
-
-
-
+// import EditCompanyProfile from "./pages/AnkitaPages/COMPANY/EditCompanyProfile";
+import ApplicantsHub from "./pages/AnkitaPages/COMPANY/ApplicantsHub.jsx";
+// import Messages from "./pages/AnkitaPages/COMPANY/Messages.jsx";
+// import Settings from "./pages/AnkitaPages/COMPANY/Settings.jsx";
 
 function App() {
   return (
@@ -50,8 +47,8 @@ function App() {
          <Route path="/company/profile" element={<CompanyProfile />} />
          <Route path="/company/profile/edit" element={<EditCompanyProfile />} />
          <Route path="/company/applicants" element={<ApplicantsHub />} />
-         <Route path="/company/messages" element={<Messages />} />
-        <Route path="/company/settings" element={<Settings />} />
+         {/* <Route path="/company/messages" element={<Messages />} />
+        <Route path="/company/settings" element={<Settings />} /> */}
 
 
       </Routes>

@@ -7,6 +7,8 @@ const verifyMiddleware = async (req, res, next) => {
     const refreshToken = req.cookies?.refreshToken;
 
     if (!accessToken) {
+      console.log(req.cookies);
+      console.log('No access token provided');
       return res.status(401).json({ message: 'No access token provided' });
     }
 

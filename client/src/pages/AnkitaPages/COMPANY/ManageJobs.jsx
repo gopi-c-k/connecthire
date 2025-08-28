@@ -121,7 +121,7 @@ const ManageJobs = () => {
                     </td>
                     <td className="px-6 py-3">
                       <span className="px-2 py-1 bg-blue-800 rounded text-white text-sm">
-                        Applicants: {job.applicantCount || 0}
+                        Applicants: {job.applicants.length || 0}
                       </span>
                     </td>
                     <td className="p-3 space-x-2">
