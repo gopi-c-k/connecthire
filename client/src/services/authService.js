@@ -64,3 +64,7 @@ export async function postJob(jobData) {
   if (!res.ok) throw new Error(data.message || "Job posting failed");
   return data;
 }
+export function logout() {
+  localStorage.removeItem("accessToken");
+  sessionStorage.clear(); // optional, if you use sessionStorage too
+}
