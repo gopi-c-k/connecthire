@@ -125,18 +125,66 @@ const ManageJobs = () => {
         ) : jobs.length === 0 ? (
           <p className="text-gray-400">No jobs found.</p>
         ) : (
-          <>
-            {/* 💻 Desktop/Tablet Table */}
-            <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-700">
-              <table className="min-w-full">
-                <thead className="bg-gray-800">
-                  <tr className="text-left text-sm">
-                    <th className="px-6 py-3">Title</th>
-                    <th className="px-6 py-3">Location</th>
-                    <th className="px-6 py-3">Type</th>
-                    <th className="px-6 py-3">Status</th>
-                    <th className="px-6 py-3">Applicants</th>
-                    <th className="px-6 py-3">Actions</th>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-gray-700 rounded-lg">
+              <thead className="bg-gray-800">
+                <tr>
+                  <th className="px-6 py-3 text-left">Title</th>
+                  <th className="px-6 py-3 text-left">Location</th>
+                  <th className="px-6 py-3 text-left">Type</th>
+                  <th className="px-6 py-3 text-left">Status</th>
+                  <th className="px-6 py-3 text-left">Applicants</th>
+                  <th className="px-6 py-3 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {jobs.map((job) => (
+                  <tr key={job._id} className="border-t border-gray-700">
+                    <td className="px-6 py-3">{job.title}</td>
+                    <td className="px-6 py-3">{job.location}</td>
+                    <td className="px-6 py-3">{job.jobType}</td>
+                    <td className="px-6 py-3">
+                      <span
+                        className={`px-2 py-1 rounded text-sm ${
+                          job.status === "open"
+                            ? "bg-green-700 text-white"
+                            : "bg-red-700 text-white"
+                        }`}
+                      >
+                        {job.status || "N/A"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-3">
+                      <span className="px-2 py-1 bg-blue-800 rounded text-white text-sm">
+                        Applicants: {job.applicants.length || 0}
+                      </span>
+                    </td>
+                    <td className="p-3 space-x-2">
+                      <button
+                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        onClick={() =>
+                          navigate(`/company/job/edit/${job._id}`)
+                        }
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                        onClick={() =>
+                          navigate(`/company/job/${job._id}/applicants`)
+                        }
+                      >
+                        View Applicants
+                      </button>
+                      <button
+                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                        onClick={() => handleDelete(job._id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+
                   </tr>
                 </thead>
                 <tbody>

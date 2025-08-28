@@ -15,7 +15,9 @@ module.exports = {
         errorBg: "#4C1C1C",
         errorText: "#FCA5A5",
 
+
         // Enhanced palette
+
         primaryLight: "#3B82F6",
         primaryDark: "#1E40AF",
         accentLight: "#818CF8",
