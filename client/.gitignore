@@ -25,3 +25,6 @@ yarn-debug.log*
 yarn-error.log*
 # for my use 
 old_page_backup/
+@echo *.JPG>> .gitignore
+@echo *.JPEG>> .gitignore
+@echo *.PNG>> .gitignore
