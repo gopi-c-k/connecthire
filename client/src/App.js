@@ -36,7 +36,7 @@ import Applications from "./pages/AnkitaPages/JOBSEEKER/Applications";
 import Messages from "./pages/AnkitaPages/JOBSEEKER/Messages";
 import UserProfile from "./pages/AnkitaPages/JOBSEEKER/UserProfile";
 import EditUserProfile from "./pages/AnkitaPages/JOBSEEKER/EditUserProfile";
-import UserSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings";
+
 
 
 function App() {
@@ -86,7 +86,7 @@ function App() {
          <Route path="/user/messages/:conversationId" element={<Messages />} />
          <Route path="/user/profile" element={<UserProfile />} />
          <Route path="/user/profile/edit" element={<EditUserProfile />} />
-         <Route path="/user/settings" element={<UserSettings />} />
+         
 
 
         {/* Optional: 404 */}
