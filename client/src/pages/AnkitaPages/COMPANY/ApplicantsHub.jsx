@@ -5,7 +5,7 @@ import CompanyLayout from "../layouts/CompanyLayout";
 import InputWithIcon from "../../../components/InputWithIcon";
 import { Search } from "lucide-react";
 import api from "../../../services/secureApi";
-// import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const STATUS_BADGE = {
   applied: "bg-slate-700 text-slate-200",
@@ -16,7 +16,7 @@ const STATUS_BADGE = {
 };
 
 export default function ApplicantsHub() {
-  // const { jobId } = useParams(); // ✅ get jobId from route
+  const { id } = useParams(); // ✅ get jobId from route
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [items, setItems] = useState([]);
@@ -84,10 +84,13 @@ export default function ApplicantsHub() {
       const text = `${a?.jobTitle || ""} ${a?.seeker?.name || ""}`.toLowerCase();
       const okQ = !q || text.includes(q.toLowerCase());
       const okS = !status || (a?.status || "").toLowerCase() === status;
-      const okJ = !jobFilter || a.jobId === jobFilter;
+
+      const okJ = id ? a?.jobId === id : (!jobFilter || a?.jobId === jobFilter);
+
       return okQ && okS && okJ;
     });
-  }, [items, q, status, jobFilter]);
+  }, [items, q, status, id, jobFilter]);
+
 
   // Update status
   const handleStatusChange = async (id, newStatus) => {
@@ -138,7 +141,7 @@ export default function ApplicantsHub() {
         {err && <div className="mb-4 p-3 rounded bg-red-700 text-white text-sm">{err}</div>}
 
         {/* Filters */}
-        <div className="bg-surface rounded-xl p-4 shadow mb-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className={`bg-surface rounded-xl p-4 shadow mb-4 grid grid-cols-1 ${id ? `md:grid-cols-2`:`md:grid-cols-3`} gap-3`}>
           <InputWithIcon
             icon={Search}
             value={q}
@@ -157,7 +160,7 @@ export default function ApplicantsHub() {
             <option value="rejected">Rejected</option>
             <option value="hired">Hired</option>
           </select>
-          <select
+          {!id && <select
             value={jobFilter}
             onChange={(e) => setJobFilter(e.target.value)}
             className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg"
@@ -168,7 +171,7 @@ export default function ApplicantsHub() {
                 {j.title}
               </option>
             ))}
-          </select>
+          </select>}
         </div>
 
         {/* Applicants List */}
@@ -194,9 +197,8 @@ export default function ApplicantsHub() {
                 {filtered.map((a, idx) => (
                   <tr
                     key={a.id}
-                    className={`border-t border-slate-800 ${
-                      idx % 2 === 0 ? "bg-slate-900/30" : "bg-slate-900/10"
-                    } hover:bg-slate-700/30`}
+                    className={`border-t border-slate-800 ${idx % 2 === 0 ? "bg-slate-900/30" : "bg-slate-900/10"
+                      } hover:bg-slate-700/30`}
                   >
                     {/* Applicant */}
                     <td className="p-2 flex items-center gap-2">
@@ -227,10 +229,9 @@ export default function ApplicantsHub() {
                       <select
                         value={a.status || "applied"}
                         disabled={updating[a.id]}
-                        className={`px-2 py-1 text-xs rounded ${
-                          STATUS_BADGE[(a.status || "").toLowerCase()] ||
+                        className={`px-2 py-1 text-xs rounded ${STATUS_BADGE[(a.status || "").toLowerCase()] ||
                           "bg-slate-700 text-slate-200"
-                        }`}
+                          }`}
                         onChange={(e) => handleStatusChange(a.id, e.target.value)}
                       >
                         <option value="applied">Applied</option>

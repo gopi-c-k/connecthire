@@ -28,7 +28,7 @@ import EditCompanyProfile from "./pages/AnkitaPages/COMPANY/EditCompanyProfile.j
 //import FreelancerProfile from"./pages/AnkitaPages/COMPANY/FreelancerProfile";
 import CompanyProfile from "./pages/AnkitaPages/COMPANY/CompanyProfile";
 // import EditCompanyProfile from "./pages/AnkitaPages/COMPANY/EditCompanyProfile";
-import ApplicantsHub from "./pages/AnkitaPages/COMPANY/ApplicantsHub.jsx";
+// import ApplicantsHub from "./pages/AnkitaPages/COMPANY/ApplicantsHub.jsx";
 // import Messages from "./pages/AnkitaPages/COMPANY/Messages.jsx";
 // import Settings from "./pages/AnkitaPages/COMPANY/Settings.jsx";
 
@@ -69,7 +69,7 @@ function App() {
          <Route path="/company/profile/edit" element={<EditCompanyProfile />} />
 
          <Route path="/company/jobs/:id" element={<JobDetails />} />
-         <Route path="/company/jobs/:id/applicants" element={<ApplicantsHub />} />
+         <Route path="/company/job/:id/applicants" element={<ApplicantsHub />} />
          
          <Route path="/company/profile" element={<CompanyProfile />} />
          <Route path="/company/profile/edit" element={<EditCompanyProfile />} />

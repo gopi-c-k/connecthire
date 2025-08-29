@@ -7,7 +7,7 @@ const links = [
   { name: "Post Job", icon: FilePlus, path: "/company/job-post" },
   { name: "Manage Jobs", icon: Briefcase, path: "/company/jobs" },
 
-  { name: "Applicants", icon: Users, path: "/company/jobs/applicants" },
+  { name: "Applicants", icon: Users, path: "/company/applicants" },
   
 
   { name: "Settings", icon: Settings, path: "/company/settings" },

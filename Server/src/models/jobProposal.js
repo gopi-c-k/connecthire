@@ -29,6 +29,10 @@ const jobProposalSchema = new mongoose.Schema({
     enum: ['applied', 'accepted', 'rejected', 'shortlisted', 'hired', 'interviewed'],
     default: 'applied'
   },
+  recentUpdate: {
+    type: Date,
+    default: Date.now
+  },
   createdAt: {
     type: Date,
     default: Date.now

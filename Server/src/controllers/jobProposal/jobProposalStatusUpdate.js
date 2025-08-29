@@ -23,6 +23,7 @@ export const updateJobProposalStatus = async (req, res) => {
 
     // Update the status of the job proposal
     proposal.status = status;
+    proposal.recentUpdate = Date.now();
     await proposal.save();
 
     res.status(200).json({ message: "Job proposal status updated successfully", proposal });
