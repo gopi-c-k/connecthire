@@ -69,7 +69,7 @@ function App() {
         <Route path="/company/Change-Password" element={<ChangePassword />} />
         <Route path="/company/job-post" element={<JobPosting />} />
         <Route path="/company/jobs" element={<ManageJobs />} />
-        <Route path="/company/job/edit/:jobId" element={<EditJob />} />
+        <Route path="/company/jobs/edit/:jobId" element={<EditJob />} />
         <Route path="/company/profile/edit" element={<EditCompanyProfile />} />
         <Route path="/company/jobs/:id" element={<JobDetails />} />
         <Route path="/company/jobs/:id/applicants" element={<ApplicantsHub />} />

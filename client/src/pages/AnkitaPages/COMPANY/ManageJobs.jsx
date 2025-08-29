@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../../services/secureApi";
+import api from "../../../secureApi";
 import CompanyLayout from "../layouts/CompanyLayout";
 
 const ManageJobs = () => {

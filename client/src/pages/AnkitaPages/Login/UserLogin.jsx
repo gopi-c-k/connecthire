@@ -62,7 +62,7 @@ const UserLogin = () => {
       localStorage.setItem("role", "jobseeker");
       if (data.id) localStorage.setItem("userId", data.id);
 
-      navigate("/user-dashboard");
+      navigate("/user/dashboard");
     } catch (err) {
       setError(err.message || "Login failed");
     } finally {

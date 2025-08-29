@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CompanyLayout from "../layouts/CompanyLayout";
-import api from "../../../services/secureApi";
+import api from "../../../secureApi";
 
 const JobPosting = () => {
   const navigate = useNavigate();
