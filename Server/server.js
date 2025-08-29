@@ -18,6 +18,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
+      "https://connecthire-delta.vercel.app",
       "http://localhost:3001",
       "http://localhost:3002",
       "http://localhost:3003",
@@ -39,6 +40,8 @@ app.use('/job', jobRoute);
 app.get('/', (req, res) => {
   res.send('Connecthire Backend is Running 🚀');
 });
+
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

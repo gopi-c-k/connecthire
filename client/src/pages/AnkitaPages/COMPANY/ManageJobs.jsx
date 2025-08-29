@@ -126,17 +126,17 @@ const ManageJobs = () => {
           <p className="text-gray-400">No jobs found.</p>
         ) : (
           <>
-            {/* 💻 Desktop/Tablet Table */}
-            <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-700">
-              <table className="min-w-full">
+            {/* 🖥️ Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="min-w-full border border-gray-700 rounded-lg">
                 <thead className="bg-gray-800">
-                  <tr className="text-left text-sm">
-                    <th className="px-6 py-3">Title</th>
-                    <th className="px-6 py-3">Location</th>
-                    <th className="px-6 py-3">Type</th>
-                    <th className="px-6 py-3">Status</th>
-                    <th className="px-6 py-3">Applicants</th>
-                    <th className="px-6 py-3">Actions</th>
+                  <tr>
+                    <th className="px-6 py-3 text-left">Title</th>
+                    <th className="px-6 py-3 text-left">Location</th>
+                    <th className="px-6 py-3 text-left">Type</th>
+                    <th className="px-6 py-3 text-left">Status</th>
+                    <th className="px-6 py-3 text-left">Applicants</th>
+                    <th className="px-6 py-3 text-left">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -158,7 +158,7 @@ const ManageJobs = () => {
                       </td>
                       <td className="px-6 py-3">
                         <span className="px-2 py-1 bg-blue-800 rounded text-white text-xs">
-                          {job.applicantCount || 0}
+                          {job.applicants?.length || job.applicantCount || 0}
                         </span>
                       </td>
                       <td className="px-6 py-3">
@@ -171,7 +171,7 @@ const ManageJobs = () => {
                           </button>
                           <button
                             className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                            onClick={() => navigate(`/company/jobs/${job._id}/applicants`)}
+                            onClick={() => navigate(`/company/job/${job._id}/applicants`)}
                           >
                             Applicants
                           </button>
@@ -232,7 +232,7 @@ const ManageJobs = () => {
                         <p>
                           <span className="text-gray-400">Applicants: </span>
                           <span className="px-2 py-0.5 bg-blue-800 rounded text-white text-xs">
-                            {job.applicantCount || 0}
+                            {job.applicants?.length || job.applicantCount || 0}
                           </span>
                         </p>
                       </div>
@@ -248,7 +248,7 @@ const ManageJobs = () => {
                     </button>
                     <button
                       className="px-3 py-2 text-xs rounded-lg bg-green-600 text-white hover:bg-green-700"
-                      onClick={() => navigate(`/company/jobs/${job._id}/applicants`)}
+                      onClick={() => navigate(`/company/job/${job._id}/applicants`)}
                     >
                       Applicants
                     </button>

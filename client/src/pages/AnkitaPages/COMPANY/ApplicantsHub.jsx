@@ -4,7 +4,9 @@ import { Link } from "react-router-dom";
 import CompanyLayout from "../layouts/CompanyLayout";
 import InputWithIcon from "../../../components/InputWithIcon";
 import { Search } from "lucide-react";
+
 import api from "../../../secureApi";
+
 import { useParams, useNavigate } from "react-router-dom";
 
 const STATUS_BADGE = {

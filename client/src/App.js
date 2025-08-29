@@ -81,6 +81,7 @@ function App() {
          <Route path="/user/jobs/:id" element={<JobDetail />} />
          <Route path="/user/saved" element={<SavedJobs />} />
 
+
          <Route path="/user/applications" element={<Applications />} />
          <Route path="/user/messages" element={<Messages />} />
          <Route path="/user/messages/:conversationId" element={<Messages />} />
