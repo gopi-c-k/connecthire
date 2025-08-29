@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Bell, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { logout } from "../services/authService"; // adjust path if needed
 
 export default function CompanyNavbar({ onMenuClick }) {
-  const navigate = useNavigate(); // ✅ Added this line
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsCount, setNotificationsCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,10 +23,12 @@ export default function CompanyNavbar({ onMenuClick }) {
 
   // WebSocket for real-time notifications
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken"); // ✅ use same key as authService
     if (!token) return;
 
-    const socket = new WebSocket(`wss://your-backend.com/ws/notifications?token=${token}`);
+    const socket = new WebSocket(
+      `wss://your-backend.com/ws/notifications?token=${token}`
+    );
 
     socket.onmessage = (event) => {
       try {
@@ -48,10 +51,13 @@ export default function CompanyNavbar({ onMenuClick }) {
     e.preventDefault();
     if (!searchQuery.trim()) return;
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`/api/company/search?q=${encodeURIComponent(searchQuery)}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch(
+        `/api/company/search?q=${encodeURIComponent(searchQuery)}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       const data = await res.json();
       console.log("Search results:", data);
       // TODO: Navigate to search results page
@@ -60,10 +66,10 @@ export default function CompanyNavbar({ onMenuClick }) {
     }
   };
 
-  // Logout
+  // ✅ Logout via authService
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/company/login";
+    logout(); // clears accessToken etc.
+    navigate("/company/login", { replace: true });
   };
 
   return (
@@ -95,7 +101,10 @@ export default function CompanyNavbar({ onMenuClick }) {
         <div className="flex items-center gap-4">
           {/* Notification Bell */}
           <div className="relative">
-            <Bell className="text-slate-300 cursor-pointer hover:text-white" size={22} />
+            <Bell
+              className="text-slate-300 cursor-pointer hover:text-white"
+              size={22}
+            />
             {notificationsCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-xs w-4 h-4 flex items-center justify-center rounded-full">
                 {notificationsCount}
@@ -115,13 +124,13 @@ export default function CompanyNavbar({ onMenuClick }) {
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-slate-800 rounded-xl shadow-lg border border-slate-700 overflow-hidden">
                 <button
-                  onClick={() => navigate("/company/profile")} // ✅ Fixed route
+                  onClick={() => navigate("/company/profile")}
                   className="block w-full text-left px-4 py-2 text-sm hover:bg-slate-700"
                 >
                   Profile
                 </button>
                 <button
-                  onClick={() => alert("Go to account settings")}
+                  onClick={() => navigate("/company/settings")}
                   className="block w-full text-left px-4 py-2 text-sm hover:bg-slate-700"
                 >
                   Account Settings

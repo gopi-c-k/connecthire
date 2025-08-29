@@ -4,15 +4,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "#2563EB",
-        accent: "#6366F1",
-        success: "#10B981",
-        bg: "#0F172A",
-        surface: "#1F2E55",
+        // Existing colors
+        primary: "#2563EB", // Rich blue
+        accent: "#6366F1",  // Indigo
+        success: "#10B981", // Emerald
+        bg: "#0F172A",      // Deep navy
+        surface: "#1F2E55", // Card background
         lightText: "#F1F5FE",
         muted: "#94A3B8",
         errorBg: "#4C1C1C",
         errorText: "#FCA5A5",
+
+
+        // Enhanced palette
+
         primaryLight: "#3B82F6",
         primaryDark: "#1E40AF",
         accentLight: "#818CF8",
@@ -27,6 +32,7 @@ module.exports = {
         info: "#0EA5E9",
         infoLight: "#38BDF8",
         infoDark: "#0369A1",
+
         // Unique tones for visual variety
         cyan: "#06B6D4",
         pink: "#EC4899",
@@ -38,9 +44,11 @@ module.exports = {
         mediumGray: "#475569",
         lightGray: "#CBD5E1",
       },
+
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
       },
+
       boxShadow: {
         soft: "0 4px 6px rgba(0, 0, 0, 0.08)",
         medium: "0 6px 12px rgba(0, 0, 0, 0.12)",
