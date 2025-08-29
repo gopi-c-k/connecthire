@@ -71,7 +71,7 @@ function App() {
         <Route path="/company/jobs" element={<ManageJobs />} />
         <Route path="/company/job/edit/:jobId" element={<EditJob />} />
         <Route path="/company/profile/edit" element={<EditCompanyProfile />} />
-        <Route path="/company/jobs/:id" element={<JobDetails />} />
+        <Route path="/company/job/:id" element={<JobDetails />} />
         <Route path="/company/job/:id/applicants" element={<ApplicantsHub />} />
         <Route path="/company/jobs/applicants" element={<ApplicantsHub />} />
         <Route path="/company/profile" element={<CompanyProfile />} />
@@ -79,7 +79,7 @@ function App() {
        {/* ---------- JOBSEEKER (component-level layout like Company) ---------- */}
          <Route path="/user/dashboard" element={<Dashboard />} />
          <Route path="/user/jobs" element={<JobsList />} />
-         <Route path="/user/jobs/:id" element={<JobDetail />} />
+         <Route path="/user/job/:id" element={<JobDetail />} />
          <Route path="/user/saved" element={<SavedJobs />} />
 
 

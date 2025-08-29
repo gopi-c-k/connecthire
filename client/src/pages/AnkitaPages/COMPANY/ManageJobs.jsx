@@ -142,7 +142,7 @@ const ManageJobs = () => {
                 <tbody>
                   {jobs.map((job) => (
                     <tr key={job._id} className="border-t border-gray-700 text-sm">
-                      <td className="px-6 py-3">{job.title}</td>
+                      <td className="px-6 py-3 cursor-pointer" onClick={() => {navigate(`/company/job/${job._id}`)}}>{job.title}</td>
                       <td className="px-6 py-3">{job.location}</td>
                       <td className="px-6 py-3">{job.jobType}</td>
                       <td className="px-6 py-3">
