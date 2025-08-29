@@ -22,3 +22,9 @@ export const updateCompanyProfile = async (profileData) => {
     }
   );
 };
+
+// 👇 Export as a service object (for cleaner imports)
+export const companyService = {
+  getCompanyProfile,
+  updateCompanyProfile,
+};
