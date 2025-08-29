@@ -4,7 +4,7 @@ import JobSeeker from "../../models/jobSeeker.js";
 
 export const applyToJob = async (req, res) => {
   try {
-    const { coverLetter, proposedRate } = req.body;
+    const { coverLetter } = req.body;
     const jobSeekerId = req.jobSeeker._id || req.jobSeeker;
     const { jobId } = req.params;
 

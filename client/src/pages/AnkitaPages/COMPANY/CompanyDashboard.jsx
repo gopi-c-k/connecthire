@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CompanyLayout from "../layouts/CompanyLayout";
-import api from "../../../services/secureApi";
+import api from "../../../secureApi";
 
 const CompanyDashboard = () => {
   const [stats, setStats] = useState({
@@ -81,13 +81,22 @@ const CompanyDashboard = () => {
                         <td>{new Date(activity.date).toLocaleDateString()}</td>
                         <td>
                           <span
-                            className={`px-2 py-1 rounded text-xs ${
-                              activity.status === "shortlisted"
-                                ? "bg-success text-white"
-                                : activity.status === "pending"
+                            className={`px-2 py-1 rounded text-xs ${activity.status === "shortlisted"
+                              ? "bg-green-500 text-white"
+                              : activity.status === "pending"
                                 ? "bg-yellow-500 text-white"
-                                : "bg-primary text-white"
-                            }`}
+                                : activity.status === "applied"
+                                  ? "bg-blue-500 text-white"
+                                  : activity.status === "accepted"
+                                    ? "bg-indigo-500 text-white"
+                                    : activity.status === "rejected"
+                                      ? "bg-red-500 text-white"
+                                      : activity.status === "hired"
+                                        ? "bg-success text-white"
+                                        : activity.status === "interviewed"
+                                          ? "bg-purple-500 text-white"
+                                          : "bg-gray-500 text-white"
+                              }`}
                           >
                             {activity.status}
                           </span>

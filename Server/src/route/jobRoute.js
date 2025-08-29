@@ -9,7 +9,7 @@ import { updateJobProposalStatus } from '../controllers/jobProposal/jobProposalS
 const router = express.Router();
 
 router.put('/fill-form',verifyMiddleware, verifyCompany, createJob);
-router.get('/:id', verifyMiddleware, verifyCompany, JobDetailsController);
+router.get('/:id', verifyMiddleware, JobDetailsController);
 router.delete('/:id', verifyMiddleware, verifyCompany, deleteJob);
 router.put('/proposal/:proposalId/status', verifyMiddleware, verifyCompany, updateJobProposalStatus);
 export default router;

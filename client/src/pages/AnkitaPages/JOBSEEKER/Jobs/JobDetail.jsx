@@ -1,84 +1,52 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Briefcase, Building2 } from "lucide-react";
+import { Briefcase, Building2, X } from "lucide-react";
 import JobseekerLayout from "../../layouts/JobseekerLayout";
-
-const MOCK_JOBS = {
-  "101": {
-    id: "101",
-    title: "Frontend Developer",
-    company: "Nova Labs",
-    type: "Full-time",
-    location: "Remote",
-    description:
-      "Build responsive frontend interfaces using React and Tailwind. Collaborate with designers and backend engineers to deliver pixel-perfect features.",
-    requirements: [
-      "2+ years with React",
-      "Strong JavaScript & ES6+",
-      "Tailwind or CSS-in-JS experience",
-      "Git & code reviews",
-    ],
-  },
-  "102": {
-    id: "102",
-    title: "React Native Engineer",
-    company: "SkyTech",
-    type: "Contract",
-    location: "Bengaluru",
-    description:
-      "Develop and maintain cross-platform mobile apps using React Native. Work closely with product and QA teams.",
-    requirements: [
-      "React Native, Redux",
-      "Mobile performance tuning",
-      "REST/GraphQL APIs",
-    ],
-  },
-  "103": {
-    id: "103",
-    title: "UI Engineer",
-    company: "BrightSoft",
-    type: "Hybrid",
-    location: "Pune",
-    description:
-      "Create accessible UI components and maintain a scalable design system.",
-    requirements: ["Accessibility (a11y)", "Storybook", "Unit testing basics"],
-  },
-  "104": {
-    id: "104",
-    title: "Backend Engineer",
-    company: "DataForge",
-    type: "Full-time",
-    location: "Hyderabad",
-    description:
-      "Design APIs and microservices, ensure reliability and performance.",
-    requirements: ["Node.js/NestJS", "SQL/NoSQL", "AWS basics"],
-  },
-  "105": {
-    id: "105",
-    title: "Full Stack Developer",
-    company: "PixelWorks",
-    type: "Hybrid",
-    location: "Gurugram",
-    description:
-      "Own features end-to-end across frontend and backend; advocate for best practices.",
-    requirements: ["React + Node.js", "CI/CD", "Testing mindset"],
-  },
-};
+import api from "../../../../secureApi";
 
 export default function JobDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    // TODO: Replace with real API fetch using id
-    const t = setTimeout(() => {
-      setJob(MOCK_JOBS[id] ?? null);
-      setLoading(false);
-    }, 400);
-    return () => clearTimeout(t);
+    const fetchJob = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get(`/job/${id}`);
+        setJob(res.data);
+      } catch (err) {
+        console.error("Error fetching job:", err);
+        setError("Failed to load job details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchJob();
   }, [id]);
+
+  const handleApply = async () => {
+    try {
+      setSubmitting(true);
+      await api.post(`/jobseeker/apply/${id}`, { coverLetter });
+      alert("Application submitted successfully!");
+      setIsModalOpen(false);
+      setCoverLetter("");
+      navigate("/user/applications");
+    } catch (err) {
+      console.error("Error applying:", err);
+      alert("Failed to apply. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -88,14 +56,19 @@ export default function JobDetail() {
     );
   }
 
-  if (!job) {
+  if (error || !job) {
     return (
       <JobseekerLayout>
         <div className="p-6 text-lightText">
           <div className="bg-surface rounded-xl p-6 border border-slate-700">
             <div className="text-xl font-semibold mb-2">Job not found</div>
-            <p className="text-muted mb-4">The job you’re looking for doesn’t exist.</p>
-            <Link to="/user/jobs" className="px-4 py-2 rounded-lg bg-primary text-white">
+            <p className="text-muted mb-4">
+              {error || "The job you’re looking for doesn’t exist."}
+            </p>
+            <Link
+              to="/user/jobs"
+              className="px-4 py-2 rounded-lg bg-primary text-white"
+            >
               Back to Jobs
             </Link>
           </div>
@@ -117,10 +90,10 @@ export default function JobDetail() {
               <h1 className="text-2xl font-bold">{job.title}</h1>
               <div className="text-sm text-muted flex flex-wrap items-center gap-2">
                 <span className="flex items-center gap-1">
-                  <Building2 size={14} /> {job.company}
+                  <Building2 size={14} /> {job.company?.companyName}
                 </span>
                 <span>•</span>
-                <span>{job.type}</span>
+                <span>{job.jobType}</span>
                 <span>•</span>
                 <span>{job.location}</span>
               </div>
@@ -130,7 +103,7 @@ export default function JobDetail() {
           {/* Actions */}
           <div className="flex flex-wrap gap-2 mt-2">
             <button
-              onClick={() => navigate("/user/applications")}
+              onClick={() => setIsModalOpen(true)}
               className="px-4 py-2 rounded-lg bg-accent text-white hover:shadow-glowAccent"
             >
               Apply
@@ -168,6 +141,44 @@ export default function JobDetail() {
           </div>
         )}
       </div>
+
+      {/* Apply Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-surface border border-slate-700 rounded-xl w-full max-w-lg p-6 relative">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-3 right-3 text-muted hover:text-white"
+            >
+              <X size={18} />
+            </button>
+            <h2 className="text-xl font-semibold mb-4">Apply for {job.title}</h2>
+            <textarea
+              rows={6}
+              className="w-full p-3 rounded border border-slate-700 bg-bg text-lightText focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="Write your cover letter..."
+              value={coverLetter}
+              onChange={(e) => setCoverLetter(e.target.value)}
+            />
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 rounded-lg bg-slate-700 text-white"
+                disabled={submitting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleApply}
+                disabled={submitting || !coverLetter.trim()}
+                className="px-4 py-2 rounded-lg bg-accent text-white hover:shadow-glowAccent disabled:opacity-50"
+              >
+                {submitting ? "Submitting..." : "Submit Application"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </JobseekerLayout>
   );
 }
