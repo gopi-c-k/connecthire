@@ -39,7 +39,6 @@ export const applyToJob = async (req, res) => {
       jobSeeker: jobSeekerId,
       coverLetter,
       company: companyId,
-      proposedRate
     });
 
     await newProposal.save();

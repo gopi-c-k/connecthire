@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import InputWithIcon from "../../../components/InputWithIcon";
 import Button from "../../../components/Button";
+import api from "../.././../secureApiForUser";
 
 const UserLogin = () => {
   const navigate = useNavigate();
@@ -39,28 +40,30 @@ const UserLogin = () => {
       setIsLoading(false);
       return;
     }
-
     try {
-      const res = await fetch(`${baseURL}/user/signin`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      const res = await api.post("/user/signin", form);
+      // console.log("Login response:", res.data);
 
-      let data;
+
+      // Try to parse JSON; if the backend sent HTML for errors, handle 
+      let data = {};
       try {
-        data = await res.json();
+        data = res.data;
       } catch {
-        const text = await res.text();
-        throw new Error(`Invalid JSON response: ${text}`);
+
       }
 
-      if (!res.ok) throw new Error(data.message || "Login failed");
-
-      // store in localStorage (as requested)
-      if (data.accessToken) localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("role", "jobseeker");
+      if (res.status !== 200) {
+        throw new Error(data?.message || "Login failed");
+      }
+      //  if backend also returns a token in JSON, keep your current localStorage behavior
+      if (data.accessToken) {
+        localStorage.setItem("accessToken", data.accessToken);
+      }
+      localStorage.setItem("role", "user");
       if (data.id) localStorage.setItem("userId", data.id);
+
+      // After successful login, the cookie is now stored by the browser.
 
       navigate("/user/dashboard");
     } catch (err) {
