@@ -37,7 +37,7 @@ const AuthModal = ({ type, onClose }) => {
           onChange={(e) => setSelectedRole(e.target.value)}
         >
           <option value="">-- Select Role --</option>
-          <option value="user">Freelancer</option>
+          <option value="user">Jobseeker</option>
           <option value="company">Company</option>
           <option value="admin">Admin</option>
         </select>

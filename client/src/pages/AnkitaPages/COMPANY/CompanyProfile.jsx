@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import api from "../../../services/secureApi";
+import api from "../../../secureApi";
 
 const CompanyProfile = () => {
   const [profile, setProfile] = useState(null);

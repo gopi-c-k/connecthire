@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../../../services/secureApi"; // axios instance
+import api from "../../../secureApi"; // axios instance
 import CompanyLayout from "../layouts/CompanyLayout";
 import { ChipInput } from "../../../components/ChipInput";// ✅ Chip input component
 //

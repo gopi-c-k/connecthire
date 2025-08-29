@@ -1,38 +1,3 @@
-// // src/services/companyService.js
-// import secureApi from "./secureApi";
-// import axios from "axios";
-
-// // For fetching profile (still with cookies)
-// export const getCompanyProfile = () => secureApi.get("/company/profile");
-
-// // For saving profile (manual token approach)
-// export const updateCompanyProfile = async (profileData) => {
-//   const token = localStorage.getItem("accessToken"); // whatever key you used in login
-//   if (!token) throw new Error("No access token found");
-
-//   return axios.put(
-//     "https://connecthire.onrender.com/company/profile",
-//     profileData,
-//     {
-//       headers: {
-//         "Content-Type": "application/json",
-//         Authorization: `Bearer ${token}`,
-//       },
-//       // No withCredentials here since we're using token directly
-//     }
-//   );
-// };
-
-
-// src/services/companyService.jsx
-//
-// Cookie-based auth for all company routes (credentials: "include").
-// Reads your .env:
-//   REACT_APP_BASE=https://connecthire.onrender.com
-//   REACT_APP_API_VERSION=v1   // leave blank if your API has no /api/v1
-//
-// Keep axios only for login/signup if you use tokens there.
-
 const BASE = (process.env.REACT_APP_BASE || "").trim();
 const API_VER = (process.env.REACT_APP_API_VERSION || "").trim();
 const API_PREFIX = API_VER ? `/api/${API_VER}` : "";
@@ -103,4 +68,10 @@ export const companyService = {
   updateSettings: (payload) => request(`/company/settings`, { method: "PUT", body: payload }),
 };
 
-export default companyService;
+
+// 👇 Export as a service object (for cleaner imports)
+export const companyService = {
+  getCompanyProfile,
+  updateCompanyProfile,
+};
+
