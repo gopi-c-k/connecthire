@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CompanyLayout from "../layouts/CompanyLayout";
 import api from "../../../secureApi";
+import { ChipInput } from "../../../components/ChipInput"; // ✅ Chip input component
 
 const JobPosting = () => {
   const navigate = useNavigate();
@@ -13,15 +14,15 @@ const JobPosting = () => {
     duration: "",
     salaryRange: { min: "", max: "", currency: "USD" },
     experienceLevel: "",
-    skills: "",
+    skills: [],
     jobType: "",
-    requirements: "",
-    responsibilities: "",
-    qualifications: "",
+    requirements: [],
+    responsibilities: [],
+    qualifications: [],
     openings: "",
     applicationDeadline: "",
     industry: "",
-    additionalTags: "",
+    additionalTags: [],
   });
 
   const inputClasses =
@@ -40,6 +41,10 @@ const JobPosting = () => {
     }
   };
 
+  const handleChipChange = (name, values) => {
+    setFormData((prev) => ({ ...prev, [name]: values }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -52,11 +57,6 @@ const JobPosting = () => {
     const payload = {
       ...formData,
       jobType: safeJobType,
-      skills: formData.skills ? formData.skills.split(",").map((s) => s.trim()).filter(Boolean) : [],
-      requirements: formData.requirements ? formData.requirements.split(",").map((r) => r.trim()).filter(Boolean) : [],
-      responsibilities: formData.responsibilities ? formData.responsibilities.split(",").map((r) => r.trim()).filter(Boolean) : [],
-      qualifications: formData.qualifications ? formData.qualifications.split(",").map((q) => q.trim()).filter(Boolean) : [],
-      additionalTags: formData.additionalTags ? formData.additionalTags.split(",").map((t) => t.trim()).filter(Boolean) : [],
     };
 
     try {
@@ -200,49 +200,37 @@ const JobPosting = () => {
 
           {/* Skills */}
           <label className="block">
-            <span className="font-medium">Skills (comma-separated)</span>
-            <input
-              type="text"
-              name="skills"
-              value={formData.skills}
-              onChange={handleChange}
-              className={inputClasses}
+            <span className="font-medium">Skills</span>
+            <ChipInput
+              values={formData.skills}
+              onChange={(values) => handleChipChange("skills", values)}
             />
           </label>
 
           {/* Requirements */}
           <label className="block">
-            <span className="font-medium">Requirements (comma-separated)</span>
-            <textarea
-              name="requirements"
-              value={formData.requirements}
-              onChange={handleChange}
-              className={inputClasses}
-              rows="2"
+            <span className="font-medium">Requirements</span>
+            <ChipInput
+              values={formData.requirements}
+              onChange={(values) => handleChipChange("requirements", values)}
             />
           </label>
 
           {/* Responsibilities */}
           <label className="block">
-            <span className="font-medium">Responsibilities (comma-separated)</span>
-            <textarea
-              name="responsibilities"
-              value={formData.responsibilities}
-              onChange={handleChange}
-              className={inputClasses}
-              rows="2"
+            <span className="font-medium">Responsibilities</span>
+            <ChipInput
+              values={formData.responsibilities}
+              onChange={(values) => handleChipChange("responsibilities", values)}
             />
           </label>
 
           {/* Qualifications */}
           <label className="block">
-            <span className="font-medium">Qualifications (comma-separated)</span>
-            <textarea
-              name="qualifications"
-              value={formData.qualifications}
-              onChange={handleChange}
-              className={inputClasses}
-              rows="2"
+            <span className="font-medium">Qualifications</span>
+            <ChipInput
+              values={formData.qualifications}
+              onChange={(values) => handleChipChange("qualifications", values)}
             />
           </label>
 
@@ -284,13 +272,10 @@ const JobPosting = () => {
 
           {/* Additional Tags */}
           <label className="block">
-            <span className="font-medium">Additional Tags (comma-separated)</span>
-            <input
-              type="text"
-              name="additionalTags"
-              value={formData.additionalTags}
-              onChange={handleChange}
-              className={inputClasses}
+            <span className="font-medium">Additional Tags</span>
+            <ChipInput
+              values={formData.additionalTags}
+              onChange={(values) => handleChipChange("additionalTags", values)}
             />
           </label>
 
