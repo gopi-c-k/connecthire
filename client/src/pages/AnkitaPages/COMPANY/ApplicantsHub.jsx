@@ -7,7 +7,7 @@ import { Search } from "lucide-react";
 
 import api from "../../../secureApi";
 
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const STATUS_BADGE = {
   applied: "bg-slate-700 text-slate-200",
@@ -93,7 +93,6 @@ export default function ApplicantsHub() {
     });
   }, [items, q, status, id, jobFilter]);
 
-
   // Update status
   const handleStatusChange = async (id, newStatus) => {
     const applicant = items.find((a) => a.id === id);
@@ -143,7 +142,11 @@ export default function ApplicantsHub() {
         {err && <div className="mb-4 p-3 rounded bg-red-700 text-white text-sm">{err}</div>}
 
         {/* Filters */}
-        <div className={`bg-surface rounded-xl p-4 shadow mb-4 grid grid-cols-1 ${id ? `md:grid-cols-2`:`md:grid-cols-3`} gap-3`}>
+        <div
+          className={`bg-surface rounded-xl p-4 shadow mb-4 grid grid-cols-1 ${
+            id ? `md:grid-cols-2` : `md:grid-cols-3`
+          } gap-3`}
+        >
           <InputWithIcon
             icon={Search}
             value={q}
@@ -162,22 +165,24 @@ export default function ApplicantsHub() {
             <option value="rejected">Rejected</option>
             <option value="hired">Hired</option>
           </select>
-          {!id && <select
-            value={jobFilter}
-            onChange={(e) => setJobFilter(e.target.value)}
-            className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg"
-          >
-            <option value="">All Jobs</option>
-            {uniqueJobs.map((j) => (
-              <option key={j.id} value={j.id}>
-                {j.title}
-              </option>
-            ))}
-          </select>}
+          {!id && (
+            <select
+              value={jobFilter}
+              onChange={(e) => setJobFilter(e.target.value)}
+              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg"
+            >
+              <option value="">All Jobs</option>
+              {uniqueJobs.map((j) => (
+                <option key={j.id} value={j.id}>
+                  {j.title}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         {/* Applicants List */}
-        <div className="bg-surface rounded-xl p-4 shadow overflow-x-auto">
+        <div className="bg-surface rounded-xl p-4 shadow">
           {loading ? (
             <p className="text-muted">Loading...</p>
           ) : filtered.length === 0 ? (
@@ -185,55 +190,42 @@ export default function ApplicantsHub() {
               No applicants found.
             </p>
           ) : (
-            <table className="w-full text-left text-sm">
-              <thead className="text-muted">
-                <tr>
-                  <th className="p-2">Applicant</th>
-                  <th className="p-2">Job</th>
-                  <th className="p-2">Applied</th>
-                  <th className="p-2">Status</th>
-                  <th className="p-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((a, idx) => (
-                  <tr
+            <>
+              {/* Mobile view: Card layout */}
+              <div className="space-y-3 md:hidden">
+                {filtered.map((a) => (
+                  <div
                     key={a.id}
-                    className={`border-t border-slate-800 ${idx % 2 === 0 ? "bg-slate-900/30" : "bg-slate-900/10"
-                      } hover:bg-slate-700/30`}
+                    className="p-4 rounded-lg bg-slate-800/40 border border-slate-700 shadow"
                   >
-                    {/* Applicant */}
-                    <td className="p-2 flex items-center gap-2">
+                    <div className="flex items-center gap-3 mb-2">
                       {a.seeker?.avatar ? (
                         <img
                           src={a.seeker.avatar}
                           alt={a.seeker.name}
-                          className="w-8 h-8 rounded-full"
+                          className="w-10 h-10 rounded-full"
                         />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs">
+                        <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-sm">
                           {a.seeker?.name?.[0]}
                         </div>
                       )}
-                      <span>{a.seeker?.name}</span>
-                    </td>
-
-                    {/* Job */}
-                    <td className="p-2">{a.jobTitle}</td>
-
-                    {/* Applied Date */}
-                    <td className="p-2">
-                      {new Date(a.createdAt).toLocaleDateString()}
-                    </td>
-
-                    {/* Status */}
-                    <td className="p-2">
+                      <div>
+                        <h3 className="font-semibold">{a.seeker?.name}</h3>
+                        <p className="text-xs text-muted">{a.jobTitle}</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted mb-2">
+                      Applied: {new Date(a.createdAt).toLocaleDateString()}
+                    </p>
+                    <div className="flex items-center gap-2 mb-3">
                       <select
                         value={a.status || "applied"}
                         disabled={updating[a.id]}
-                        className={`px-2 py-1 text-xs rounded ${STATUS_BADGE[(a.status || "").toLowerCase()] ||
+                        className={`px-2 py-1 text-xs rounded ${
+                          STATUS_BADGE[(a.status || "").toLowerCase()] ||
                           "bg-slate-700 text-slate-200"
-                          }`}
+                        }`}
                         onChange={(e) => handleStatusChange(a.id, e.target.value)}
                       >
                         <option value="applied">Applied</option>
@@ -245,10 +237,8 @@ export default function ApplicantsHub() {
                       {updating[a.id] && (
                         <span className="ml-2 text-xs text-muted">Updating...</span>
                       )}
-                    </td>
-
-                    {/* Actions */}
-                    <td className="p-2 flex gap-3">
+                    </div>
+                    <div className="flex gap-4 text-sm">
                       <button
                         onClick={() => setSelectedProposal(a)}
                         className="text-primary hover:underline"
@@ -272,11 +262,109 @@ export default function ApplicantsHub() {
                       >
                         {updating[a.id] ? "Rejecting..." : "Reject"}
                       </button>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+
+              {/* Desktop view: Table layout */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="text-muted">
+                    <tr>
+                      <th className="p-2">Applicant</th>
+                      <th className="p-2">Job</th>
+                      <th className="p-2">Applied</th>
+                      <th className="p-2">Status</th>
+                      <th className="p-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map((a, idx) => (
+                      <tr
+                        key={a.id}
+                        className={`border-t border-slate-800 ${
+                          idx % 2 === 0 ? "bg-slate-900/30" : "bg-slate-900/10"
+                        } hover:bg-slate-700/30`}
+                      >
+                        {/* Applicant */}
+                        <td className="p-2 flex items-center gap-2">
+                          {a.seeker?.avatar ? (
+                            <img
+                              src={a.seeker.avatar}
+                              alt={a.seeker.name}
+                              className="w-8 h-8 rounded-full"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs">
+                              {a.seeker?.name?.[0]}
+                            </div>
+                          )}
+                          <span>{a.seeker?.name}</span>
+                        </td>
+
+                        {/* Job */}
+                        <td className="p-2">{a.jobTitle}</td>
+
+                        {/* Applied Date */}
+                        <td className="p-2">
+                          {new Date(a.createdAt).toLocaleDateString()}
+                        </td>
+
+                        {/* Status */}
+                        <td className="p-2">
+                          <select
+                            value={a.status || "applied"}
+                            disabled={updating[a.id]}
+                            className={`px-2 py-1 text-xs rounded ${
+                              STATUS_BADGE[(a.status || "").toLowerCase()] ||
+                              "bg-slate-700 text-slate-200"
+                            }`}
+                            onChange={(e) => handleStatusChange(a.id, e.target.value)}
+                          >
+                            <option value="applied">Applied</option>
+                            <option value="shortlisted">Shortlisted</option>
+                            <option value="interviewed">Interviewing</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="hired">Hired</option>
+                          </select>
+                          {updating[a.id] && (
+                            <span className="ml-2 text-xs text-muted">Updating...</span>
+                          )}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="p-2 flex gap-3">
+                          <button
+                            onClick={() => setSelectedProposal(a)}
+                            className="text-primary hover:underline"
+                          >
+                            View Proposal
+                          </button>
+                          {a.seeker?.resume && (
+                            <a
+                              href={a.seeker.resume}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-accent hover:underline"
+                            >
+                              View Resume
+                            </a>
+                          )}
+                          <button
+                            disabled={updating[a.id]}
+                            onClick={() => handleStatusChange(a.id, "rejected")}
+                            className="text-red-400 hover:underline disabled:opacity-50"
+                          >
+                            {updating[a.id] ? "Rejecting..." : "Reject"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
 
