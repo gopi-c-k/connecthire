@@ -165,7 +165,7 @@ const JobPosting = () => {
             </label>
           </div>
 
-          {/* Experience Level */}
+          {/* Experience Level (Updated) */}
           <label className="block">
             <span className="font-medium">Experience Level</span>
             <select
@@ -175,9 +175,10 @@ const JobPosting = () => {
               className={inputClasses}
             >
               <option value="">Select...</option>
-              <option value="Fresher">Fresher</option>
-              <option value="Mid">Mid</option>
-              <option value="Senior">Senior</option>
+              <option value="0-1 years">0-1 years</option>
+              <option value="1-2 years">1-2 years</option>
+              <option value="2-5 years">2-5 years</option>
+              <option value="5+ years">5+ years</option>
             </select>
           </label>
 
@@ -202,6 +203,7 @@ const JobPosting = () => {
           <label className="block">
             <span className="font-medium">Skills</span>
             <ChipInput
+              className={inputClasses}
               values={formData.skills}
               onChange={(values) => handleChipChange("skills", values)}
             />
@@ -211,6 +213,7 @@ const JobPosting = () => {
           <label className="block">
             <span className="font-medium">Requirements</span>
             <ChipInput
+              className={inputClasses}
               values={formData.requirements}
               onChange={(values) => handleChipChange("requirements", values)}
             />
@@ -220,8 +223,11 @@ const JobPosting = () => {
           <label className="block">
             <span className="font-medium">Responsibilities</span>
             <ChipInput
+              className={inputClasses}
               values={formData.responsibilities}
-              onChange={(values) => handleChipChange("responsibilities", values)}
+              onChange={(values) =>
+                handleChipChange("responsibilities", values)
+              }
             />
           </label>
 
@@ -229,8 +235,11 @@ const JobPosting = () => {
           <label className="block">
             <span className="font-medium">Qualifications</span>
             <ChipInput
+              className={inputClasses}
               values={formData.qualifications}
-              onChange={(values) => handleChipChange("qualifications", values)}
+              onChange={(values) =>
+                handleChipChange("qualifications", values)
+              }
             />
           </label>
 
@@ -274,6 +283,7 @@ const JobPosting = () => {
           <label className="block">
             <span className="font-medium">Additional Tags</span>
             <ChipInput
+              className={inputClasses}
               values={formData.additionalTags}
               onChange={(values) => handleChipChange("additionalTags", values)}
             />

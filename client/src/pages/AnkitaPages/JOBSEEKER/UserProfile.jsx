@@ -1,103 +1,212 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { FaLinkedin } from "react-icons/fa"
+import {
+  Briefcase,
+  GraduationCap,
+  Phone,
+  Network,
+  Laptop ,
+  FileText,
+  MapPin,
+} from "lucide-react";
+import JobseekerLayout from "../layouts/JobseekerLayout";
+import api from "../../../secureApiForUser";
 
-const UserProfile = () => {
+export default function UserProfile() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Dummy Data (API integration baad me hoga)
   const DEFAULT_AVATAR = "https://ui-avatars.com/api/?name=User";
 
   useEffect(() => {
-    // TODO: API call karega tumhara teammate
-    setTimeout(() => {
-      setProfile({
-        fullName: "Ankita Sharma",
-        avatar: DEFAULT_AVATAR,
-        headline: "Frontend Developer | React.js | Tailwind",
-        bio: "Passionate frontend developer with 3+ years of experience in building scalable web apps.",
-        skills: ["React", "Tailwind", "JavaScript", "Node.js"],
-        experience: "3 years",
-        education: "B.Tech in Computer Science",
-        location: "Bengaluru, India",
-        email: "ankita@example.com",
-        phone: "+91 98765 43210",
-        portfolio: "https://myportfolio.com",
-        resume: "https://myresume.com/resume.pdf",
-      });
-      setLoading(false);
-    }, 1000);
-  }, [location.state]);
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get("/jobseeker/profile");
+        console.log("Fetched profile:", res.data);
 
-  if (loading) return <div className="text-center py-10">Loading...</div>;
+        const jobSeeker = res.data.jobSeeker; // ✅ actual data nested me hai
+
+        setProfile({
+          ...jobSeeker,
+          profilePicture: jobSeeker.profilePicture || DEFAULT_AVATAR,
+          skills: Array.isArray(jobSeeker.skills) ? jobSeeker.skills : [],
+          contact: jobSeeker.contact || {},
+          experience: jobSeeker.experience || [],
+          education: jobSeeker.education || [],
+          certifications: jobSeeker.certifications || [],
+          availability: jobSeeker.availability || "Not provided",
+        });
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+        setProfile(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (loading)
+    return <div className="text-center py-10 text-lightText">Loading...</div>;
+
+  if (!profile)
+    return (
+      <JobseekerLayout>
+        <div className="text-center py-10 text-red-400">
+          Failed to load profile.
+        </div>
+      </JobseekerLayout>
+    );
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-surface text-lightText rounded-2xl shadow-deep mt-8">
-      <div className="flex justify-between items-center mb-6 border-b border-mediumGray pb-3">
-        <h1 className="text-3xl font-bold tracking-wide">My Profile</h1>
-        <button
-          onClick={() => navigate("/user/profile/edit")}
-          className="px-5 py-2 rounded-xl font-semibold bg-primary text-white hover:bg-primaryDark shadow-soft"
-        >
-          Edit
-        </button>
-      </div>
-
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-6">
+    <JobseekerLayout>
+      <div className="max-w-5xl mx-auto p-6 text-lightText space-y-6">
+        {/* 🔹 Header */}
+        <div className="bg-surface rounded-2xl p-6 flex flex-col md:flex-row items-center md:items-start gap-6 border border-slate-700 shadow-lg">
           <img
-            src={profile.avatar}
+            src={profile.profilePicture}
             alt="User Avatar"
-            className="w-28 h-28 object-cover rounded-full border-4 border-primary shadow-glowPrimary"
+            className="w-28 h-28 rounded-full object-cover border-4 border-primary shadow-glowPrimary"
           />
-          <div>
-            <h2 className="text-2xl font-bold">{profile.fullName}</h2>
-            <p className="text-muted">{profile.headline}</p>
-            <p className="text-sm text-lightGray">{profile.location}</p>
+          <div className="flex-1 space-y-2">
+            <h1 className="text-3xl font-bold">
+              {profile.fullName || "Your Name"}
+            </h1>
+            <p className="text-muted">{profile.bio || "Add your bio"}</p>
+            <div className="flex items-center gap-2 text-sm text-lightGray">
+              <MapPin size={14} />{" "}
+              {profile.contact.address || "Location not provided"}
+            </div>
+            <div className="text-sm text-lightGray">
+              Availability: {profile.availability}
+            </div>
           </div>
+          <button
+            onClick={() => navigate("/user/profile/edit")}
+            className="px-5 py-2 rounded-xl font-semibold bg-primary text-white hover:bg-primaryDark shadow-soft"
+          >
+            Edit Profile
+          </button>
         </div>
 
-        {/* Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
-          <p><strong className="text-lightGray">Experience:</strong> {profile.experience}</p>
-          <p><strong className="text-lightGray">Education:</strong> {profile.education}</p>
-          <p><strong className="text-lightGray">Email:</strong> {profile.email}</p>
-          <p><strong className="text-lightGray">Phone:</strong> {profile.phone}</p>
-          <p><strong className="text-lightGray">Portfolio:</strong>{" "}
-            <a href={profile.portfolio} target="_blank" rel="noreferrer" className="text-primary hover:underline">
-              {profile.portfolio}
-            </a>
-          </p>
-          <p><strong className="text-lightGray">Resume:</strong>{" "}
-            <a href={profile.resume} target="_blank" rel="noreferrer" className="text-primary hover:underline">
-              View Resume
-            </a>
-          </p>
+        {/* 🔹 Experience */}
+        <div className="bg-surface rounded-xl p-5 border border-slate-700 shadow">
+          <h2 className="flex items-center gap-2 text-xl font-semibold mb-2">
+            <Briefcase size={18} /> Experience
+          </h2>
+          {profile.experience.length > 0 ? (
+            profile.experience.map((exp, i) => (
+              <p key={i}>
+                {exp.role} at {exp.company}{" "}
+                {exp.startDate
+                  ? `(${new Date(exp.startDate).getFullYear()} - ${
+                      exp.endDate
+                        ? new Date(exp.endDate).getFullYear()
+                        : "Present"
+                    })`
+                  : ""}
+              </p>
+            ))
+          ) : (
+            <p className="text-muted">No experience added.</p>
+          )}
         </div>
 
-        {/* About */}
-        <div>
-          <h3 className="text-xl font-semibold mb-2">About Me</h3>
-          <p className="text-lightText leading-relaxed">{profile.bio}</p>
+        {/* 🔹 Education */}
+        <div className="bg-surface rounded-xl p-5 border border-slate-700 shadow">
+          <h2 className="flex items-center gap-2 text-xl font-semibold mb-2">
+            <GraduationCap size={18} /> Education
+          </h2>
+          {profile.education.length > 0 ? (
+            profile.education.map((edu, i) => (
+              <p key={i}>
+                {edu.degree} - {edu.institution} ({edu.year})
+              </p>
+            ))
+          ) : (
+            <p className="text-muted">No education details added.</p>
+          )}
         </div>
 
-        {/* Skills */}
-        <div>
-          <h3 className="text-xl font-semibold mb-2">Skills</h3>
-          <div className="flex flex-wrap gap-2">
-            {profile.skills.map((skill, i) => (
-              <span key={i} className="px-3 py-1 rounded-full bg-darkGray text-sm border border-mediumGray/40">
-                {skill}
-              </span>
-            ))}
+        {/* 🔹 Skills */}
+        <div className="bg-surface rounded-xl p-5 border border-slate-700 shadow">
+          <h2 className="text-xl font-semibold mb-3">Skills</h2>
+          {profile.skills.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {profile.skills.map((skill, i) => (
+                <span
+                  key={i}
+                  className="px-3 py-1 rounded-full bg-darkGray text-sm border border-slate-600"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted">No skills added yet.</p>
+          )}
+        </div>
+
+        {/* 🔹 Contact */}
+        <div className="bg-surface rounded-xl p-5 border border-slate-700 shadow space-y-2"> 
+          <h2 className="flex items-center gap-2 text-xl font-semibold mb-3">
+            <Network size={14} />  Contact
+            </h2>
+          <div className="grid sm:grid-cols-2 gap-y-2 text-sm">
+            <p className="flex items-center gap-2">
+              <Phone size={14} /> {profile.contact.phone || "Not provided"}
+            </p>
+            <p className="flex items-center gap-2">
+              <Laptop size={14} />{" "}
+              {profile.contact.portfolio ? (
+                <a
+                  href={profile.contact.portfolio}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Portfolio
+                </a>
+              ) : (
+                "Not provided"
+              )}
+            </p>
+            <p className="flex items-center gap-2">
+              < FaLinkedin size={14} />{" "}
+              {profile.contact.linkedin ? (
+                <a
+                  href={profile.contact.linkedin}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  LinkedIn
+                </a>
+              ) : (
+                "Not provided"
+              )}
+            </p>
+            <p className="flex items-center gap-2">
+              <FileText size={14} />{" "}
+              {profile.resume ? (
+                <a
+                  href={profile.resume}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Resume
+                </a>
+              ) : (
+                "Not provided"
+              )}
+            </p>
           </div>
         </div>
       </div>
-    </div>
+    </JobseekerLayout>
   );
-};
-
-export default UserProfile;
+}
