@@ -37,6 +37,15 @@ import Messages from "./pages/AnkitaPages/JOBSEEKER/Messages";
 import UserProfile from "./pages/AnkitaPages/JOBSEEKER/UserProfile";
 import EditUserProfile from "./pages/AnkitaPages/JOBSEEKER/EditUserProfile";
 
+// User Settings Layout + Pages
+import UserSettingsLayout from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserSettingsLayout";
+import UserAccountSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserAccountSettings";
+import UserProfileSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserProfileSettings";
+import UserPrivacySettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserPrivacySettings";
+import UserNotificationSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserNotificationSettings";
+import UserSecuritySettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserSecuritySettings";
+import UserDangerSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserDangerSettings";
+
 
 
 function App() {
@@ -88,6 +97,18 @@ function App() {
          <Route path="/user/messages/:conversationId" element={<Messages />} />
          <Route path="/user/profile" element={<UserProfile />} />
          <Route path="/user/profile/edit" element={<EditUserProfile />} />
+       <Route path="/user/settings" element={<UserSettingsLayout />}>
+  <Route index element={<UserAccountSettings />} />
+  <Route path="account" element={<UserAccountSettings />} />
+  <Route path="profile" element={<UserProfileSettings />} />
+  <Route path="privacy" element={<UserPrivacySettings />} />
+  <Route path="notifications" element={<UserNotificationSettings />} />
+  <Route path="security" element={<UserSecuritySettings />} />
+  <Route path="danger" element={<UserDangerSettings />} />
+</Route>
+
+
+
          
 
 
