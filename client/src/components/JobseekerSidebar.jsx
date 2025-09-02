@@ -4,16 +4,16 @@ import { logout } from "../services/authService"; // adjust if needed
 
 
 
-const links = [
+const links = [ 
   { name: "Dashboard", icon: LayoutGrid, path: "/user/dashboard" },
-  { name: "Jobs", icon: Briefcase, path: "/user/jobs" },
-  { name: "Saved", icon: Bookmark, path: "/user/saved" },
+   { name: "Jobs", icon: Briefcase, path: "/user/jobs" },
+    { name: "Saved", icon: Bookmark, path: "/user/saved" },
+     { name: "Applications", icon: FileText, path: "/user/applications" }, 
+     { name: "Messages", icon: MessageSquare, path: "/user/messages" }, 
+     { name: "Profile", icon: User, path: "/user/profile" },
+   { name: "Settings", icon: Settings, path: "/user/settings" }, ];
 
-  { name: "Applications", icon: FileText, path: "/user/applications" },
-  { name: "Messages", icon: MessageSquare, path: "/user/messages" },
-  { name: "Profile", icon: User, path: "/user/profile" },
-  { name: "Settings", icon: Settings, path: "/user/settings" },
-];
+
 
 export default function JobseekerSidebar() {
   const navigate = useNavigate();
@@ -36,6 +36,7 @@ export default function JobseekerSidebar() {
           <NavLink
             key={link.name}
             to={link.path}
+            
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-800 transition ${
                 isActive ? "bg-slate-800 text-green-400" : "text-gray-300"

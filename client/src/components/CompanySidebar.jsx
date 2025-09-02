@@ -1,11 +1,11 @@
-import { Home, FilePlus, Briefcase, Users, MessageSquare, Settings, LogOut } from "lucide-react";
+import { Home, FilePlus, Briefcase, Users,  Settings, LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { logout } from "../services/authService"; // adjust path if needed
 
 const links = [
   { name: "Dashboard", icon: Home, path: "/company-dashboard" },
   { name: "Post Job", icon: FilePlus, path: "/company/job-post" },
-  { name: "Manage Jobs", icon: Briefcase, path: "/company/jobs" },
+  { name: "Manage Jobs", icon: Briefcase, path: "/company/jobs", exact: true },
 
   { name: "Applicants", icon: Users, path: "/company/jobs/applicants" },
   
@@ -34,6 +34,7 @@ export default function CompanySidebar() {
           <NavLink
             key={link.name}
             to={link.path}
+            end={link.exact}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-800 transition ${
                 isActive ? "bg-slate-800 text-green-400" : "text-gray-300"
