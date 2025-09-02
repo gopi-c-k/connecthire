@@ -11,7 +11,7 @@ export default function UserSettingsLayout() {
     { name: "Profile", path: "profile" },
     { name: "Privacy", path: "privacy" },
     { name: "Notifications", path: "notifications" },
-    { name: "Security", path: "security" },
+    
     { name: "Danger Zone", path: "danger" },
   ];
 

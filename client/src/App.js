@@ -43,7 +43,7 @@ import UserAccountSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/User
 import UserProfileSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserProfileSettings";
 import UserPrivacySettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserPrivacySettings";
 import UserNotificationSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserNotificationSettings";
-import UserSecuritySettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserSecuritySettings";
+
 import UserDangerSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserDangerSettings";
 
 
@@ -103,7 +103,7 @@ function App() {
   <Route path="profile" element={<UserProfileSettings />} />
   <Route path="privacy" element={<UserPrivacySettings />} />
   <Route path="notifications" element={<UserNotificationSettings />} />
-  <Route path="security" element={<UserSecuritySettings />} />
+  
   <Route path="danger" element={<UserDangerSettings />} />
 </Route>
 
