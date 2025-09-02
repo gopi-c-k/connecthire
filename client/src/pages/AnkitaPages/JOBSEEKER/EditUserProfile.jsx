@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../../../secureApiForUser";
 import ChipInput from "../../../components/ChipInput";
 import CustomSelect from "../../../components/CustomSelect";
-
+import axios from "axios";
 
 export default function EditUserProfile() {
   const [profile, setProfile] = useState({
@@ -28,8 +28,14 @@ export default function EditUserProfile() {
 
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const [logoFile, setLogoFile] = useState(null);
   const navigate = useNavigate();
+
   const DEFAULT_AVATAR = "https://ui-avatars.com/api/?name=User";
+
+  const BASE_URL = process.env.REACT_APP_BASE || "";
+  const MAX_IMAGE_MB = parseFloat(process.env.REACT_APP_IMAGE_MAX_SIZE_MB || 2);
 
   // ✅ Fetch profile from backend
   useEffect(() => {
@@ -37,6 +43,7 @@ export default function EditUserProfile() {
       try {
         const res = await api.get("/jobseeker/profile");
         console.log("Fetched profile:", res.data);
+        res.data = res.data.jobSeeker;
 
         setProfile({
           ...res.data,
@@ -73,6 +80,50 @@ export default function EditUserProfile() {
     setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleProfilePicChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const fileSizeMB = file.size / (1024 * 1024);
+      if (fileSizeMB > MAX_IMAGE_MB) {
+        alert(`❌ File size exceeds ${MAX_IMAGE_MB} MB limit.`);
+        return;
+      }
+      setLogoFile(file);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfile((prev) => ({ ...prev, profilePicture: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  const uploadToCloudinary = async (file) => {
+    try {
+
+      const data = new FormData();
+      data.append("file", file);
+      data.append(
+        "upload_preset",
+        process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET
+      );
+
+      const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+      let url;
+      // ✅ Correct Cloudinary endpoint: /image/upload
+      await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        data
+      ).then((res) => {
+        url = res.data.secure_url;
+      });
+
+      return url;
+    } catch (err) {
+      console.error("❌ Cloudinary upload failed:", err.response?.data || err.message);
+      throw err;
+    }
+  };
+
   const handleContactChange = (e) => {
     const { name, value } = e.target;
     setProfile((prev) => ({
@@ -104,6 +155,12 @@ export default function EditUserProfile() {
     try {
       const payload = { ...profile };
       console.log("Payload being sent to backend:", payload);
+      
+      let logoUrl = profile.profilePicture;
+      if (logoFile) {
+        logoUrl = await uploadToCloudinary(logoFile);
+      }
+      payload.profilePicture = logoUrl;
       await api.put("/jobseeker/profile", payload);
       alert("✅ Profile updated successfully!");
       navigate("/user/profile", { state: { refresh: true } });
@@ -123,13 +180,14 @@ export default function EditUserProfile() {
 
       {/* Avatar */}
       <div>
-        <label className="block mb-1 font-medium text-lightGray">Profile Picture (URL)</label>
+        <label className="block mb-1 font-medium text-lightGray">Profile Picture</label>
+        </div>
+        <div className="border-2 border-dashed border-darkGray p-4 rounded-lg cursor-pointer hover:border-primary">
         <input
-          type="text"
-          name="profilePicture"
-          value={profile.profilePicture}
-          onChange={handleChange}
-          className="w-full p-3 rounded-lg bg-bg text-lightText border border-darkGray focus:ring-2 focus:ring-primary"
+          type="file"
+          accept="image/*"
+          onChange={handleProfilePicChange}
+          className="text-sm text-lightText"
         />
         {profile.profilePicture && (
           <img
@@ -165,17 +223,17 @@ export default function EditUserProfile() {
       </div>
 
       {/* Skills */}
-<div>
-  <label className="block mb-1 font-medium text-lightGray">Skills</label>
-  <ChipInput
-    values={profile.skills}
-    onChange={(newValues) =>
-      setProfile((prev) => ({ ...prev, skills: newValues }))
-    }
-    placeholder="Type a skill and press Enter"
-    className="w-full p-3 rounded-lg bg-bg text-lightText border border-darkGray"
-  />
-</div>
+      <div>
+        <label className="block mb-1 font-medium text-lightGray">Skills</label>
+        <ChipInput
+          values={profile.skills}
+          onChange={(newValues) =>
+            setProfile((prev) => ({ ...prev, skills: newValues }))
+          }
+          placeholder="Type a skill and press Enter"
+          className="w-full p-3 rounded-lg bg-bg text-lightText border border-darkGray"
+        />
+      </div>
 
 
       {/* Contact */}
@@ -207,21 +265,21 @@ export default function EditUserProfile() {
       </div>
 
       {/* Availability */}
-<div>
-  <label className="block mb-1 font-medium text-lightGray">Availability</label>
-  <CustomSelect
-    value={profile.availability}
-    onChange={(val) => setProfile((prev) => ({ ...prev, availability: val }))}
-    options={[
-      { value: "Full-Time", label: "Full-Time" },
-      { value: "Part-Time", label: "Part-Time" },
-      { value: "Freelance", label: "Freelance" },
-      { value: "Internship", label: "Internship" },
-    ]}
-    className="w-full p-2 rounded-lg bg-bg text-lightText border border-darkGray "
-              
-  />
-</div>
+      <div>
+        <label className="block mb-1 font-medium text-lightGray">Availability</label>
+        <CustomSelect
+          value={profile.availability}
+          onChange={(val) => setProfile((prev) => ({ ...prev, availability: val }))}
+          options={[
+            { value: "Full-Time", label: "Full-Time" },
+            { value: "Part-Time", label: "Part-Time" },
+            { value: "Freelance", label: "Freelance" },
+            { value: "Internship", label: "Internship" },
+          ]}
+          className="w-full p-2 rounded-lg bg-bg text-lightText border border-darkGray "
+
+        />
+      </div>
 
 
       {/* Experience */}
@@ -327,9 +385,8 @@ export default function EditUserProfile() {
       <button
         onClick={handleSave}
         disabled={saving}
-        className={`bg-success px-6 py-3 rounded-lg transition text-white font-semibold shadow-glowSuccess ${
-          saving ? "opacity-70 cursor-not-allowed" : "hover:bg-successDark"
-        }`}
+        className={`bg-success px-6 py-3 rounded-lg transition text-white font-semibold shadow-glowSuccess ${saving ? "opacity-70 cursor-not-allowed" : "hover:bg-successDark"
+          }`}
       >
         {saving ? "Saving..." : "Save Profile"}
       </button>

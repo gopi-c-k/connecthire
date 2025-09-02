@@ -25,27 +25,32 @@ const EditCompanyProfile = () => {
   const BASE_URL = process.env.REACT_APP_BASE || "";
   const MAX_IMAGE_MB = parseFloat(process.env.REACT_APP_IMAGE_MAX_SIZE_MB || 2);
 
-  // ✅ Fetch Profile
+  // Fetch profile and map backend fields to frontend state
   const fetchProfile = async () => {
     setLoading(true);
     try {
-      const { data } = await api.get(`${BASE_URL}/company/profile?t=${Date.now()}`);
-      if (data) {
+      const { data } = await api.get(
+        `${BASE_URL}/company/profile`
+      );
+
+      if (data?.company) {
+        const c = data.company;
         setProfile({
-          name: data.companyName || data.name || "",
-          logo: data.logo || "",
-          foundingDate: data.foundingDate || "",
-          description: data.description || "",
-          location: data.location || "",
-          website: data.website || "",
-          industry: data.industry || "",
-          teamSize: data.teamSize || "",
-          contactEmail: data.contactEmail || "",
-          phone: data.phone || "",
+          name: c.companyName || "",
+          logo: c.logo || "",
+          foundingDate: c.founded || "",
+          description: c.description || "",
+          location: c.location || "",
+          website: c.website || "",
+          industry: c.industry || "",
+          teamSize: c.size != null ? String(c.size) : "",
+          contactEmail: c.contactEmail || "",
+          phone: c.phone || "",
         });
       }
     } catch (err) {
-      console.error("Error fetching profile:", err);
+      console.log("Error fetching profile:", err);
+      alert("❌ Failed to fetch profile. G");
     } finally {
       setLoading(false);
     }
@@ -55,12 +60,13 @@ const EditCompanyProfile = () => {
     fetchProfile();
   }, []);
 
-  // ✅ Handle Input Change
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle logo file selection & preview
   // Handle logo file selection & preview
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -72,6 +78,7 @@ const EditCompanyProfile = () => {
       }
       setLogoFile(file);
 
+      // Show preview instantly
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfile((prev) => ({ ...prev, logo: reader.result }));
@@ -110,11 +117,17 @@ const EditCompanyProfile = () => {
 
 
 
-  // ✅ Handle Save
+  // Save profile
   const handleSave = async () => {
     setSaving(true);
     try {
       const payload = {};
+      let logoUrl = profile.logo;
+
+      // If a new logo file is selected, upload it first
+      if (logoFile) {
+        logoUrl = await uploadToCloudinary(logoFile);
+      }
       if (profile.name) payload.companyName = profile.name;
       if (profile.description) payload.description = profile.description;
       if (profile.location) payload.location = profile.location;
@@ -123,8 +136,7 @@ const EditCompanyProfile = () => {
       if (profile.teamSize) payload.size = Number(profile.teamSize);
       if (profile.contactEmail) payload.contactEmail = profile.contactEmail;
       if (profile.foundingDate) payload.founded = profile.foundingDate;
-      if (profile.phone) payload.phone = profile.phone;
-
+      if (logoUrl) payload.companyLogo = logoUrl;
       // Send JSON only,backend handles Cloudinary upload
       await api.put(`${BASE_URL}/company/profile`, payload, {
         withCredentials: true,
@@ -135,8 +147,8 @@ const EditCompanyProfile = () => {
     } catch (err) {
       console.error("Error saving profile:", err);
       const msg =
-        err?.response?.data?.message ||
         err?.response?.data?.error ||
+        err?.response?.data?.message ||
         err?.message ||
         "Unknown error";
       alert(`❌ Failed to update profile: ${msg}`);
