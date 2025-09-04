@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Briefcase, Building2 } from "lucide-react";
 import JobseekerLayout from "../layouts/JobseekerLayout";
 import api from "../../../secureApiForUser";
-import CustomSelect from "../../../components/CustomSelect"; // ✅ import top me add karna
+import CustomSelect from "../../../components/CustomSelect";
 
 export default function Applications() {
   const [applications, setApplications] = useState([]);
@@ -15,9 +15,10 @@ export default function Applications() {
     const fetchApplications = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/jobseeker/proposals"); 
+        const res = await api.get("/jobseeker/proposals");
         console.log("Fetched applications:", res.data);
-        setApplications(res.data || []);
+        // ✅ extract array properly
+        setApplications(res.data.proposals);
       } catch (err) {
         console.error("Error fetching applications:", err);
         setError("Failed to load applications.");
@@ -31,7 +32,11 @@ export default function Applications() {
   const filteredApplications =
     statusFilter === "all"
       ? applications
-      : applications.filter((app) => app.status === statusFilter);
+      : applications.filter(
+          (app) =>
+            app.status &&
+            app.status.toLowerCase() === statusFilter.toLowerCase()
+        );
 
   const statusColors = {
     applied: "bg-slate-700 text-slate-200",
@@ -48,23 +53,19 @@ export default function Applications() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <h1 className="text-2xl font-bold">My Applications</h1>
           <div className="relative">
-  <CustomSelect
-  value={statusFilter}
-  onChange={setStatusFilter}
-  options={[
-    { value: "all", label: "All" },
-    { value: "applied", label: "Applied" },
-    { value: "under review", label: "Under Review" },
-    { value: "interview", label: "Interview" },
-    { value: "accepted", label: "Accepted" },
-    { value: "rejected", label: "Rejected" },
-  ]}
-/>
-
- 
-</div>
-
-
+            <CustomSelect
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={[
+                { value: "all", label: "All" },
+                { value: "applied", label: "Applied" },
+                { value: "under review", label: "Under Review" },
+                { value: "interview", label: "Interview" },
+                { value: "accepted", label: "Accepted" },
+                { value: "rejected", label: "Rejected" },
+              ]}
+            />
+          </div>
         </div>
 
         {/* Applications List */}
@@ -88,15 +89,25 @@ export default function Applications() {
                     <Briefcase size={18} />
                   </div>
                   <div>
-                    <div className="font-medium">{app.job?.title}</div>
-                    <div className="text-sm text-muted flex items-center gap-2">
-                      <span className="flex items-center gap-1">
-                        <Building2 size={14} /> {app.job?.company?.companyName}
-                      </span>
-                      <span>•</span>
-                      <span>{app.job?.jobType}</span>
-                      <span>•</span>
-                      <span>{app.job?.location}</span>
+                    <div className="font-medium">{app.job?.title || "Untitled"}</div>
+                    <div className="text-sm text-muted flex items-center gap-2 flex-wrap">
+                      {app.job?.company?.companyName && (
+                        <span className="flex items-center gap-1">
+                          <Building2 size={14} /> {app.job.company.companyName}
+                        </span>
+                      )}
+                      {app.job?.jobType && (
+                        <>
+                          <span>•</span>
+                          <span>{app.job.jobType}</span>
+                        </>
+                      )}
+                      {app.job?.location && (
+                        <>
+                          <span>•</span>
+                          <span>{app.job.location}</span>
+                        </>
+                      )}
                     </div>
                     <div className="text-xs text-muted mt-1">
                       Applied on{" "}
@@ -116,12 +127,14 @@ export default function Applications() {
                   >
                     {app.status || "Applied"}
                   </span>
-                  <Link
-                    to={`/user/job/${app.job?._id}`}
-                    className="px-3 py-1 rounded-lg bg-accent text-white hover:shadow-glowAccent text-xs"
-                  >
-                    View Job
-                  </Link>
+                  {app.job?._id && (
+                    <Link
+                      to={`/user/job/${app.job._id}`}
+                      className="px-3 py-1 rounded-lg bg-accent text-white hover:shadow-glowAccent text-xs"
+                    >
+                      View Job
+                    </Link>
+                  )}
                 </div>
               </div>
             ))
