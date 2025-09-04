@@ -54,6 +54,12 @@ const JobSeekerSchema = new mongoose.Schema({
       ref: 'Job'
     }
   ],
+  jobsSaved: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Job'
+    }
+  ],
   certifications: [
     {
       title: String,

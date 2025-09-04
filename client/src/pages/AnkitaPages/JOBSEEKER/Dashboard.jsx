@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../../../secureApiForUser";
 import {
   FileText,
   CalendarCheck,
@@ -12,25 +13,28 @@ import {
 import JobseekerLayout from "../layouts/JobseekerLayout";
 
 export default function Dashboard() {
-  // Static demo data (replace with real API later)
-  const [stats] = useState({
-    applications: 12,
-    interviews: 3,
-    savedJobs: 8,
-    messages: 5,
-  });
+  const [userData, setUserData] = useState({});
 
-  const [recentActivity] = useState([
-    { action: "Applied", job: "Frontend Developer", company: "PixelWorks", date: "2025-08-20", status: "Pending" },
-    { action: "Viewed", job: "React Developer", company: "SkyTech", date: "2025-08-18", status: "Viewed" },
-    { action: "Interview", job: "Backend Engineer", company: "BrightSoft", date: "2025-08-15", status: "Scheduled" },
-  ]);
+  useEffect(() => {
+    api
+      .get("/jobseeker/dashboard")
+      .then((response) => {
+        setUserData(response.data);
+        console.log("Dashboard data:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching dashboard data:", error);
+      });
+  }, []);
 
-  const [recommended] = useState([
-    { id: "101", title: "Frontend Developer", company: "Nova Labs", type: "Full-time", location: "Remote" },
-    { id: "102", title: "React Native Engineer", company: "SkyTech", type: "Contract", location: "Bengaluru" },
-    { id: "103", title: "UI Engineer", company: "BrightSoft", type: "Hybrid", location: "Pune" },
-  ]);
+  // derive stats
+  const applications = userData.jobsApplied || 0;
+  const interviews = userData.interviewedStatusCount || 0;
+  const savedJobs = userData.jobsSaved || 0;
+  const messages = userData.totalMessage || 0;
+
+  const recentJobs = userData.recentJobsApplied || [];
+  const recommended = userData.recommendedJobs || [];
 
   return (
     <JobseekerLayout>
@@ -40,16 +44,36 @@ export default function Dashboard() {
 
         {/* Stat Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard title="Applications" value={stats.applications} icon={<FileText size={18} />} color="primary" />
-          <StatCard title="Interviews" value={stats.interviews} icon={<CalendarCheck size={18} />} color="accent" />
-          <StatCard title="Saved Jobs" value={stats.savedJobs} icon={<Bookmark size={18} />} color="success" />
-          <StatCard title="Messages" value={stats.messages} icon={<MessageSquare size={18} />} color="primary" />
+          <StatCard
+            title="Applications"
+            value={applications}
+            icon={<FileText size={18} />}
+            color="primary"
+          />
+          <StatCard
+            title="Interviews"
+            value={interviews}
+            icon={<CalendarCheck size={18} />}
+            color="accent"
+          />
+          <StatCard
+            title="Saved Jobs"
+            value={savedJobs}
+            icon={<Bookmark size={18} />}
+            color="success"
+          />
+          <StatCard
+            title="Messages"
+            value={messages}
+            icon={<MessageSquare size={18} />}
+            color="primary"
+          />
         </div>
 
         {/* Recent Activity */}
         <div className="bg-surface rounded-xl shadow p-4">
           <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
-          {recentActivity.length > 0 ? (
+          {recentJobs.length > 0 ? (
             <table className="w-full text-left text-sm">
               <thead className="text-muted">
                 <tr>
@@ -61,12 +85,16 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {recentActivity.map((item, index) => (
+                {recentJobs.map((item, index) => (
                   <tr key={index} className="border-t border-slate-700">
-                    <td className="py-2">{item.action}</td>
-                    <td>{item.job}</td>
-                    <td>{item.company}</td>
-                    <td>{new Date(item.date).toLocaleDateString()}</td>
+                    <td className="py-2">{item.status}</td>
+                    <td>{item.job?.title}</td>
+                    <td>{item.company?.companyName}</td>
+                    <td>
+                      {item.recentUpdate
+                        ? new Date(item.recentUpdate).toLocaleDateString()
+                        : ""}
+                    </td>
                     <td>
                       <span
                         className={`px-2 py-1 rounded text-xs ${
@@ -74,6 +102,8 @@ export default function Dashboard() {
                             ? "bg-success text-white"
                             : item.status === "Viewed"
                             ? "bg-info text-white"
+                            : item.status === "rejected"
+                            ? "bg-red-600 text-white"
                             : "bg-primary text-white"
                         }`}
                       >
@@ -100,7 +130,7 @@ export default function Dashboard() {
           <div className="space-y-3">
             {recommended.map((job) => (
               <div
-                key={job.id}
+                key={job._id}
                 className="rounded-xl border border-slate-700 bg-darkGray/60 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
               >
                 <div className="flex items-start gap-3">
@@ -111,17 +141,18 @@ export default function Dashboard() {
                     <div className="font-medium">{job.title}</div>
                     <div className="text-sm text-muted flex items-center gap-2">
                       <span className="flex items-center gap-1">
-                        <Building2 size={14} /> {job.company}
+                        <Building2 size={14} />{" "}
+                        {job.companyName || job.company}
                       </span>
                       <span>•</span>
-                      <span>{job.type}</span>
+                      <span>{job.duration || job.type}</span>
                       <span>•</span>
                       <span>{job.location}</span>
                     </div>
                   </div>
                 </div>
                 <Link
-                  to={`/user/jobs/${job.id}`}
+                  to={`/user/jobs/${job._id}`}
                   className="px-3 py-2 rounded-lg bg-accent text-white hover:shadow-glowAccent text-sm text-center"
                 >
                   View Details
@@ -138,8 +169,10 @@ export default function Dashboard() {
             <QuickActionButton label="Update Profile" href="/user/profile" />
             <QuickActionButton label="Browse Jobs" href="/user/jobs" />
             <QuickActionButton label="Saved Jobs" href="/user/saved" />
-
-            <QuickActionButton label="Check Applications" href="/user/applications" />
+            <QuickActionButton
+              label="Check Applications"
+              href="/user/applications"
+            />
           </div>
         </div>
       </div>
@@ -147,13 +180,19 @@ export default function Dashboard() {
   );
 }
 
+// StatCard component
 const StatCard = ({ title, value, icon, color }) => (
-  <div className={`bg-surface rounded-xl p-4 shadow border-l-4 border-${color} flex flex-col`}>
-    <span className="text-muted text-sm flex items-center gap-2">{icon} {title}</span>
+  <div
+    className={`bg-surface rounded-xl p-4 shadow border-l-4 border-${color} flex flex-col`}
+  >
+    <span className="text-muted text-sm flex items-center gap-2">
+      {icon} {title}
+    </span>
     <span className="text-2xl font-bold">{value}</span>
   </div>
 );
 
+// QuickActionButton component
 const QuickActionButton = ({ label, href }) => (
   <Link
     to={href}
