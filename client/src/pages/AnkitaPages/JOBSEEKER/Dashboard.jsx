@@ -77,7 +77,6 @@ export default function Dashboard() {
             <table className="w-full text-left text-sm">
               <thead className="text-muted">
                 <tr>
-                  <th className="pb-2">Action</th>
                   <th className="pb-2">Job</th>
                   <th className="pb-2">Company</th>
                   <th className="pb-2">Date</th>
@@ -87,8 +86,7 @@ export default function Dashboard() {
               <tbody>
                 {recentJobs.map((item, index) => (
                   <tr key={index} className="border-t border-slate-700">
-                    <td className="py-2">{item.status}</td>
-                    <td>{item.job?.title}</td>
+                    <td className="py-2">{item.job?.title}</td>
                     <td>{item.company?.companyName}</td>
                     <td>
                       {item.recentUpdate
@@ -97,15 +95,14 @@ export default function Dashboard() {
                     </td>
                     <td>
                       <span
-                        className={`px-2 py-1 rounded text-xs ${
-                          item.status === "Scheduled"
+                        className={`px-2 py-1 rounded text-xs ${item.status === "Scheduled"
                             ? "bg-success text-white"
                             : item.status === "Viewed"
-                            ? "bg-info text-white"
-                            : item.status === "rejected"
-                            ? "bg-red-600 text-white"
-                            : "bg-primary text-white"
-                        }`}
+                              ? "bg-info text-white"
+                              : item.status === "rejected"
+                                ? "bg-red-600 text-white"
+                                : "bg-primary text-white"
+                          }`}
                       >
                         {item.status}
                       </span>
@@ -135,14 +132,14 @@ export default function Dashboard() {
               >
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-bg border border-slate-700">
-                    <Briefcase size={18} />
+                    <Briefcase size={18} className="text-muted" />
                   </div>
                   <div>
                     <div className="font-medium">{job.title}</div>
                     <div className="text-sm text-muted flex items-center gap-2">
                       <span className="flex items-center gap-1">
                         <Building2 size={14} />{" "}
-                        {job.companyName || job.company}
+                        {job.company.companyName}
                       </span>
                       <span>•</span>
                       <span>{job.duration || job.type}</span>
@@ -152,7 +149,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <Link
-                  to={`/user/jobs/${job._id}`}
+                  to={`/user/job/${job._id}`}
                   className="px-3 py-2 rounded-lg bg-accent text-white hover:shadow-glowAccent text-sm text-center"
                 >
                   View Details

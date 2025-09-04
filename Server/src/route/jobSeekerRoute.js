@@ -6,6 +6,8 @@ import { getJobSeekerProfile } from '../controllers/jobSeeker/getJobSeekerProfil
 import {applyToJob} from '../controllers/jobProposal/jobProposalApplying.js';
 import { getJobProposals } from '../controllers/jobProposal/getJobProposalJobSeeker.js';
 import { getJobSeekerDashboard } from '../controllers/jobSeeker/jobSeekerDashBoard.js';
+import { getJobsForJobSeeker } from '../controllers/jobSeeker/getJobsForJobSeeker.js';
+import { saveJob, getSavedJobs, unsaveJob } from '../controllers/jobSeeker/saveJobs.js';
 const router = express.Router();
 
 router.put('/profile',verifyMiddleware, verifyJobSeeker, fillJobSeekerForm);
@@ -13,5 +15,9 @@ router.get('/profile', verifyMiddleware, verifyJobSeeker, getJobSeekerProfile);
 router.post('/apply/:jobId', verifyMiddleware, verifyJobSeeker, applyToJob);
 router.get('/proposals', verifyMiddleware, verifyJobSeeker, getJobProposals);
 router.get('/dashboard', verifyMiddleware, verifyJobSeeker, getJobSeekerDashboard);
+router.get('/jobs', verifyMiddleware, verifyJobSeeker, getJobsForJobSeeker);
+router.post('/save-job/:jobId', verifyMiddleware, verifyJobSeeker, saveJob);
+router.get('/saved-jobs', verifyMiddleware, verifyJobSeeker, getSavedJobs);
+router.delete('/save-job/:jobId', verifyMiddleware, verifyJobSeeker, unsaveJob);
 
 export default router;

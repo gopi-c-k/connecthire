@@ -45,10 +45,17 @@ export const getJobSeekerDashboard = async (req, res) => {
 
         // recommended jobs
         const skills = jobSeeker.skills || [];
-        const recommendedJobs = await Job.find({
-            skills: { $in: skills },
-            status: "open",
-        }).limit(3);
+        const recommendedJobs = await Job.find(
+            {
+                skills: { $in: skills },
+                status: "open",
+            }
+        )
+            .select("title duration location skills status") // fields from Job
+            .populate("company", "companyName companyLogo")  // fields from Company
+            .sort({ postedAt: -1 })
+            .limit(3);
+
 
         // send response
         res.status(200).json({

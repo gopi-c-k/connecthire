@@ -30,7 +30,7 @@ export const applyToJob = async (req, res) => {
     // Check if the job seeker has already applied to this job
     const existingProposal = await JobProposal.findOne({ job: jobId, jobSeeker: jobSeekerId });
     if (existingProposal) {
-      return res.status(400).json({ message: "You have already applied to this job" });
+      return res.status(406).json({ message: "You have already applied to this job" });
     }
 
     // Create a new job proposal

@@ -7,6 +7,7 @@ import api from "../../../../secureApiForUser";
 export default function JobsList() {
   const [q, setQ] = useState("");
   const [jobs, setJobs] = useState([]);
+  const [pagination, setPagination] = useState(null); // optional for later
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -14,9 +15,10 @@ export default function JobsList() {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/jobs"); // ✅ backend se jobs fetch
+        const res = await api.get("/jobseeker/jobs"); // ✅ backend se jobs fetch
         console.log("Fetched jobs:", res.data);
-        setJobs(res.data);
+        setJobs(res.data.recommendedJobs || []); // ✅ only array
+        setPagination(res.data.pagination || null);
       } catch (err) {
         console.error("Error fetching jobs:", err);
         setError("Failed to load jobs.");
@@ -55,9 +57,7 @@ export default function JobsList() {
               Loading jobs...
             </div>
           ) : error ? (
-            <div className="text-red-400 text-sm p-6 text-center">
-              {error}
-            </div>
+            <div className="text-red-400 text-sm p-6 text-center">{error}</div>
           ) : filtered.length > 0 ? (
             filtered.map((job) => (
               <div
@@ -70,14 +70,22 @@ export default function JobsList() {
                   </div>
                   <div>
                     <div className="font-medium">{job.title}</div>
-                    <div className="text-sm text-muted flex items-center gap-2">
+                    <div className="text-sm text-muted flex flex-wrap items-center gap-2">
                       <span className="flex items-center gap-1">
                         <Building2 size={14} /> {job.company?.companyName}
                       </span>
-                      <span>•</span>
-                      <span>{job.jobType}</span>
-                      <span>•</span>
-                      <span>{job.location}</span>
+                      {job.duration && (
+                        <>
+                          <span>•</span>
+                          <span>{job.duration}</span>
+                        </>
+                      )}
+                      {job.location && (
+                        <>
+                          <span>•</span>
+                          <span>{job.location}</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -98,6 +106,14 @@ export default function JobsList() {
             </div>
           )}
         </div>
+
+        {/* Optional pagination UI */}
+        {pagination && (
+          <div className="text-sm text-center text-muted">
+            Page {pagination.page} of {pagination.totalPages} —{" "}
+            {pagination.totalJobs} jobs total
+          </div>
+        )}
       </div>
     </JobseekerLayout>
   );

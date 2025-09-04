@@ -54,7 +54,7 @@ const JobSeekerSchema = new mongoose.Schema({
       ref: 'Job'
     }
   ],
-  jobsSaved: [
+  savedJobs: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Job'
