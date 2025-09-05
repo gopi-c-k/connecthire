@@ -1,17 +1,15 @@
 import React from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion"; 
-import CustomSelect from "../../../../components/CustomSelect"; 
+import { AnimatePresence, motion } from "framer-motion";
+import CustomSelect from "../../../../components/CustomSelect";
 export default function UserSettingsLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
   const links = [
-    { name: "Account", path: "account" },
     { name: "Profile", path: "profile" },
     { name: "Privacy", path: "privacy" },
-    { name: "Notifications", path: "notifications" },
-    
+    { name: "Security", path: "account" },
     { name: "Danger Zone", path: "danger" },
   ];
 
@@ -39,10 +37,9 @@ export default function UserSettingsLayout() {
                 key={link.path}
                 to={link.path}
                 className={({ isActive }) =>
-                  `px-3 py-1 rounded-lg transition text-sm ${
-                    isActive
-                      ? "bg-primary text-white"
-                      : "text-gray-300 hover:bg-slate-800"
+                  `px-3 py-1 rounded-lg transition text-sm ${isActive
+                    ? "bg-primary text-white"
+                    : "text-gray-300 hover:bg-slate-800"
                   }`
                 }
               >
