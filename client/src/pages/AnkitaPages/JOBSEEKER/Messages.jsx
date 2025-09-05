@@ -1,179 +1,255 @@
-import React, { useState, useRef, useEffect } from "react";
-import JobseekerLayout from "../layouts/JobseekerLayout";
-import { Send } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Search, Send, ArrowLeft } from "lucide-react";
 
-// Dummy conversations
-const dummyConversations = [
+const formatTime = (date) => {
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
+
+const conversationsData = [
   {
     id: 1,
-    companyName: "Google",
+    company: "Google",
     jobTitle: "Frontend Developer",
-    lastMessage: { content: "We received your application.", createdAt: "10:15 AM" },
+    avatar: "https://logo.clearbit.com/google.com",
+    lastMessage: "Please share your portfolio link.",
+    lastMessageTime: "10:30 AM",
     unread: 2,
-    avatar: "G",
+    online: true,
+    typing: false,
+    messages: [
+      { from: "company", text: "Hi, thanks for applying!", time: "10:00 AM", seen: true },
+      { from: "me", text: "Hello! Glad to connect.", time: "10:05 AM", seen: true },
+      { from: "company", text: "Please share your portfolio link.", time: "10:30 AM", seen: false },
+    ],
   },
   {
     id: 2,
-    companyName: "Microsoft",
-    jobTitle: "UI/UX Designer",
-    lastMessage: { content: "Can you share your portfolio?", createdAt: "Yesterday" },
-    unread: 0,
-    avatar: "M",
-  },
-  {
-    id: 3,
-    companyName: "Amazon",
+    company: "Microsoft",
     jobTitle: "Backend Engineer",
-    lastMessage: { content: "Interview scheduled for Friday.", createdAt: "Aug 28" },
+    avatar: "https://logo.clearbit.com/microsoft.com",
+    lastMessage: "Interview scheduled for tomorrow.",
+    lastMessageTime: "Yesterday",
     unread: 0,
-    avatar: "A",
+    online: false,
+    typing: false,
+    messages: [
+      { from: "company", text: "Your interview is scheduled.", time: "Yesterday", seen: true },
+      { from: "me", text: "Thank you!", time: "Yesterday", seen: true },
+    ],
   },
 ];
 
-// Dummy messages
-const dummyMessages = {
-  1: [
-    { sender: "company", content: "Hello, thanks for applying!", createdAt: "10:00 AM" },
-    { sender: "me", content: "Glad to connect!", createdAt: "10:05 AM" },
-    { sender: "company", content: "We received your application.", createdAt: "10:15 AM" },
-  ],
-  2: [
-    { sender: "company", content: "Can you share your portfolio?", createdAt: "Yesterday" },
-    { sender: "me", content: "Yes, I’ll send it soon.", createdAt: "Yesterday" },
-  ],
-  3: [
-    { sender: "company", content: "Interview scheduled for Friday.", createdAt: "Aug 28" },
-  ],
-};
-
-export default function Messages() {
-  const [conversations, setConversations] = useState(dummyConversations);
-  const [activeChat, setActiveChat] = useState(dummyConversations[0]);
-  const [messages, setMessages] = useState(dummyMessages[dummyConversations[0].id]);
+export default function MessagesPage({ onNewMessage }) {
+  const [conversations, setConversations] = useState(conversationsData);
+  const [activeChat, setActiveChat] = useState(null);
+  const [search, setSearch] = useState("");
   const [newMessage, setNewMessage] = useState("");
-
   const messagesEndRef = useRef(null);
 
+  // Auto scroll to bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [activeChat, conversations]);
 
-  const openChat = (chat) => {
-    setActiveChat(chat);
-    setMessages(dummyMessages[chat.id] || []);
-    setConversations((prev) =>
-      prev.map((c) => (c.id === chat.id ? { ...c, unread: 0 } : c))
-    );
-  };
+  // Filter conversations
+  const filteredConvos = conversations
+    .filter(
+      (c) =>
+        c.company.toLowerCase().includes(search.toLowerCase()) ||
+        c.jobTitle.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => (a.lastMessageTime < b.lastMessageTime ? 1 : -1));
 
-  const sendMessage = () => {
-    if (!newMessage.trim()) return;
-    const newMsg = { sender: "me", content: newMessage, createdAt: "Now" };
-    setMessages((prev) => [...prev, newMsg]);
+  // Send message
+  const handleSend = () => {
+    if (!newMessage.trim() || !activeChat) return;
+
+    const time = formatTime(new Date());
+
+    const updatedConvos = conversations.map((c) => {
+      if (c.id === activeChat.id) {
+        const updatedChat = {
+          ...c,
+          lastMessage: newMessage,
+          lastMessageTime: time,
+          messages: [
+            ...c.messages,
+            { from: "me", text: newMessage, time, seen: false },
+          ],
+        };
+        return updatedChat;
+      }
+      return c;
+    });
+
+    setConversations(updatedConvos);
+
+    const refreshedChat = updatedConvos.find((c) => c.id === activeChat.id);
+    setActiveChat(refreshedChat);
+
+    // 🔔 trigger notification in Navbar
+    if (onNewMessage) {
+      onNewMessage(refreshedChat);
+    }
+
     setNewMessage("");
   };
 
+  // Typing indicator
+  const handleTyping = (e) => {
+    const value = e.target.value;
+    setNewMessage(value);
+
+    if (activeChat) {
+      setActiveChat({ ...activeChat, typing: value.length > 0 });
+    }
+  };
+
   return (
-    <JobseekerLayout>
-      <div className="h-[calc(100vh-64px)] flex bg-gray-100 rounded-lg shadow">
-        {/* Sidebar */}
-        <div className="w-1/3 border-r bg-white p-3 overflow-y-auto">
-          <h2 className="font-semibold text-lg mb-3">Messages</h2>
-          {conversations.map((chat) => (
+    <div className="h-screen flex bg-bg text-lightText">
+      {/* Sidebar */}
+      <div
+        className={`w-full md:w-1/3 lg:w-1/4 border-r border-mediumGray flex flex-col ${
+          activeChat ? "hidden md:flex" : "flex"
+        }`}
+      >
+        {/* Header - sticky */}
+        <div className="p-4 border-b border-mediumGray flex items-center gap-2 sticky top-0 bg-bg z-10">
+          <h2 className="text-xl font-semibold flex-1">Messages</h2>
+          <div className="flex items-center bg-surface px-2 py-1 rounded-lg">
+            <Search className="w-4 h-4 text-muted mr-1" />
+            <input
+              type="text"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-transparent focus:outline-none text-sm w-full"
+            />
+          </div>
+        </div>
+
+        {/* Conversation list */}
+        <div className="flex-1 overflow-y-auto">
+          {filteredConvos.map((c) => (
             <div
-              key={chat.id}
-              className={`flex items-center gap-3 p-3 mb-2 rounded-lg cursor-pointer transition ${
-                activeChat?.id === chat.id
-                  ? "border-l-4 border-green-600 bg-gray-50"
-                  : "hover:bg-gray-100"
-              }`}
-              onClick={() => openChat(chat)}
+              key={c.id}
+              onClick={() => setActiveChat(c)}
+              className="flex items-center gap-3 p-3 hover:bg-surface cursor-pointer border-b border-darkGray"
             >
-              <div className="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-full font-bold">
-                {chat.avatar}
-              </div>
+              <img
+                src={c.avatar}
+                alt={c.company}
+                className="w-10 h-10 rounded-full object-cover"
+              />
               <div className="flex-1">
-                <div className="flex justify-between">
-                  <span className="font-medium">{chat.companyName}</span>
-                  <span className="text-xs text-gray-400">{chat.lastMessage.createdAt}</span>
+                <div className="flex justify-between items-center">
+                  <h3 className="font-medium">{c.company}</h3>
+                  <span className="text-xs text-muted">{c.lastMessageTime}</span>
                 </div>
-                <p className="text-sm text-gray-600 truncate">{chat.lastMessage.content}</p>
+                <p className="text-sm text-muted truncate">{c.lastMessage}</p>
               </div>
-              {chat.unread > 0 && (
-                <span className="bg-green-600 text-white text-xs px-2 py-0.5 rounded-full">
-                  {chat.unread}
+              {c.unread > 0 && (
+                <span className="bg-primary text-white text-xs px-2 py-1 rounded-full">
+                  {c.unread}
                 </span>
               )}
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Chat Window */}
-        <div className="flex-1 flex flex-col">
-          {activeChat ? (
-            <>
-              {/* Header */}
-              <div className="border-b p-3 bg-white flex items-center gap-3">
-                <div className="w-10 h-10 flex items-center justify-center bg-gray-200 text-gray-700 rounded-full font-bold">
-                  {activeChat.avatar}
-                </div>
-                <div>
-                  <h3 className="font-semibold">{activeChat.companyName}</h3>
-                  <p className="text-xs text-gray-500">{activeChat.jobTitle}</p>
-                </div>
+      {/* Chat Window */}
+      <div
+        className={`flex-1 flex flex-col ${
+          activeChat ? "flex" : "hidden md:flex"
+        }`}
+      >
+        {activeChat ? (
+          <>
+            {/* Header */}
+            <div className="flex items-center p-3 border-b border-mediumGray bg-surface">
+              <button
+                className="md:hidden mr-2"
+                onClick={() => setActiveChat(null)}
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <img
+                src={activeChat.avatar}
+                alt={activeChat.company}
+                className="w-10 h-10 rounded-full object-cover mr-3"
+              />
+              <div>
+                <h3 className="font-semibold">{activeChat.company}</h3>
+                <p className="text-xs text-muted">
+                  {activeChat.typing
+                    ? "Typing..."
+                    : activeChat.online
+                    ? "Online"
+                    : `Last seen at ${activeChat.lastMessageTime}`}
+                </p>
               </div>
+            </div>
 
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
-                {messages.map((msg, idx) => (
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {activeChat.messages.map((m, i) => (
+                <div
+                  key={i}
+                  className={`flex ${
+                    m.from === "me" ? "justify-end" : "justify-start"
+                  }`}
+                >
                   <div
-                    key={idx}
-                    className={`flex ${
-                      msg.sender === "me" ? "justify-end" : "justify-start"
+                    className={`max-w-xs px-3 py-2 rounded-2xl text-sm shadow-soft ${
+                      m.from === "me"
+                        ? "bg-primary text-white rounded-br-none"
+                        : "bg-surface text-lightText rounded-bl-none"
                     }`}
                   >
-                    <div
-                      className={`px-3 py-2 rounded-2xl max-w-xs shadow ${
-                        msg.sender === "me"
-                          ? "bg-blue-600 text-white rounded-br-none"
-                          : "bg-white border rounded-bl-none text-gray-800"
-                      }`}
-                    >
-                      <p>{msg.content}</p>
-                      <span className="text-[10px] text-gray-400 block mt-1 text-right">
-                        {msg.createdAt}
+                    <p>{m.text}</p>
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="text-[10px] text-lightGray">
+                        {m.time}
                       </span>
+                      {m.from === "me" && (
+                        <span className="text-[10px] ml-2">
+                          {m.seen ? "Seen" : "Delivered"}
+                        </span>
+                      )}
                     </div>
                   </div>
-                ))}
-                <div ref={messagesEndRef}></div>
-              </div>
-
-              {/* Input */}
-              <div className="border-t p-3 bg-white flex">
-                <input
-                  type="text"
-                  placeholder="Type a message..."
-                  className="flex-1 border rounded-full px-4 py-2 focus:outline-none focus:ring focus:ring-green-300"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                />
-                <button
-                  className="ml-2 bg-green-600 text-white p-2 rounded-full hover:bg-green-700"
-                  onClick={sendMessage}
-                >
-                  <Send className="w-5 h-5" />
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-500">
-              Select a conversation to start chatting
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
             </div>
-          )}
-        </div>
+
+            {/* Input */}
+            <div className="p-3 border-t border-mediumGray flex items-center gap-2 bg-surface">
+              <input
+                type="text"
+                value={newMessage}
+                onChange={handleTyping}
+                placeholder="Type a message"
+                className="flex-1 bg-darkGray text-lightText px-3 py-2 rounded-full text-sm focus:outline-none"
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              />
+              <button
+                onClick={handleSend}
+                className="bg-primary p-2 rounded-full text-white hover:bg-primaryLight"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-muted">
+            Select a conversation to start chatting
+          </div>
+        )}
       </div>
-    </JobseekerLayout>
+    </div>
   );
 }

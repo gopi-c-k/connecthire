@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { Menu, Bell, MessageSquare } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { logout } from "../services/authService"; // adjust if needed
+import { logout } from "../services/authService"; 
 
 export default function JobseekerNavbar({ onMenuClick }) {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsCount, setNotificationsCount] = useState(0);
+  const [notifications, setNotifications] = useState([]); 
   const dropdownRef = useRef(null);
 
-  // Close dropdown on outside click
+  // Close profile dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -23,7 +24,12 @@ export default function JobseekerNavbar({ onMenuClick }) {
   // Dummy notification simulation
   useEffect(() => {
     // TODO: Replace with websocket or API
-    setNotificationsCount(2);
+    const dummyNotifications = [
+      { title: "New Job Posted", message: "Google posted a new Frontend role", time: "10:45 AM" },
+      { title: "Interview Update", message: "Microsoft scheduled your interview", time: "Yesterday" },
+    ];
+    setNotifications(dummyNotifications);
+    setNotificationsCount(dummyNotifications.length);
   }, []);
 
   const handleLogout = () => {
@@ -47,12 +53,12 @@ export default function JobseekerNavbar({ onMenuClick }) {
           to="/user/dashboard"
           className="font-semibold text-white text-lg"
         >
-           <span className="text-green-400">Jobseeker Dashboard</span>
+          <span className="text-green-400">Jobseeker Dashboard</span>
         </Link>
 
         {/* Right side */}
         <div className="flex items-center gap-4">
-          {/* Messages */}
+          {/* Messages → just link */}
           <Link
             to="/user/messages"
             className="text-slate-300 hover:text-white relative"
@@ -60,18 +66,18 @@ export default function JobseekerNavbar({ onMenuClick }) {
             <MessageSquare size={22} />
           </Link>
 
-          {/* Notifications */}
-          <div className="relative">
-            <Bell
-              className="text-slate-300 cursor-pointer hover:text-white"
-              size={22}
-            />
+          {/* Notifications → go to page */}
+          <button
+            onClick={() => navigate("/user/notifications")}
+            className="text-slate-300 hover:text-white relative"
+          >
+            <Bell size={22} />
             {notificationsCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-xs w-4 h-4 flex items-center justify-center rounded-full">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
                 {notificationsCount}
               </span>
             )}
-          </div>
+          </button>
 
           {/* Profile Dropdown */}
           <div className="relative" ref={dropdownRef}>
