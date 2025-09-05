@@ -35,7 +35,11 @@ const CompanySchema = new mongoose.Schema({
   jobsPosted: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Job'
-  }]
+  }],
+  raisedReports: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Report'
+  }],
 });
 
 const Company = mongoose.model('Company', CompanySchema);

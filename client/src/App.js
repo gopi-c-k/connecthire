@@ -45,7 +45,6 @@ import UserSettingsLayout from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserS
 import UserAccountSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserAccountSettings";
 import UserProfileSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserProfileSettings";
 import UserPrivacySettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserPrivacySettings";
-import UserNotificationSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserNotificationSettings";
 
 import UserReportSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserReportSettings";
 
@@ -83,7 +82,7 @@ function App() {
 
         <Route path="/company/job-post" element={<JobPosting />} />
         <Route path="/company/jobs" element={<ManageJobs />} />
-         <Route path="/user/notifications" element={<NotificationsPage />} />
+        <Route path="/user/notifications" element={<NotificationsPage />} />
         <Route path="/company/job/edit/:jobId" element={<EditJob />} />
         <Route path="/company/profile/edit" element={<EditCompanyProfile />} />
         <Route path="/company/job/:id" element={<JobDetails />} />
@@ -91,11 +90,26 @@ function App() {
         <Route path="/company/jobs/applicants" element={<ApplicantsHub />} />
         <Route path="/company/profile" element={<CompanyProfile />} />
 
-       {/* ---------- JOBSEEKER (component-level layout like Company) ---------- */}
-         <Route path="/user/dashboard" element={<Dashboard />} />
-         <Route path="/user/jobs" element={<JobsList />} />
-         <Route path="/user/job/:id" element={<JobDetail />} />
-         <Route path="/user/saved" element={<SavedJobs />} />
+        {/* ---------- JOBSEEKER (component-level layout like Company) ---------- */}
+        <Route path="/user/dashboard" element={<Dashboard />} />
+        <Route path="/user/jobs" element={<JobsList />} />
+        <Route path="/user/job/:id" element={<JobDetail />} />
+        <Route path="/user/saved" element={<SavedJobs />} />
+
+
+        <Route path="/user/applications" element={<Applications />} />
+        <Route path="/user/messages" element={<Messages />} />
+        <Route path="/user/messages/:conversationId" element={<Messages />} />
+        <Route path="/user/profile" element={<UserProfile />} />
+        <Route path="/user/profile/edit" element={<EditUserProfile />} />
+        <Route path="/user/settings" element={<UserSettingsLayout />}>
+          <Route index element={<UserAccountSettings />} />
+          <Route path="account" element={<UserAccountSettings />} />
+          <Route path="profile" element={<UserProfileSettings />} />
+          <Route path="privacy" element={<UserPrivacySettings />} />
+
+          <Route path="danger" element={<UserDangerSettings />} />
+        </Route>
 
 
          <Route path="/user/applications" element={<Applications />} />
@@ -115,7 +129,7 @@ function App() {
 
 
 
-         
+
 
 
         {/* Optional: 404 */}

@@ -35,7 +35,6 @@ const EditJob = () => {
       try {
         const res = await api.get(`/job/${jobId}`);
         const job = res.data;
-        console.log("Fetched job data:", job);
         setJobData({
           ...job,
           skills: job.skills || [],

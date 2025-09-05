@@ -61,7 +61,6 @@ const JobPosting = () => {
 
     try {
       const res = await api.put("/job/fill-form", payload);
-      console.log(res.data);
       alert("✅ Job posted successfully!");
       navigate("/company/jobs", { state: { JobPosted: true } });
     } catch (err) {

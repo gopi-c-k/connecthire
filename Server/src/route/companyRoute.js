@@ -6,6 +6,7 @@
  import { getCompanyJobList } from '../controllers/company/companyJobListController.js';
 import { getJobProposalsForCompany } from '../controllers/jobProposal/getJobProposalCompany.js';
 import { getCompanyCurrentStatus } from '../controllers/company/getCompanyCurrentStatus.js';
+import { reportJobSeeker } from '../controllers/company/reportJobSeeker.js';
  const router = express.Router();
 
 router.put('/profile', verifyMiddleware, verifyCompany, updateCompanyProfile);
@@ -13,6 +14,7 @@ router.get('/profile', verifyMiddleware, verifyCompany, getCompanyProfile);
 router.get('/jobs', verifyMiddleware, verifyCompany, getCompanyJobList);
 router.get('/job-proposals', verifyMiddleware, verifyCompany, getJobProposalsForCompany);
 router.get('/current-status', verifyMiddleware, verifyCompany, getCompanyCurrentStatus);
+router.post('/report',verifyMiddleware,verifyCompany,reportJobSeeker);
 
 
  export default router;

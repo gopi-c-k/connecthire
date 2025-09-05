@@ -54,6 +54,12 @@ const JobSeekerSchema = new mongoose.Schema({
       ref: 'Job'
     }
   ],
+  savedJobs: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Job'
+    }
+  ],
   certifications: [
     {
       title: String,
@@ -61,6 +67,10 @@ const JobSeekerSchema = new mongoose.Schema({
       year: Number
     }
   ],
+  raisedReports: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Report'
+  }],
   availability: {
     type: String,
     enum: ['Full-Time', 'Part-Time', 'Freelance', 'Internship'],

@@ -7,6 +7,7 @@ import api from "../../../../secureApiForUser";
 
 export default function SavedJobs() {
   const [savedJobs, setSavedJobs] = useState([]);
+  const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -15,8 +16,10 @@ export default function SavedJobs() {
     const fetchSavedJobs = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/jobseeker/saved-jobs"); // ✅ endpoint confirm karna backend se
-        setSavedJobs(res.data || []);
+        const res = await api.get("/jobseeker/saved-jobs");
+        // extract array + pagination
+        setSavedJobs(res.data.savedJobs || []);
+        setPagination(res.data.pagination || null);
       } catch (err) {
         console.error("Error fetching saved jobs:", err);
         setError("Failed to load saved jobs.");
@@ -31,8 +34,12 @@ export default function SavedJobs() {
   // ✅ unsave job
   const handleUnsave = async (id) => {
     try {
-      await api.delete(`/jobseeker/saved-jobs/${id}`); // ✅ endpoint confirm karna backend se
+      await api.delete(`/jobseeker/save-job/${id}`); // ✅ check endpoint in backend
       setSavedJobs((prev) => prev.filter((job) => job._id !== id));
+      setPagination((prev) => ({
+        ...prev,
+        totalJobs: prev.totalJobs - 1,
+      }));
     } catch (err) {
       console.error("Error unsaving job:", err);
       alert("Failed to unsave job. Please try again.");
@@ -70,14 +77,22 @@ export default function SavedJobs() {
                   </div>
                   <div>
                     <div className="font-medium">{job.title}</div>
-                    <div className="text-sm text-muted flex items-center gap-2">
+                    <div className="text-sm text-muted flex items-center gap-2 flex-wrap">
                       <span className="flex items-center gap-1">
                         <Building2 size={14} /> {job.company?.companyName}
                       </span>
-                      <span>•</span>
-                      <span>{job.jobType}</span>
-                      <span>•</span>
-                      <span>{job.location}</span>
+                      {job.duration && (
+                        <>
+                          <span>•</span>
+                          <span>{job.duration}</span>
+                        </>
+                      )}
+                      {job.location && (
+                        <>
+                          <span>•</span>
+                          <span>{job.location}</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -107,6 +122,14 @@ export default function SavedJobs() {
             </div>
           )}
         </div>
+
+        {/* Optional pagination info */}
+        {pagination && (
+          <div className="text-sm text-center text-muted">
+            Page {pagination.page} of {pagination.totalPages} —{" "}
+            {pagination.totalJobs} jobs total
+          </div>
+        )}
       </div>
     </JobseekerLayout>
   );

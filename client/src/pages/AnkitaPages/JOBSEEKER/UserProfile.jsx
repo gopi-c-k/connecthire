@@ -24,7 +24,6 @@ export default function UserProfile() {
     const fetchProfile = async () => {
       try {
         const res = await api.get("/jobseeker/profile");
-        console.log("Fetched profile:", res.data);
 
         const jobSeeker = res.data.jobSeeker; // ✅ actual data nested me hai
 

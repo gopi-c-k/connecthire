@@ -1,12 +1,7 @@
 import React, { useState } from "react";
-import CustomSelect from "../../../../components/CustomSelect";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function UserAccountSettings() {
-  // Prefilled from backend (mock for now)
-  const [email, setEmail] = useState("user@example.com");
-  const [phone, setPhone] = useState("9876543210");
-  const [emailVerified, setEmailVerified] = useState(false);
 
   // Password states
   const [currentPassword, setCurrentPassword] = useState("");
@@ -17,9 +12,6 @@ export default function UserAccountSettings() {
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
 
-  // Preferences
-  const [language, setLanguage] = useState("en");
-  const [timezone, setTimezone] = useState("IST");
 
   // ✅ Live password match validation
   const passwordMismatch =
@@ -52,53 +44,9 @@ export default function UserAccountSettings() {
 
   return (
     <div className="space-y-10">
-      <h2 className="text-xl font-semibold">Account Settings</h2>
+      <h2 className="text-xl font-semibold">Security Settings</h2>
 
       <form onSubmit={handleSave} className="space-y-10">
-        {/* -------- Account Info -------- */}
-        <section className="space-y-4">
-          <h3 className="text-lg font-medium">Account Information</h3>
-
-          {/* Email */}
-          <div>
-            <label className="block text-sm mb-1">Email Address</label>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="email"
-                className="flex-1 px-3 py-2 rounded-lg bg-bg border border-slate-700 text-lightText focus:outline-none focus:ring-2 focus:ring-primary"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              {emailVerified ? (
-                <span className="px-3 py-2 rounded-lg bg-green-600 text-white text-sm">
-                  Verified
-                </span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    alert("📧 Verification link sent to your email!");
-                    setEmailVerified(true); // ✅ ab use ho raha hai
-                  }}
-                  className="px-4 py-2 rounded-lg border border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 transition"
-                >
-                  Verify Email
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label className="block text-sm mb-1">Phone Number</label>
-            <input
-              type="tel"
-              className="w-full px-3 py-2 rounded-lg bg-bg border border-slate-700 text-lightText focus:outline-none focus:ring-2 focus:ring-primary"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </div>
-        </section>
 
         {/* -------- Change Password -------- */}
         <section className="space-y-4">
@@ -170,66 +118,6 @@ export default function UserAccountSettings() {
               }`}
             >
               Change Password
-            </button>
-          </div>
-        </section>
-
-        {/* -------- Preferences -------- */}
-        <section className="space-y-4">
-          <h3 className="text-lg font-medium">Preferences</h3>
-
-          {/* Language */}
-          <div>
-            <label className="block text-sm mb-1">Language</label>
-            <CustomSelect
-              value={language}
-              onChange={setLanguage}
-              options={[
-                { value: "en", label: "English" },
-                { value: "hi", label: "Hindi" },
-                { value: "es", label: "Spanish" },
-              ]}
-            />
-          </div>
-
-          {/* Timezone */}
-          <div>
-            <label className="block text-sm mb-1">Timezone</label>
-            <CustomSelect
-              value={timezone}
-              onChange={setTimezone}
-              options={[
-                { value: "IST", label: "IST (India)" },
-                { value: "EST", label: "EST (US Eastern)" },
-                { value: "GMT", label: "GMT" },
-              ]}
-            />
-          </div>
-        </section>
-
-        {/* -------- Linked Accounts -------- */}
-        <section className="space-y-4">
-          <h3 className="text-lg font-medium">Linked Accounts</h3>
-          <p className="text-sm text-muted">
-            Connect your social accounts for faster login.
-          </p>
-          <div className="flex gap-3 flex-wrap">
-            {/* Google Button */}
-            <button
-              type="button"
-              onClick={() => alert(" Google account linked")}
-              className="px-4 py-2 rounded-lg border border-red-500 text-red-500 hover:bg-red-500/10 transition"
-            >
-              Connect Google
-            </button>
-
-            {/* LinkedIn Button */}
-            <button
-              type="button"
-              onClick={() => alert(" LinkedIn account linked")}
-              className="px-4 py-2 rounded-lg border border-blue-500 text-blue-500 hover:bg-blue-500/10 transition"
-            >
-              Connect LinkedIn
             </button>
           </div>
         </section>

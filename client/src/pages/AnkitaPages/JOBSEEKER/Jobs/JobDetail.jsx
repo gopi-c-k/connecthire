@@ -21,7 +21,6 @@ export default function JobDetail() {
       try {
         setLoading(true);
         const res = await api.get(`/job/${id}`);
-        console.log("Fetched job data:", res.data);
         setJob(res.data);
       } catch (err) {
         console.error("Error fetching job:", err);
@@ -43,7 +42,7 @@ export default function JobDetail() {
         setIsModalOpen(false);
         setCoverLetter("");
         navigate("/user/applications");
-      } else if (res.status === 400) {
+      } else if (res.status === 406) {
         alert("Application already submitted!");
       }
     } catch (err) {
@@ -51,6 +50,20 @@ export default function JobDetail() {
       alert("Failed to apply. Please try again.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const res = await api.post(`/jobseeker/save-job/${id}`);
+      if (res.status === 200) {
+        alert("Job saved successfully!");
+      } else {
+        alert(res.data.message || "Failed to save job.");
+      }
+    } catch (err) {
+      console.error("Error saving job:", err);
+      alert("Failed to save job. Please try again.");
     }
   };
 
@@ -124,7 +137,7 @@ export default function JobDetail() {
               </span>
             )}
             <button
-              onClick={() => alert("Saved (mock)")}
+              onClick={() => { handleSave() }}
               className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-primaryDark"
             >
               Save
