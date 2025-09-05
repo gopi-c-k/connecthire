@@ -34,6 +34,7 @@ import SavedJobs from "./pages/AnkitaPages/JOBSEEKER/Jobs/SavedJobs";
 
 import Applications from "./pages/AnkitaPages/JOBSEEKER/Applications";
 import Messages from "./pages/AnkitaPages/JOBSEEKER/Messages";
+import NotificationsPage from "./pages/AnkitaPages/JOBSEEKER/Notifications";
 import UserProfile from "./pages/AnkitaPages/JOBSEEKER/UserProfile";
 import EditUserProfile from "./pages/AnkitaPages/JOBSEEKER/EditUserProfile";
 
@@ -78,6 +79,7 @@ function App() {
         <Route path="/company/Change-Password" element={<ChangePassword />} />
         <Route path="/company/job-post" element={<JobPosting />} />
         <Route path="/company/jobs" element={<ManageJobs />} />
+         <Route path="/user/notifications" element={<NotificationsPage />} />
         <Route path="/company/job/edit/:jobId" element={<EditJob />} />
         <Route path="/company/profile/edit" element={<EditCompanyProfile />} />
         <Route path="/company/job/:id" element={<JobDetails />} />
