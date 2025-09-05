@@ -16,7 +16,6 @@ export default function Applications() {
       try {
         setLoading(true);
         const res = await api.get("/jobseeker/proposals");
-        console.log("Fetched applications:", res.data);
         // ✅ extract array properly
         setApplications(res.data.proposals);
       } catch (err) {

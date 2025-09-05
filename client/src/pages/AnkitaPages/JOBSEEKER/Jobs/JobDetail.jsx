@@ -21,7 +21,6 @@ export default function JobDetail() {
       try {
         setLoading(true);
         const res = await api.get(`/job/${id}`);
-        console.log("Fetched job data:", res.data);
         setJob(res.data);
       } catch (err) {
         console.error("Error fetching job:", err);

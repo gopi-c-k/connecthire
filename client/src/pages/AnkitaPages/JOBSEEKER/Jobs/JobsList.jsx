@@ -15,8 +15,7 @@ export default function JobsList() {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/jobseeker/jobs"); // ✅ backend se jobs fetch
-        console.log("Fetched jobs:", res.data);
+        const res = await api.get("/jobseeker/jobs"); 
         setJobs(res.data.recommendedJobs || []); // ✅ only array
         setPagination(res.data.pagination || null);
       } catch (err) {

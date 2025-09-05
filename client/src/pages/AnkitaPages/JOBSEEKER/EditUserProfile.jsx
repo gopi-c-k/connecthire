@@ -42,7 +42,6 @@ export default function EditUserProfile() {
     const fetchProfile = async () => {
       try {
         const res = await api.get("/jobseeker/profile");
-        console.log("Fetched profile:", res.data);
         res.data = res.data.jobSeeker;
 
         setProfile({
@@ -154,7 +153,6 @@ export default function EditUserProfile() {
     setSaving(true);
     try {
       const payload = { ...profile };
-      console.log("Payload being sent to backend:", payload);
       
       let logoUrl = profile.profilePicture;
       if (logoFile) {

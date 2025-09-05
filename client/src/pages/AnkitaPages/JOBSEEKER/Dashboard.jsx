@@ -20,7 +20,6 @@ export default function Dashboard() {
       .get("/jobseeker/dashboard")
       .then((response) => {
         setUserData(response.data);
-        console.log("Dashboard data:", response.data);
       })
       .catch((error) => {
         console.error("Error fetching dashboard data:", error);

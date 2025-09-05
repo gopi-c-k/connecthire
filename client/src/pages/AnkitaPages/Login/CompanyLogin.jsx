@@ -41,7 +41,6 @@ const CompanyLogin = () => {
     }
 
     try {
-      console.log(process.env.REACT_APP_BASE);
       const res = await api.post("/user/signin", form);
       // console.log("Login response:", res.data);
 

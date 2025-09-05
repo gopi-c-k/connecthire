@@ -17,7 +17,6 @@ export default function SavedJobs() {
       try {
         setLoading(true);
         const res = await api.get("/jobseeker/saved-jobs");
-        console.log("Fetched saved jobs:", res.data);
         // extract array + pagination
         setSavedJobs(res.data.savedJobs || []);
         setPagination(res.data.pagination || null);

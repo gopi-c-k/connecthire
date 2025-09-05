@@ -42,10 +42,6 @@ const UserLogin = () => {
     }
     try {
       const res = await api.post("/user/signin", form);
-      // console.log("Login response:", res.data);
-
-
-      // Try to parse JSON; if the backend sent HTML for errors, handle 
       let data = {};
       try {
         data = res.data;
