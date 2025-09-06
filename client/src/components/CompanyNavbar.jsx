@@ -1,5 +1,6 @@
+// src/components/CompanyNavbar.jsx
 import { useState, useEffect, useRef } from "react";
-import { Bell, Menu } from "lucide-react";
+import { Bell, Menu, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../services/authService"; // adjust path if needed
 
@@ -79,6 +80,7 @@ export default function CompanyNavbar({ onMenuClick }) {
         <button
           className="md:hidden text-slate-300 hover:text-white"
           onClick={onMenuClick}
+          aria-label="Open menu"
         >
           <Menu size={24} />
         </button>
@@ -99,8 +101,23 @@ export default function CompanyNavbar({ onMenuClick }) {
 
         {/* Right side */}
         <div className="flex items-center gap-4">
-          {/* Notification Bell */}
-          <div className="relative">
+          {/* Messages Icon */}
+          <button
+            onClick={() => navigate("/company/messages")}
+            className="relative text-slate-300 hover:text-white"
+            aria-label="Open messages"
+            title="Messages"
+          >
+            <MessageSquare size={20} />
+          </button>
+
+          {/* Notification Bell (clickable) */}
+          <button
+            onClick={() => navigate("/company/notifications")}
+            className="relative"
+            aria-label="Open notifications"
+            title="Notifications"
+          >
             <Bell
               className="text-slate-300 cursor-pointer hover:text-white"
               size={22}
@@ -110,7 +127,7 @@ export default function CompanyNavbar({ onMenuClick }) {
                 {notificationsCount}
               </span>
             )}
-          </div>
+          </button>
 
           {/* Profile Dropdown */}
           <div className="relative" ref={dropdownRef}>

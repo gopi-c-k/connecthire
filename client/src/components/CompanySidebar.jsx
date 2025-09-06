@@ -1,4 +1,4 @@
-import { Home, FilePlus, Briefcase, Users,  Settings, LogOut } from "lucide-react";
+import { Home, FilePlus, Briefcase, Users, MessageSquare,  Settings, LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { logout } from "../services/authService"; // adjust path if needed
 
@@ -9,6 +9,7 @@ const links = [
 
   { name: "Applicants", icon: Users, path: "/company/jobs/applicants" },
   
+  { name: "Messages", icon: MessageSquare, path: "/company/messages" },
 
   { name: "Settings", icon: Settings, path: "/company/settings" },
 ];
