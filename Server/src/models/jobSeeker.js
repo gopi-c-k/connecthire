@@ -74,6 +74,29 @@ const JobSeekerSchema = new mongoose.Schema({
     type: String,
     enum: ['Full-Time', 'Part-Time', 'Freelance', 'Internship'],
     default: 'Full-Time'
+  },
+  profileVisibility: {
+    type: String,
+    enum: [
+      'Public',
+      'Private',
+      'Recruiters Only'
+    ],
+    default: "Public"
+  },
+  messageAllowed: {
+    type: String,
+    enum: ["Anyone", 'Nobody', 'Recruiters Only'],
+    default: "Anyone"
+  },
+  jobPreferences: {
+    type: String,
+    enum: ['Onsite', 'Hybrid', 'Remote'],
+    default: "Onsite"
+  },
+  viewResume :{
+    type : Boolean,
+    default: false
   }
 }, { timestamps: true });
 

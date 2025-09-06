@@ -33,20 +33,20 @@ const generateTokens = (res, userId) => {
 // @access  Public
 export const signIn = asyncHandler(async (req, res) => {
   const { email, password, role } = req.body;
-    if (!email || !password || !role) {
-        res.status(400);
-        throw new Error('Email, role and password are required');
-    }
+  if (!email || !password || !role) {
+    res.status(400);
+    throw new Error('Email, role and password are required');
+  }
   let user = await User.findOne({ email });
 
-  if(user.role != role){
-    return res.status(400).json({ message: "Invalid User Role"})
+  if (user.role != role) {
+    return res.status(400).json({ message: "Invalid User Role" })
   }
 
   if (user && await bcrypt.compare(password, user.password)) {
     const { accessToken, refreshToken } = generateTokens(res, user._id);
 
-    
+
     user.refreshToken = refreshToken;
     await user.save();
 
@@ -135,7 +135,7 @@ export const signUp = asyncHandler(async (req, res) => {
   // Check if user already exists
   const userExists = await User.findOne({ email });
   if (userExists) {
-    res.status(400).json({ message: "User already exists"});
+    res.status(400).json({ message: "User already exists" });
     // throw new Error("User already exists");
   }
 
@@ -161,3 +161,45 @@ export const signUp = asyncHandler(async (req, res) => {
     throw new Error("Invalid user data");
   }
 });
+
+// @desc    Change password for logged-in user
+// @route   PUT /user/auth/change-password
+// @access  Private
+export const changePassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  if (!oldPassword || !newPassword) {
+    res.status(400);
+    throw new Error('Old and new password are required');
+  }
+
+  // Find the logged-in user (assumes req.user is set by auth middleware)
+  const user = await User.findById(req.user.userId);
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  // Check old password
+  const isMatch = await bcrypt.compare(oldPassword, user.password);
+  if (!isMatch) {
+    res.status(401);
+    throw new Error('Old password is incorrect');
+  }
+
+  // Hash and set new password
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  user.password = hashedPassword;
+
+  // Optionally invalidate refresh token for security
+  user.refreshToken = null;
+
+  await user.save();
+
+  // Clear old cookies
+  res.clearCookie('accessToken', { httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === 'production' });
+  res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === 'production' });
+
+  res.status(200).json({ message: 'Password changed successfully. Please login again.' });
+});
+

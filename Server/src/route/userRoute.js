@@ -4,7 +4,9 @@ import {
   signIn,
   refreshToken,
   logout,
+  changePassword
 } from '../controllers/authController.js';
+import verifyMiddleware from '../middleware/userVerify.js'
 
 const router = express.Router();
 
@@ -19,5 +21,7 @@ router.post('/refresh', refreshToken);
 
 // @desc    Logout user
 router.post('/logout', logout);
+
+router.put('/change-password', verifyMiddleware, changePassword)
 
 export default router;
