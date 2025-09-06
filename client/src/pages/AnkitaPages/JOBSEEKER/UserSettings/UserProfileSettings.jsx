@@ -7,18 +7,6 @@ import axios from "axios";
 import api from "../../../../secureApiForUser";
 
 export default function UserProfileSettings() {
-  const [profilePic, setProfilePic] = useState(null);
-  const [resume, setResume] = useState(null);
-  const [skills, setSkills] = useState(["JavaScript", "React"]);
-  const [bio, setBio] = useState("");
-  const [certifications, setCertifications] = useState([]);
-  const [experience, setExperience] = useState([]);
-  const [education, setEducation] = useState([]);
-  const [links, setLinks] = useState({
-    github: "",
-    linkedin: "",
-    website: "",
-  });
   const [profile, setProfile] = useState({
     fullName: "",
     profilePicture: "",
