@@ -39,7 +39,7 @@ const conversationsData = [
   },
 ];
 
-export default function MessagesPage({ onNewMessage }) {
+export default function UserMessagesPage({ onNewMessage }) {
   const [conversations, setConversations] = useState(conversationsData);
   const [activeChat, setActiveChat] = useState(null);
   const [search, setSearch] = useState("");
@@ -89,7 +89,7 @@ export default function MessagesPage({ onNewMessage }) {
     const refreshedChat = updatedConvos.find((c) => c.id === activeChat.id);
     setActiveChat(refreshedChat);
 
-    // 🔔 trigger notification in Navbar
+    //  trigger notification in Navbar
     if (onNewMessage) {
       onNewMessage(refreshedChat);
     }

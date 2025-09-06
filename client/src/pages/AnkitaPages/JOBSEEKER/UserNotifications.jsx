@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import JobseekerLayout from "../layouts/JobseekerLayout";
 
-export default function NotificationsPage() {
+export default function UserNotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
