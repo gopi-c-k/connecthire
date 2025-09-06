@@ -8,7 +8,7 @@ import api from "../.././../secureApiForUser";
 
 const UserLogin = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: "", password: "", role: "jobseeker" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -59,11 +59,10 @@ const UserLogin = () => {
       localStorage.setItem("role", "user");
       if (data.id) localStorage.setItem("userId", data.id);
 
-      // After successful login, the cookie is now stored by the browser.
-
       navigate("/user/dashboard");
     } catch (err) {
-      setError(err.message || "Login failed");
+      console.log(err);
+      setError(err.response.data.message || "Login failed");
     } finally {
       setIsLoading(false);
     }

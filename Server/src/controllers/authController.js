@@ -32,12 +32,16 @@ const generateTokens = (res, userId) => {
 // @route   POST user/auth/signin
 // @access  Public
 export const signIn = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-    if (!email || !password) {
+  const { email, password, role } = req.body;
+    if (!email || !password || !role) {
         res.status(400);
-        throw new Error('Email and password are required');
+        throw new Error('Email, role and password are required');
     }
   let user = await User.findOne({ email });
+
+  if(user.role != role){
+    return res.status(400).json({ message: "Invalid User Role"})
+  }
 
   if (user && await bcrypt.compare(password, user.password)) {
     const { accessToken, refreshToken } = generateTokens(res, user._id);

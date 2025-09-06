@@ -7,7 +7,7 @@ import api from "../../../secureApi"
 
 const CompanyLogin = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: "", password: "", role: "company" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -67,7 +67,7 @@ const CompanyLogin = () => {
 
       navigate("/company-dashboard");
     } catch (err) {
-      setError(err.message || "Login failed");
+      setError(err.response.data.message || "Login failed");
     } finally {
       setIsLoading(false);
     }
