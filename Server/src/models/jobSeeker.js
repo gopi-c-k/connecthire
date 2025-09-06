@@ -26,6 +26,7 @@ const JobSeekerSchema = new mongoose.Schema({
     phone: String,
     address: String,
     linkedin: String,
+    github: String,
     portfolio: String,
   },
   skills: {
@@ -36,16 +37,14 @@ const JobSeekerSchema = new mongoose.Schema({
     {
       company: String,
       role: String,
-      startDate: Date,
-      endDate: Date,
-      description: String
+      years: String,
     }
   ],
   education: [
     {
       degree: String,
       institution: String,
-      year: Number
+      years: Number
     }
   ],
   jobsApplied: [

@@ -84,7 +84,7 @@ export default function UserProfile() {
             </div>
           </div>
           <button
-            onClick={() => navigate("/user/profile/edit")}
+            onClick={() => navigate("/user/settings/profile")}
             className="px-5 py-2 rounded-xl font-semibold bg-primary text-white hover:bg-primaryDark shadow-soft"
           >
             Edit Profile
@@ -99,14 +99,7 @@ export default function UserProfile() {
           {profile.experience.length > 0 ? (
             profile.experience.map((exp, i) => (
               <p key={i}>
-                {exp.role} at {exp.company}{" "}
-                {exp.startDate
-                  ? `(${new Date(exp.startDate).getFullYear()} - ${
-                      exp.endDate
-                        ? new Date(exp.endDate).getFullYear()
-                        : "Present"
-                    })`
-                  : ""}
+                {exp.role} at {exp.company}{" "}{`(${exp.years})`}
               </p>
             ))
           ) : (

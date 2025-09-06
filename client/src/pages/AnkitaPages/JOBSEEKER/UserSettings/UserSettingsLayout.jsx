@@ -9,6 +9,7 @@ export default function UserSettingsLayout() {
 
   const links = [
     { name: "Profile", path: "profile" },
+    { name: "Account", path: "account" },
     { name: "Privacy", path: "privacy" },
     { name: "Report", path: "report" },
     { name: "Danger Zone", path: "danger" },

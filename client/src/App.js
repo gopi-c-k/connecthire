@@ -40,7 +40,6 @@ import UserNotificationsPage from "./pages/AnkitaPages/JOBSEEKER/UserNotificatio
 import UserMessages from "./pages/AnkitaPages/JOBSEEKER/UserMessages";
 
 import UserProfile from "./pages/AnkitaPages/JOBSEEKER/UserProfile";
-import EditUserProfile from "./pages/AnkitaPages/JOBSEEKER/EditUserProfile";
 
 // User Settings Layout + Pages
 import UserSettingsLayout from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserSettingsLayout";
@@ -107,9 +106,8 @@ function App() {
         <Route path="/user/messages/:conversationId" element={<UserMessages />} />
         <Route path="/user/notifications" element={<UserNotificationsPage />} />
         <Route path="/user/profile" element={<UserProfile />} />
-        <Route path="/user/profile/edit" element={<EditUserProfile />} />
         <Route path="/user/settings" element={<UserSettingsLayout />}>
-          <Route index element={<UserAccountSettings />} />
+          <Route index element={<UserProfileSettings />} />
           <Route path="account" element={<UserAccountSettings />} />
           <Route path="profile" element={<UserProfileSettings />} />
           <Route path="privacy" element={<UserPrivacySettings />} />
