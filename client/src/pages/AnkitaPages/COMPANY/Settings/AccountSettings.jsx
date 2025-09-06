@@ -9,9 +9,6 @@ export default function AccountSettings({ initialData = {}, onSave }) {
   const [website, setWebsite] = useState(initialData.website || "");
   const [address, setAddress] = useState(initialData.address || "");
 
-  const [email, setEmail] = useState(initialData.email || "admin@company.com");
-  const [phone, setPhone] = useState(initialData.phone || "+91 9876543210");
-  const [emailVerified, setEmailVerified] = useState(!!initialData.emailVerified);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -20,10 +17,6 @@ export default function AccountSettings({ initialData = {}, onSave }) {
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
 
-  const [language, setLanguage] = useState(initialData.language || "en");
-  const [timezone, setTimezone] = useState(initialData.timezone || "IST");
-
-  const [notifyByEmail, setNotifyByEmail] = useState(!!initialData.notifyByEmail);
 
   const [saving, setSaving] = useState(false);
   const [passwordSaving, setPasswordSaving] = useState(false);
@@ -51,11 +44,6 @@ export default function AccountSettings({ initialData = {}, onSave }) {
       companyName,
       website,
       address,
-      email,
-      phone,
-      language,
-      timezone,
-      notifyByEmail,
     };
 
     try {
@@ -150,73 +138,7 @@ export default function AccountSettings({ initialData = {}, onSave }) {
           </div>
         </section>
 
-        {/* Contact Info */}
-        <section className="rounded-2xl shadow-medium border border-darkGray p-6">
-          <h3 className="text-lg font-medium text-lightText mb-3">Contact</h3>
-
-          <div className="mb-4">
-            <label className="block text-sm mb-1 text-muted">Email Address</label>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="email"
-                className="flex-1 px-3 py-2 rounded-lg bg-bg border border-slate-700 text-lightText focus:outline-none focus:ring-2 focus:ring-primary"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              {emailVerified ? (
-                <span className="px-3 py-2 rounded-lg bg-green-600 text-white text-sm">Verified</span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setToast({ type: "success", message: "Verification sent" });
-                    setEmailVerified(true);
-                  }}
-                  className="px-4 py-2 rounded-lg border border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 transition focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  Verify Email
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm mb-1 text-muted">Phone Number</label>
-            <input
-              type="tel"
-              className="w-full px-3 py-2 rounded-lg bg-bg border border-slate-700 text-lightText focus:outline-none focus:ring-2 focus:ring-primary"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm mb-2 text-muted">Email Notifications</label>
-            <label className="inline-flex items-center cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={notifyByEmail}
-                onChange={(e) => setNotifyByEmail(e.target.checked)}
-                className="sr-only"
-                aria-label="Enable email notifications"
-              />
-              <span
-                className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors ${
-                  notifyByEmail ? "bg-primary" : "bg-darkGray/60"
-                }`}
-                role="switch"
-                aria-checked={notifyByEmail}
-              >
-                <span
-                  className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform ${
-                    notifyByEmail ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </span>
-              <span className="ml-3 text-sm text-muted">Receive notifications by email</span>
-            </label>
-          </div>
-        </section>
+        
 
         {/* Change Password */}
         <section className=" rounded-2xl shadow-medium border border-darkGray p-6">
@@ -305,61 +227,6 @@ export default function AccountSettings({ initialData = {}, onSave }) {
           </div>
         </section>
 
-        {/* Preferences & Linked Accounts */}
-        <section className=" rounded-2xl shadow-medium border border-darkGray p-6">
-          <h3 className="text-lg font-medium text-lightText mb-3">Preferences</h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm mb-1 text-muted">Language</label>
-              <CustomSelect
-                value={language}
-                onChange={setLanguage}
-                options={[
-                  { value: "en", label: "English" },
-                  { value: "hi", label: "Hindi" },
-                  { value: "es", label: "Spanish" },
-                ]}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1 text-muted">Timezone</label>
-              <CustomSelect
-                value={timezone}
-                onChange={setTimezone}
-                options={[
-                  { value: "IST", label: "IST (India)" },
-                  { value: "EST", label: "EST (US Eastern)" },
-                  { value: "GMT", label: "GMT" },
-                ]}
-              />
-            </div>
-          </div>
-
-          <div className="mb-2">
-            <h4 className="text-sm font-medium text-lightText mb-2">Linked Accounts</h4>
-            <p className="text-sm text-muted mb-3">Connect social accounts for faster login and verification.</p>
-
-            <div className="flex gap-3 flex-wrap">
-              <button
-                type="button"
-                onClick={() => setToast({ type: "success", message: "Google linked (demo)" })}
-                className="px-4 py-2 rounded-lg border border-red-500 text-red-500 hover:bg-red-500/10 transition focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                Connect Google
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setToast({ type: "success", message: "LinkedIn linked (demo)" })}
-                className="px-4 py-2 rounded-lg border border-blue-500 text-blue-500 hover:bg-blue-500/10 transition focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                Connect LinkedIn
-              </button>
-            </div>
-          </div>
-        </section>
 
         {/* Save Button */}
         <div className="pt-4 flex justify-end">

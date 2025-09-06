@@ -1,5 +1,6 @@
 import React from "react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate, Link } from "react-router-dom";
+import { ArrowLeftIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import CustomSelect from "../../../../components/CustomSelect";
 export default function UserSettingsLayout() {
@@ -9,10 +10,7 @@ export default function UserSettingsLayout() {
   const links = [
     { name: "Profile", path: "profile" },
     { name: "Privacy", path: "privacy" },
-
-    { name: "Notifications", path: "notifications" },
-    {name: "Report", path: "report"},
-
+    { name: "Report", path: "report" },
     { name: "Danger Zone", path: "danger" },
   ];
 
@@ -29,9 +27,15 @@ export default function UserSettingsLayout() {
       <div className="sticky top-0 z-10 mb-6">
         <div className="backdrop-blur-lg bg-surface/30 border-b border-slate-700 px-4 sm:px-6 py-3 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           {/* Left side - Heading */}
-          <h1 className="text-xl font-bold text-lightText shrink-0">
-            User Settings
-          </h1>
+          <div className="flex items-center gap-2">
+            <Link to="/user/dashboard" className="flex items-center gap-2 shrink-0">
+              <ArrowLeftIcon size={18} />
+            </Link>
+            <h1 className="text-xl font-bold text-lightText shrink-0">
+              User Settings
+            </h1>
+          </div>
+
 
           {/* Desktop Nav Links */}
           <nav className="hidden sm:flex gap-4">
