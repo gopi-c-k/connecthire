@@ -7,6 +7,7 @@ import UserSignup from "./pages/AnkitaPages/Register/UserSignup";
 import CompanyLogin from "./pages/AnkitaPages/Login/CompanyLogin";
 import CompanySignup from "./pages/AnkitaPages/Register/CompanySignup";
 import CompanyDashboard from "./pages/AnkitaPages/COMPANY/CompanyDashboard";
+import JobSeekerProfile from "./pages/AnkitaPages/COMPANY/JobSeekerProfile";
 
 
 import SettingsLayout from "./pages/AnkitaPages/COMPANY/Settings/SettingsLayout.jsx";
@@ -40,6 +41,7 @@ import UserNotificationsPage from "./pages/AnkitaPages/JOBSEEKER/UserNotificatio
 import UserMessages from "./pages/AnkitaPages/JOBSEEKER/UserMessages";
 
 import UserProfile from "./pages/AnkitaPages/JOBSEEKER/UserProfile";
+import CompanyProfileForJobSeeker from "./pages/AnkitaPages/JOBSEEKER/CompanyProfileForJobSeeker.jsx";
 
 // User Settings Layout + Pages
 import UserSettingsLayout from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserSettingsLayout";
@@ -73,20 +75,21 @@ function App() {
         <Route path="/company-dashboard" element={<CompanyDashboard />} />
         <Route path="/company/messages" element={<CompanyMessages />} />
         <Route path="/company/notifications" element={<CompanyNotificationsPage />} />
+        <Route path="/company/jobseeker-profile/:jobSeekerId" element={<JobSeekerProfile />} />
         <Route path="/company/Settings" element={<SettingsLayout />}>
           <Route index element={<CompanyProfile />} />
           <Route path="profile" element={<CompanyProfile />} />
-          
+
           <Route path="danger" element={<DangerSettings />} />
-          <Route path="reports" element={<ReportSettings/>} />
+          <Route path="reports" element={<ReportSettings />} />
           <Route path="security" element={<SecuritySettings />} />
           <Route path="account" element={<AccountSettings />} />
-           
+
         </Route>
 
         <Route path="/company/job-post" element={<JobPosting />} />
         <Route path="/company/jobs" element={<ManageJobs />} />
-        
+
         <Route path="/company/job/edit/:jobId" element={<EditJob />} />
         <Route path="/company/profile/edit" element={<EditCompanyProfile />} />
         <Route path="/company/job/:id" element={<JobDetails />} />
@@ -106,17 +109,18 @@ function App() {
         <Route path="/user/messages/:conversationId" element={<UserMessages />} />
         <Route path="/user/notifications" element={<UserNotificationsPage />} />
         <Route path="/user/profile" element={<UserProfile />} />
+        <Route path="/user/company-profile/:companyId" element={<CompanyProfileForJobSeeker />} />
         <Route path="/user/settings" element={<UserSettingsLayout />}>
           <Route index element={<UserProfileSettings />} />
           <Route path="account" element={<UserAccountSettings />} />
           <Route path="profile" element={<UserProfileSettings />} />
           <Route path="privacy" element={<UserPrivacySettings />} />
-           <Route path="report" element={<UserReportSettings />} />
+          <Route path="report" element={<UserReportSettings />} />
           <Route path="danger" element={<UserDangerSettings />} />
         </Route>
 
 
-          {/* Optional: 404 */}
+        {/* Optional: 404 */}
         {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
     </Router>

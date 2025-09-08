@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CompanyLayout from "../layouts/CompanyLayout";
+import { Link } from "react-router-dom";
 import api from "../../../secureApi";
 
 const CompanyDashboard = () => {
@@ -23,9 +24,9 @@ const CompanyDashboard = () => {
           shortlisted: res.data.totalShortlistedCandidates,
           interviews: res.data.totalInterviewedCandidates,
         });
-
         setRecentActivity(
           res.data.proposals.map((p) => ({
+            id: p.jobSeeker?._id,
             name: p.jobSeeker?.fullName || "Unknown",
             role: p.job?.title || "N/A",
             date: p.recentUpdate || p.createdAt,
@@ -76,7 +77,9 @@ const CompanyDashboard = () => {
                   <tbody>
                     {recentActivity.map((activity, index) => (
                       <tr key={index} className="border-t border-slate-700">
-                        <td className="py-2">{activity.name}</td>
+                        <Link to={`/company/jobseeker-profile/${activity.id}`}>
+                          <td className="py-2">{activity.name}</td>
+                        </Link>
                         <td>{activity.role}</td>
                         <td>{new Date(activity.date).toLocaleDateString()}</td>
                         <td>

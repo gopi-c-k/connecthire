@@ -14,7 +14,7 @@ export const getJobProposalsForCompany = async (req, res) => {
 
     const proposals = await JobProposal.find({ company })
       .populate('job','_id title description')
-      .populate('jobSeeker', 'fullName profilePicture email resume');
+      .populate('jobSeeker', 'fullName profilePicture email resume viewResume messageAllowed');
 
     res.status(200).json({ proposals });
   } catch (error) {

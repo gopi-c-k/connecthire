@@ -15,7 +15,7 @@ export default function JobsList() {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const res = await api.get("/jobseeker/jobs"); 
+        const res = await api.get("/jobseeker/jobs");
         setJobs(res.data.recommendedJobs || []); // ✅ only array
         setPagination(res.data.pagination || null);
       } catch (err) {
@@ -70,9 +70,11 @@ export default function JobsList() {
                   <div>
                     <div className="font-medium">{job.title}</div>
                     <div className="text-sm text-muted flex flex-wrap items-center gap-2">
-                      <span className="flex items-center gap-1">
-                        <Building2 size={14} /> {job.company?.companyName}
-                      </span>
+                      <Link to={`/user/company-profile/${job.company?._id}`}>
+                        <span className="flex items-center gap-1">
+                          <Building2 size={14} /> {job.company?.companyName}
+                        </span>
+                      </Link>
                       {job.duration && (
                         <>
                           <span>•</span>

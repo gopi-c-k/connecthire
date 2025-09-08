@@ -1,13 +1,10 @@
 // src/pages/AnkitaPages/COMPANY/ApplicantsHub.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import CompanyLayout from "../layouts/CompanyLayout";
 import InputWithIcon from "../../../components/InputWithIcon";
 import { Search } from "lucide-react";
-
 import api from "../../../secureApi";
-
-import { useParams } from "react-router-dom";
 
 const STATUS_BADGE = {
   applied: "bg-slate-700 text-slate-200",
@@ -18,7 +15,7 @@ const STATUS_BADGE = {
 };
 
 export default function ApplicantsHub() {
-  const { id } = useParams(); // ✅ get jobId from route
+  const { id } = useParams(); // jobId from route
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [items, setItems] = useState([]);
@@ -29,7 +26,6 @@ export default function ApplicantsHub() {
   const [status, setStatus] = useState("");
   const [jobFilter, setJobFilter] = useState("");
 
-  // modal for proposal
   const [selectedProposal, setSelectedProposal] = useState(null);
 
   // Fetch proposals
@@ -40,7 +36,6 @@ export default function ApplicantsHub() {
         setLoading(true);
         const res = await api.get("/company/job-proposals");
         if (!live) return;
-
         const appsRes = (res?.data?.proposals || []).map((p) => ({
           id: p._id,
           jobId: p.job?._id,
@@ -53,6 +48,12 @@ export default function ApplicantsHub() {
             name: p.jobSeeker?.fullName,
             avatar: p.jobSeeker?.profilePicture,
             resume: p.jobSeeker?.resume || null,
+            // ✅ message allowed:
+            message:
+              p.jobSeeker?.messageAllowed === "anyone" ||
+              p.jobSeeker?.messageAllowed === "recruiters",
+            // ✅ control resume view separately:
+            viewResume: p.jobSeeker?.viewResume,
           },
         }));
 
@@ -86,9 +87,7 @@ export default function ApplicantsHub() {
       const text = `${a?.jobTitle || ""} ${a?.seeker?.name || ""}`.toLowerCase();
       const okQ = !q || text.includes(q.toLowerCase());
       const okS = !status || (a?.status || "").toLowerCase() === status;
-
-      const okJ = id ? a?.jobId === id : (!jobFilter || a?.jobId === jobFilter);
-
+      const okJ = id ? a?.jobId === id : !jobFilter || a?.jobId === jobFilter;
       return okQ && okS && okJ;
     });
   }, [items, q, status, id, jobFilter]);
@@ -106,9 +105,7 @@ export default function ApplicantsHub() {
     setMessage("");
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
       await api.put(`/job/proposal/${id}/status`, { status: newStatus });
-
       setItems((prev) =>
         prev.map((a) => (a.id === id ? { ...a, status: newStatus } : a))
       );
@@ -135,7 +132,6 @@ export default function ApplicantsHub() {
           </Link>
         </div>
 
-        {/* Notifications */}
         {message && (
           <div className="mb-4 p-3 rounded bg-green-700 text-white text-sm">{message}</div>
         )}
@@ -191,7 +187,7 @@ export default function ApplicantsHub() {
             </p>
           ) : (
             <>
-              {/* Mobile view: Card layout */}
+              {/* Mobile: Card layout */}
               <div className="space-y-3 md:hidden">
                 {filtered.map((a) => (
                   <div
@@ -211,7 +207,9 @@ export default function ApplicantsHub() {
                         </div>
                       )}
                       <div>
-                        <h3 className="font-semibold">{a.seeker?.name}</h3>
+                        <Link to={`/company/jobseeker-profile/${a.seeker?.id}`}>
+                          <h3 className="font-semibold">{a.seeker?.name}</h3>
+                        </Link>
                         <p className="text-xs text-muted">{a.jobTitle}</p>
                       </div>
                     </div>
@@ -230,7 +228,7 @@ export default function ApplicantsHub() {
                       >
                         <option value="applied">Applied</option>
                         <option value="shortlisted">Shortlisted</option>
-                        <option value="interviewed">Interviewing</option>
+                        <option value="interviewing">Interviewing</option>
                         <option value="rejected">Rejected</option>
                         <option value="hired">Hired</option>
                       </select>
@@ -245,7 +243,8 @@ export default function ApplicantsHub() {
                       >
                         View Proposal
                       </button>
-                      {a.seeker?.resume && (
+                      {/* ✅ resume only if allowed */}
+                      {a.seeker?.viewResume && a.seeker?.resume && (
                         <a
                           href={a.seeker.resume}
                           target="_blank"
@@ -255,19 +254,21 @@ export default function ApplicantsHub() {
                           View Resume
                         </a>
                       )}
-                      <button
-                        disabled={updating[a.id]}
-                        onClick={() => handleStatusChange(a.id, "rejected")}
-                        className="text-red-400 hover:underline disabled:opacity-50"
-                      >
-                        {updating[a.id] ? "Rejecting..." : "Reject"}
-                      </button>
+                      {/* ✅ message button */}
+                      {a.seeker?.message && (
+                        <button
+                          onClick={() => alert("Open messaging here")}
+                          className="text-primary hover:underline"
+                        >
+                          Message
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Desktop view: Table layout */}
+              {/* Desktop: Table layout */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="text-muted">
@@ -300,7 +301,9 @@ export default function ApplicantsHub() {
                               {a.seeker?.name?.[0]}
                             </div>
                           )}
-                          <span>{a.seeker?.name}</span>
+                          <Link to={`/company/jobseeker-profile/${a.seeker?.id}`}>
+                            <span>{a.seeker?.name}</span>
+                          </Link>
                         </td>
 
                         {/* Job */}
@@ -324,7 +327,7 @@ export default function ApplicantsHub() {
                           >
                             <option value="applied">Applied</option>
                             <option value="shortlisted">Shortlisted</option>
-                            <option value="interviewed">Interviewing</option>
+                            <option value="interviewing">Interviewing</option>
                             <option value="rejected">Rejected</option>
                             <option value="hired">Hired</option>
                           </select>
@@ -341,7 +344,8 @@ export default function ApplicantsHub() {
                           >
                             View Proposal
                           </button>
-                          {a.seeker?.resume && (
+                          {/* ✅ resume only if allowed */}
+                          {a.seeker?.viewResume && a.seeker?.resume && (
                             <a
                               href={a.seeker.resume}
                               target="_blank"
@@ -351,13 +355,15 @@ export default function ApplicantsHub() {
                               View Resume
                             </a>
                           )}
-                          <button
-                            disabled={updating[a.id]}
-                            onClick={() => handleStatusChange(a.id, "rejected")}
-                            className="text-red-400 hover:underline disabled:opacity-50"
-                          >
-                            {updating[a.id] ? "Rejecting..." : "Reject"}
-                          </button>
+                          {/* ✅ message button */}
+                          {a.seeker?.message && (
+                            <button
+                              onClick={() => alert("Open messaging here")}
+                              className="text-primary hover:underline"
+                            >
+                              Message
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}

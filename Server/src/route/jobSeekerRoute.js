@@ -10,6 +10,7 @@ import { getJobsForJobSeeker } from '../controllers/jobSeeker/getJobsForJobSeeke
 import { saveJob, getSavedJobs, unsaveJob } from '../controllers/jobSeeker/saveJobs.js';
 import { reportCompany } from '../controllers/jobSeeker/reportCompany.js';
 import { updatePrivacySettings, getPrivacySettings } from '../controllers/jobSeeker/privacySettingsController.js';
+import { getCompanyProfile } from '../controllers/company/companyProfileController.js';
 
 
 const router = express.Router();
@@ -26,6 +27,7 @@ router.delete('/save-job/:jobId', verifyMiddleware, verifyJobSeeker, unsaveJob);
 router.post('/report', verifyMiddleware, verifyJobSeeker, reportCompany);
 router.get('/privacy-settings', verifyMiddleware, verifyJobSeeker, getPrivacySettings);
 router.put('/privacy-settings', verifyMiddleware, verifyJobSeeker, updatePrivacySettings);
+router.get('/company-profile/:companyId', verifyMiddleware, verifyJobSeeker, getCompanyProfile);
 
 
 export default router;
