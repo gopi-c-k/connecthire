@@ -54,6 +54,25 @@ import UserReportSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserR
 import UserDangerSettings from "./pages/AnkitaPages/JOBSEEKER/UserSettings/UserDangerSettings";
 
 
+// ---------- ADMIN ----------
+import AdminLogin from "./pages/AnkitaPages/Login/AdminLogin";
+import AdminLayout from "./pages/AnkitaPages/layouts/AdminLayout";
+import AdminDashboard from "./pages/AnkitaPages/admin/Dashboard";
+import AdminEmployersList from "./pages/AnkitaPages/admin/EmployersList";
+import AdminJobseekersList from "./pages/AnkitaPages/admin/JobseekersList";
+import AdminJobsList from "./pages/AnkitaPages/admin/JobsList";
+import AdminJobDetail from "./pages/AnkitaPages/admin/JobDetail";
+import AdminReports from "./pages/AnkitaPages/admin/Reports";
+
+//-----Mainlayout Footer------
+import About from "./pages/AnkitaPages/About";
+import Careers from "./pages/AnkitaPages/Careers";
+import Contact from "./pages/AnkitaPages/Contact";
+import Terms from "./pages/AnkitaPages/Terms";
+import Privacy from "./pages/AnkitaPages/Privacy";
+
+
+
 
 
 function App() {
@@ -62,8 +81,13 @@ function App() {
       <Routes>
         {/* Public + Main layout */}
         <Route element={<MainLayout />}>
-          <Route index element={<Home />} />
-        </Route>
+    <Route index element={<Home />} />
+    <Route path="/about" element={<About />} />
+    <Route path="/careers" element={<Careers />} />
+    <Route path="/contact" element={<Contact />} />
+    <Route path="/terms" element={<Terms />} />
+    <Route path="/privacy" element={<Privacy />} />
+  </Route>
 
         {/* Auth */}
         <Route path="/user/login" element={<UserLogin />} />
@@ -120,8 +144,24 @@ function App() {
         </Route>
 
 
-        {/* Optional: 404 */}
-        {/* <Route path="*" element={<NotFound />} /> */}
+
+        
+       {/* ---------- ADMIN ---------- */}
+<Route path="/admin/login" element={<AdminLogin />} />
+
+<Route path="/admin" element={<AdminLayout />}>
+  <Route index element={<AdminDashboard />} />
+  <Route path="employers" element={<AdminEmployersList />} />
+  <Route path="users" element={<AdminJobseekersList />} />
+  <Route path="jobs" element={<AdminJobsList />} />
+  <Route path="jobs/:id" element={<AdminJobDetail />} />
+  <Route path="reports" element={<AdminReports />} />
+</Route>
+
+
+
+
+
       </Routes>
     </Router>
   );

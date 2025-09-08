@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import InputWithIcon from "../../../components/InputWithIcon";
 import Button from "../../../components/Button";
-import api from "../../../secureApi"
+import api from "../../../secureApi";
 
 const CompanyLogin = () => {
   const navigate = useNavigate();
@@ -11,7 +11,6 @@ const CompanyLogin = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
 
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -32,7 +31,9 @@ const CompanyLogin = () => {
     }
 
     setIsLoading(true);
-    const baseURL = "http://localhost:5000" || process.env.REACT_APP_BASE;
+
+    // prefer env first, fallback to localhost
+    const baseURL = process.env.REACT_APP_BASE || "http://localhost:5000";
     if (!baseURL) {
       setError("API base URL is not defined. Check your .env file.");
       console.error("Missing REACT_APP_BASE in .env");
@@ -41,33 +42,33 @@ const CompanyLogin = () => {
     }
 
     try {
-      const res = await api.post("/user/signin", form);
-      // console.log("Login response:", res.data);
+      // <-- FIX: include role in payload sent to backend
+      const payload = { ...form, role: "company" };
+      const res = await api.post("/user/signin", payload);
 
-
-      // Try to parse JSON; if the backend sent HTML for errors, handle 
+      // Try to parse JSON; if the backend sent HTML for errors, handle
       let data = {};
       try {
         data = res.data;
-      } catch {
-
-      }
+      } catch {}
 
       if (res.status !== 200) {
         throw new Error(data?.message || "Login failed");
       }
-      //  if backend also returns a token in JSON, keep your current localStorage behavior
+
+      // if backend returns token in JSON, store it
       if (data.accessToken) {
         localStorage.setItem("accessToken", data.accessToken);
       }
       localStorage.setItem("role", "company");
       if (data.id) localStorage.setItem("companyId", data.id);
 
-      // After successful login, the cookie is now stored by the browser.
-
+      // Navigate to company dashboard
       navigate("/company-dashboard");
     } catch (err) {
-      setError(err.response.data.message || "Login failed");
+
+      setError(err?.response?.data?.message || err.message || "Login failed");
+
     } finally {
       setIsLoading(false);
     }
@@ -104,16 +105,11 @@ const CompanyLogin = () => {
             autoComplete="current-password"
             rightIcon={
               showPassword ? (
-                <EyeOff
-                  className="w-5 h-5 text-muted"
-                  onClick={() => setShowPassword(false)}
-                />
+                <EyeOff className="w-5 h-5 text-muted" onClick={() => setShowPassword(false)} />
               ) : (
-                <Eye
-                  className="w-5 h-5 text-muted"
-                  onClick={() => setShowPassword(true)}
-                />
-              )}
+                <Eye className="w-5 h-5 text-muted" onClick={() => setShowPassword(true)} />
+              )
+            }
           />
           <Button type="submit" variant="primary" disabled={isLoading}>
             {isLoading ? "Signing In..." : "Sign In"}
