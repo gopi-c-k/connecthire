@@ -26,6 +26,7 @@ const JobSeekerSchema = new mongoose.Schema({
     phone: String,
     address: String,
     linkedin: String,
+    github: String,
     portfolio: String,
   },
   skills: {
@@ -36,16 +37,14 @@ const JobSeekerSchema = new mongoose.Schema({
     {
       company: String,
       role: String,
-      startDate: Date,
-      endDate: Date,
-      description: String
+      years: String,
     }
   ],
   education: [
     {
       degree: String,
       institution: String,
-      year: Number
+      years: Number
     }
   ],
   jobsApplied: [
@@ -75,6 +74,29 @@ const JobSeekerSchema = new mongoose.Schema({
     type: String,
     enum: ['Full-Time', 'Part-Time', 'Freelance', 'Internship'],
     default: 'Full-Time'
+  },
+  profileVisibility: {
+    type: String,
+    enum: [
+      'public',
+      'private',
+      'recruiters'
+    ],
+    default: "public"
+  },
+  messageAllowed: {
+    type: String,
+    enum: ["anyone", 'nobody', 'recruiters'],
+    default: "anyone"
+  },
+  jobPreferences: {
+    type: String,
+    enum: ['onsite', 'hybrid', 'remote'],
+    default: "onsite"
+  },
+  viewResume :{
+    type : Boolean,
+    default: false
   }
 }, { timestamps: true });
 

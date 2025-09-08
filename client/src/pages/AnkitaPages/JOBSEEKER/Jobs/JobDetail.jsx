@@ -108,9 +108,11 @@ export default function JobDetail() {
             <div className="flex-1">
               <h1 className="text-2xl font-bold">{job.title}</h1>
               <div className="text-sm text-muted flex flex-wrap items-center gap-2">
-                <span className="flex items-center gap-1">
-                  <Building2 size={14} /> {job.company?.companyName}
-                </span>
+                <Link to={`/user/company-profile/${job.company?._id}`}>
+                  <span className="flex items-center gap-1">
+                    <Building2 size={14} /> {job.company?.companyName}
+                  </span>
+                </Link>
                 <span>•</span>
                 <span>{job.jobType}</span>
                 <span>•</span>

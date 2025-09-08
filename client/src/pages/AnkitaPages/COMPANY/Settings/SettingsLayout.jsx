@@ -6,9 +6,11 @@ import {
   useLocation,
   useNavigate,
   Navigate,
+  Link
 } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import CustomSelect from "../../../../components/CustomSelect";
+import { ArrowLeftIcon } from "lucide-react";
 
 export default function CompanySettingsLayout() {
   const location = useLocation();
@@ -44,9 +46,14 @@ export default function CompanySettingsLayout() {
       <div className="sticky top-0 z-10 mb-6">
         <div className="backdrop-blur-lg bg-surface/30 border-b border-slate-700 px-4 sm:px-6 py-3 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           {/* Left side - Heading */}
-          <h1 className="text-xl font-bold text-lightText shrink-0">
-            Company Settings
-          </h1>
+          <div className="flex items-center gap-2">
+            <Link to="/company-dashboard" className="flex items-center gap-2 shrink-0">
+              <ArrowLeftIcon size={18} />
+            </Link>
+            <h1 className="text-xl font-bold text-lightText shrink-0">
+              Company Settings
+            </h1>
+          </div>
 
           {/* Desktop Nav Links */}
           <nav className="hidden sm:flex gap-4">
@@ -55,10 +62,9 @@ export default function CompanySettingsLayout() {
                 key={link.path}
                 to={link.path}
                 className={({ isActive }) =>
-                  `px-3 py-1 rounded-lg transition text-sm ${
-                    isActive
-                      ? "bg-primary text-white"
-                      : "text-gray-300 hover:bg-slate-800"
+                  `px-3 py-1 rounded-lg transition text-sm ${isActive
+                    ? "bg-primary text-white"
+                    : "text-gray-300 hover:bg-slate-800"
                   }`
                 }
               >

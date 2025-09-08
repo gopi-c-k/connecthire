@@ -40,6 +40,10 @@ const CompanySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Report'
   }],
+  showInSearchResults: { type: Boolean, default: true },
+  allowApplicantsToMessage: { type: Boolean, default: true },
+  receiveEmailNotifications: { type: Boolean, default: true },
+  allowAnonymizedDataSharing: { type: Boolean, default: false },
 });
 
 const Company = mongoose.model('Company', CompanySchema);

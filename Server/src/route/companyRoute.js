@@ -7,6 +7,9 @@
 import { getJobProposalsForCompany } from '../controllers/jobProposal/getJobProposalCompany.js';
 import { getCompanyCurrentStatus } from '../controllers/company/getCompanyCurrentStatus.js';
 import { reportJobSeeker } from '../controllers/company/reportJobSeeker.js';
+import { updateCompanyPrivacySettings,getCompanyPrivacySettings } from '../controllers/company/privacySettingsController.js';
+import { getJobSeekerProfile } from '../controllers/jobSeeker/getJobSeekerProfileController.js';
+
  const router = express.Router();
 
 router.put('/profile', verifyMiddleware, verifyCompany, updateCompanyProfile);
@@ -15,6 +18,9 @@ router.get('/jobs', verifyMiddleware, verifyCompany, getCompanyJobList);
 router.get('/job-proposals', verifyMiddleware, verifyCompany, getJobProposalsForCompany);
 router.get('/current-status', verifyMiddleware, verifyCompany, getCompanyCurrentStatus);
 router.post('/report',verifyMiddleware,verifyCompany,reportJobSeeker);
+router.get('/privacy-settings', verifyMiddleware,verifyCompany, getCompanyPrivacySettings);
+router.put('/privacy-settings', verifyMiddleware,verifyCompany, updateCompanyPrivacySettings);
+router.get('/jobseeker-profile/:jobSeekerId',verifyMiddleware,verifyCompany,getJobSeekerProfile);
 
 
  export default router;

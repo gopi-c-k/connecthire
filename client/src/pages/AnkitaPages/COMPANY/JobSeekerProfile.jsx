@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaLinkedin } from "react-icons/fa"
+import { useNavigate, useParams } from "react-router-dom";
+import { FaLinkedin, FaArrowLeft, FaFlag, FaRegCommentDots } from "react-icons/fa";
 import {
   Briefcase,
   GraduationCap,
   Phone,
   Network,
-  Laptop ,
+  Laptop,
   FileText,
   MapPin,
+  FlagTriangleRight
 } from "lucide-react";
-import JobseekerLayout from "../layouts/JobseekerLayout";
-import api from "../../../secureApiForUser";
+import CompanyLayout from "../layouts/CompanyLayout";
+import api from "../../../secureApi";
 
 export default function UserProfile() {
+  const { jobSeekerId } = useParams();
   const [profile, setProfile] = useState(null);
+  const [messageAllow, setMessageAllow] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -23,9 +26,8 @@ export default function UserProfile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await api.get("/jobseeker/profile");
-
-        const jobSeeker = res.data.jobSeeker; // ✅ actual data nested me hai
+        const res = await api.get(`/company/jobseeker-profile/${jobSeekerId}`);
+        const jobSeeker = res.data.jobSeeker;
 
         setProfile({
           ...jobSeeker,
@@ -37,6 +39,9 @@ export default function UserProfile() {
           certifications: jobSeeker.certifications || [],
           availability: jobSeeker.availability || "Not provided",
         });
+
+        // from backend
+        setMessageAllow(res.data.messageAllow);
       } catch (err) {
         console.error("Error fetching profile:", err);
         setProfile(null);
@@ -46,23 +51,53 @@ export default function UserProfile() {
     };
 
     fetchProfile();
-  }, []);
+  }, [jobSeekerId]);
 
   if (loading)
     return <div className="text-center py-10 text-lightText">Loading...</div>;
 
   if (!profile)
     return (
-      <JobseekerLayout>
+      <CompanyLayout>
         <div className="text-center py-10 text-red-400">
-          Failed to load profile.
+          This Profile is Private Account.
         </div>
-      </JobseekerLayout>
+      </CompanyLayout>
     );
 
   return (
-    <JobseekerLayout>
+    <CompanyLayout>
       <div className="max-w-5xl mx-auto p-6 text-lightText space-y-6">
+        {/* 🔹 Top Action Bar */}
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-lightGray hover:text-white"
+          >
+            <FaArrowLeft /> Back
+          </button>
+
+          <div className="flex items-center gap-4">
+            {messageAllow && (
+              <button
+                onClick={() => alert("Open message box here")}
+                className="text-primary hover:text-primaryDark"
+                title="Send Message"
+              >
+                <FaRegCommentDots size={20} />
+              </button>
+            )}
+
+            <button
+              onClick={() => alert("Report feature")}
+              className="text-red-500 hover:text-red-400"
+              title="Report"
+            >
+              <FlagTriangleRight size={18} />
+            </button>
+          </div>
+        </div>
+
         {/* 🔹 Header */}
         <div className="bg-surface rounded-2xl p-6 flex flex-col md:flex-row items-center md:items-start gap-6 border border-slate-700 shadow-lg">
           <img
@@ -72,9 +107,9 @@ export default function UserProfile() {
           />
           <div className="flex-1 space-y-2">
             <h1 className="text-3xl font-bold">
-              {profile.fullName || "Your Name"}
+              {profile.fullName || "User Name"}
             </h1>
-            <p className="text-muted">{profile.bio || "Add your bio"}</p>
+            <p className="text-muted">{profile.bio || "No bio provided."}</p>
             <div className="flex items-center gap-2 text-sm text-lightGray">
               <MapPin size={14} />{" "}
               {profile.contact.address || "Location not provided"}
@@ -83,12 +118,6 @@ export default function UserProfile() {
               Availability: {profile.availability}
             </div>
           </div>
-          <button
-            onClick={() => navigate("/user/settings/profile")}
-            className="px-5 py-2 rounded-xl font-semibold bg-primary text-white hover:bg-primaryDark shadow-soft"
-          >
-            Edit Profile
-          </button>
         </div>
 
         {/* 🔹 Experience */}
@@ -99,7 +128,7 @@ export default function UserProfile() {
           {profile.experience.length > 0 ? (
             profile.experience.map((exp, i) => (
               <p key={i}>
-                {exp.role} at {exp.company}{" "}{`(${exp.years})`}
+                {exp.role} at {exp.company} {`(${exp.years})`}
               </p>
             ))
           ) : (
@@ -143,10 +172,10 @@ export default function UserProfile() {
         </div>
 
         {/* 🔹 Contact */}
-        <div className="bg-surface rounded-xl p-5 border border-slate-700 shadow space-y-2"> 
+        <div className="bg-surface rounded-xl p-5 border border-slate-700 shadow space-y-2">
           <h2 className="flex items-center gap-2 text-xl font-semibold mb-3">
-            <Network size={14} />  Contact
-            </h2>
+            <Network size={14} /> Contact
+          </h2>
           <div className="grid sm:grid-cols-2 gap-y-2 text-sm">
             <p className="flex items-center gap-2">
               <Phone size={14} /> {profile.contact.phone || "Not provided"}
@@ -167,7 +196,7 @@ export default function UserProfile() {
               )}
             </p>
             <p className="flex items-center gap-2">
-              < FaLinkedin size={14} />{" "}
+              <FaLinkedin size={14} />{" "}
               {profile.contact.linkedin ? (
                 <a
                   href={profile.contact.linkedin}
@@ -199,6 +228,6 @@ export default function UserProfile() {
           </div>
         </div>
       </div>
-    </JobseekerLayout>
+    </CompanyLayout>
   );
 }
