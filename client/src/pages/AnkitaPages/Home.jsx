@@ -1,17 +1,16 @@
 import Hero from "../../components/Hero";
 import Benefits from "../../components/Benefits";
 import CTA from "../../components/CTA";
-import InputWithIcon from "../../components/InputWithIcon";
-import Button from "../../components/Button";
 
+import { useOutletContext } from "react-router-dom";
 export default function Home() {
+   const { openAuth } = useOutletContext() || {};
   return (
     <div className="text-lightText">
       <Hero />
       <Benefits />
-      <CTA />
-      <InputWithIcon />
-      <Button />
+      <CTA onOpenSignup={() => openAuth && openAuth("signup")} />
+      
     </div>
   );
 }

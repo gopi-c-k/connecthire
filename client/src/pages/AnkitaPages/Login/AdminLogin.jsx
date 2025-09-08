@@ -1,11 +1,12 @@
+// src/pages/AnkitaPages/Login/AdminLogin.jsx
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import InputWithIcon from "../../../components/InputWithIcon";
 import Button from "../../../components/Button";
-import api from "../../../secureApi";
+import api from "../.././../secureApiForUser";
 
-const CompanyLogin = () => {
+const AdminLogin = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -21,6 +22,7 @@ const CompanyLogin = () => {
     e.preventDefault();
     setError("");
 
+    // basic validation
     if (!/\S+@\S+\.\S+/.test(form.email)) {
       setError("Please enter a valid email address");
       return;
@@ -32,39 +34,34 @@ const CompanyLogin = () => {
 
     setIsLoading(true);
 
-    // prefer env first, fallback to localhost
-    const baseURL = process.env.REACT_APP_BASE || "http://localhost:5000";
-    if (!baseURL) {
-      setError("API base URL is not defined. Check your .env file.");
-      console.error("Missing REACT_APP_BASE in .env");
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      // <-- FIX: include role in payload sent to backend
-      const payload = { ...form, role: "company" };
+      //  always include role in payload
+      const payload = { ...form, role: "admin" };
       const res = await api.post("/user/signin", payload);
 
-      // Try to parse JSON; if the backend sent HTML for errors, handle
-      let data = {};
-      try {
-        data = res.data;
-      } catch {}
+      const data = res?.data ?? {};
 
       if (res.status !== 200) {
         throw new Error(data?.message || "Login failed");
       }
 
-      // if backend returns token in JSON, store it
+      //  Make sure role really is admin
+      if (data.role && data.role !== "admin") {
+        setError("You are not authorized as admin.");
+        return;
+      }
+
+      //  Save token + role in localStorage
       if (data.accessToken) {
         localStorage.setItem("accessToken", data.accessToken);
       }
-      localStorage.setItem("role", "company");
-      if (data.id) localStorage.setItem("companyId", data.id);
+      localStorage.setItem("role", "admin");
+      if (data.id) {
+        localStorage.setItem("adminId", data.id);
+      }
 
-      // Navigate to company dashboard
-      navigate("/company-dashboard");
+      //  Redirect to admin dashboard
+      navigate("/admin");
     } catch (err) {
       setError(err?.response?.data?.message || err.message || "Login failed");
     } finally {
@@ -75,23 +72,26 @@ const CompanyLogin = () => {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md bg-surface rounded-2xl shadow-lg p-8 space-y-6">
-        <h2 className="text-3xl font-bold text-center text-lightText">Company Login</h2>
+        <h2 className="text-3xl font-bold text-center text-lightText">Admin Login</h2>
+
         {error && (
           <div className="text-errorText bg-errorBg p-2 rounded text-sm">
             {error}
           </div>
         )}
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <InputWithIcon
             icon={Mail}
             name="email"
             type="email"
-            placeholder="company@example.com"
+            placeholder="admin@connecthire.com"
             value={form.email}
             onChange={handleChange}
             required
             autoComplete="username"
           />
+
           <InputWithIcon
             icon={Lock}
             name="password"
@@ -103,20 +103,28 @@ const CompanyLogin = () => {
             autoComplete="current-password"
             rightIcon={
               showPassword ? (
-                <EyeOff className="w-5 h-5 text-muted" onClick={() => setShowPassword(false)} />
+                <EyeOff
+                  className="w-5 h-5 text-muted cursor-pointer"
+                  onClick={() => setShowPassword(false)}
+                />
               ) : (
-                <Eye className="w-5 h-5 text-muted" onClick={() => setShowPassword(true)} />
+                <Eye
+                  className="w-5 h-5 text-muted cursor-pointer"
+                  onClick={() => setShowPassword(true)}
+                />
               )
             }
           />
+
           <Button type="submit" variant="primary" disabled={isLoading}>
             {isLoading ? "Signing In..." : "Sign In"}
           </Button>
         </form>
+
         <p className="text-sm text-center text-muted">
-          Don't have an account{" "}
-          <Link to="/company/signup" className="text-primary hover:underline">
-            Sign up
+          Return to{" "}
+          <Link to="/" className="text-primary hover:underline">
+            Home
           </Link>
         </p>
       </div>
@@ -124,4 +132,4 @@ const CompanyLogin = () => {
   );
 };
 
-export default CompanyLogin;
+export default AdminLogin;

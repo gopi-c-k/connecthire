@@ -9,6 +9,17 @@ function getHeaders(withAuth = false) {
   }
   return headers;
 }
+export async function loginAdmin(email, password) {
+  const res = await fetch(`${BASE}/user/signin`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Login failed");
+  return data;   
+}
+
 
 export async function loginUser(email, password) {
   const res = await fetch(`${BASE}/user/signin`, {

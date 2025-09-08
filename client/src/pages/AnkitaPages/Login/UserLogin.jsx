@@ -1,4 +1,3 @@
-// src/pages/AnkitaPages/Login/UserLogin.jsx
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
@@ -40,30 +39,30 @@ const UserLogin = () => {
       setIsLoading(false);
       return;
     }
+
     try {
-      const res = await api.post("/user/signin", form);
+      // <-- FIX: include role in payload sent to backend
+      const payload = { ...form, role: "jobseeker" };
+      const res = await api.post("/user/signin", payload);
+
       let data = {};
       try {
         data = res.data;
-      } catch {
-
-      }
+      } catch {}
 
       if (res.status !== 200) {
         throw new Error(data?.message || "Login failed");
       }
-      //  if backend also returns a token in JSON, keep your current localStorage behavior
+
       if (data.accessToken) {
         localStorage.setItem("accessToken", data.accessToken);
       }
-      localStorage.setItem("role", "user");
+      localStorage.setItem("role", "jobseeker");
       if (data.id) localStorage.setItem("userId", data.id);
-
-      // After successful login, the cookie is now stored by the browser.
 
       navigate("/user/dashboard");
     } catch (err) {
-      setError(err.message || "Login failed");
+      setError(err?.response?.data?.message || err.message || "Login failed");
     } finally {
       setIsLoading(false);
     }
@@ -103,15 +102,9 @@ const UserLogin = () => {
             autoComplete="current-password"
             rightIcon={
               showPassword ? (
-                <EyeOff
-                  className="w-5 h-5 text-muted cursor-pointer"
-                  onClick={() => setShowPassword(false)}
-                />
+                <EyeOff className="w-5 h-5 text-muted cursor-pointer" onClick={() => setShowPassword(false)} />
               ) : (
-                <Eye
-                  className="w-5 h-5 text-muted cursor-pointer"
-                  onClick={() => setShowPassword(true)}
-                />
+                <Eye className="w-5 h-5 text-muted cursor-pointer" onClick={() => setShowPassword(true)} />
               )
             }
           />

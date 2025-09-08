@@ -67,11 +67,3 @@ export const companyService = {
   getSettings: () => request(`/company/settings`),
   updateSettings: (payload) => request(`/company/settings`, { method: "PUT", body: payload }),
 };
-
-
-// 👇 Export as a service object (for cleaner imports)
-export const companyService = {
-  getCompanyProfile,
-  updateCompanyProfile,
-};
-

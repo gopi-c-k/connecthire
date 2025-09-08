@@ -1,8 +1,5 @@
-// src/services/userService.js
-// Jobseeker/Freelancer side APIs
-// NOTE: Endpoints ko apne backend ke according adjust karna.
 
-// Reuse the common secure Axios instance (token headers already handled there)
+
 import secureApi from "./secureApi";
 
 // ---------- Jobs ----------
