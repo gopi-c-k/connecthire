@@ -50,6 +50,8 @@ const verifyMiddleware = async (req, res, next) => {
             await user.save();
 
             req.user = { userId: user._id };
+            req.user.msgRole = user.role;
+            console.log("Fr"+user.role);
             return next();
           });
         } catch (refreshCatchErr) {

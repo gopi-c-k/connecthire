@@ -7,6 +7,8 @@ import userRoutes from './src/route/userRoute.js';
 import JobSeekerRoute from './src/route/jobSeekerRoute.js';
 import CompanyRoute from './src/route/companyRoute.js';
 import jobRoute from './src/route/jobRoute.js';
+import msgRoute from './src/route/msgRoute.js'
+
 
 connectDB();
 
@@ -37,6 +39,8 @@ app.use('/user',userRoutes);
 app.use('/jobseeker', JobSeekerRoute);
 app.use('/company',CompanyRoute);
 app.use('/job', jobRoute);
+app.use('/messages',msgRoute);
+
 app.get('/', (req, res) => {
   res.send('Connecthire Backend is Running 🚀');
 });

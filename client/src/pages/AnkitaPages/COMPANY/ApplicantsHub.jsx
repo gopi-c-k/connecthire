@@ -5,6 +5,7 @@ import CompanyLayout from "../layouts/CompanyLayout";
 import InputWithIcon from "../../../components/InputWithIcon";
 import { Search } from "lucide-react";
 import api from "../../../secureApi";
+import CompanyMessages from "./Messages";
 
 const STATUS_BADGE = {
   applied: "bg-slate-700 text-slate-200",
@@ -27,6 +28,8 @@ export default function ApplicantsHub() {
   const [jobFilter, setJobFilter] = useState("");
 
   const [selectedProposal, setSelectedProposal] = useState(null);
+  const [activeConversationId, setActiveConversationId] = useState(null);
+
 
   // Fetch proposals
   useEffect(() => {
@@ -119,6 +122,22 @@ export default function ApplicantsHub() {
     }
   };
 
+
+  const handleMessage = async (jobSeekerId, jobId) => {
+    try {
+      const res = await api.post(`/company/conversation`, { jobSeekerId, jobId });
+
+      if (res.status === 200 || res.status === 201) {
+        // backend returns conversation ID
+        setActiveConversationId(res.data._id || res.data);
+      }
+    } catch (error) {
+      console.error("Failed to start conversation:", error);
+      alert(error.response?.data?.message || "Could not create/start conversation");
+    }
+  };
+
+
   return (
     <CompanyLayout>
       <div className="p-6 text-lightText">
@@ -139,9 +158,8 @@ export default function ApplicantsHub() {
 
         {/* Filters */}
         <div
-          className={`bg-surface rounded-xl p-4 shadow mb-4 grid grid-cols-1 ${
-            id ? `md:grid-cols-2` : `md:grid-cols-3`
-          } gap-3`}
+          className={`bg-surface rounded-xl p-4 shadow mb-4 grid grid-cols-1 ${id ? `md:grid-cols-2` : `md:grid-cols-3`
+            } gap-3`}
         >
           <InputWithIcon
             icon={Search}
@@ -220,10 +238,9 @@ export default function ApplicantsHub() {
                       <select
                         value={a.status || "applied"}
                         disabled={updating[a.id]}
-                        className={`px-2 py-1 text-xs rounded ${
-                          STATUS_BADGE[(a.status || "").toLowerCase()] ||
+                        className={`px-2 py-1 text-xs rounded ${STATUS_BADGE[(a.status || "").toLowerCase()] ||
                           "bg-slate-700 text-slate-200"
-                        }`}
+                          }`}
                         onChange={(e) => handleStatusChange(a.id, e.target.value)}
                       >
                         <option value="applied">Applied</option>
@@ -257,7 +274,7 @@ export default function ApplicantsHub() {
                       {/* ✅ message button */}
                       {a.seeker?.message && (
                         <button
-                          onClick={() => alert("Open messaging here")}
+                          onClick={() => { handleMessage(a.seeker.id, a.jobId) }}
                           className="text-primary hover:underline"
                         >
                           Message
@@ -284,9 +301,8 @@ export default function ApplicantsHub() {
                     {filtered.map((a, idx) => (
                       <tr
                         key={a.id}
-                        className={`border-t border-slate-800 ${
-                          idx % 2 === 0 ? "bg-slate-900/30" : "bg-slate-900/10"
-                        } hover:bg-slate-700/30`}
+                        className={`border-t border-slate-800 ${idx % 2 === 0 ? "bg-slate-900/30" : "bg-slate-900/10"
+                          } hover:bg-slate-700/30`}
                       >
                         {/* Applicant */}
                         <td className="p-2 flex items-center gap-2">
@@ -319,10 +335,9 @@ export default function ApplicantsHub() {
                           <select
                             value={a.status || "applied"}
                             disabled={updating[a.id]}
-                            className={`px-2 py-1 text-xs rounded ${
-                              STATUS_BADGE[(a.status || "").toLowerCase()] ||
+                            className={`px-2 py-1 text-xs rounded ${STATUS_BADGE[(a.status || "").toLowerCase()] ||
                               "bg-slate-700 text-slate-200"
-                            }`}
+                              }`}
                             onChange={(e) => handleStatusChange(a.id, e.target.value)}
                           >
                             <option value="applied">Applied</option>
@@ -358,7 +373,7 @@ export default function ApplicantsHub() {
                           {/* ✅ message button */}
                           {a.seeker?.message && (
                             <button
-                              onClick={() => alert("Open messaging here")}
+                              onClick={() => { handleMessage(a.seeker.id, a.jobId) }}
                               className="text-primary hover:underline"
                             >
                               Message
@@ -398,6 +413,21 @@ export default function ApplicantsHub() {
           </div>
         )}
       </div>
+      {/* Chat Window */}
+      {activeConversationId && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+          <div className="w-full max-w-4xl h-full bg-bg">
+            <CompanyMessages initialConversationId={activeConversationId} />
+            <button
+              onClick={() => setActiveConversationId(null)}
+              className="absolute top-4 right-4 text-white p-2 bg-red-600 rounded"
+            >
+              Close Chat
+            </button>
+          </div>
+        </div>
+      )}
+
     </CompanyLayout>
   );
 }
