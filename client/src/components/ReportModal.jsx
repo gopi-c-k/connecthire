@@ -5,7 +5,7 @@ const ReportModal = ({
   onClose,
   pic,
   name,
-  companyId,
+  id,
   axiosInstance,
   url,
 }) => {
@@ -19,7 +19,7 @@ const ReportModal = ({
     setLoading(true);
     setError("");
     try {
-      await axiosInstance.post(url, { companyId, reason, details });
+      await axiosInstance.post(url, { id, reason, details });
       onClose();
     } catch (err) {
       setError(err?.response?.data?.message || "Something went wrong");

@@ -13,13 +13,16 @@ import {
 } from "lucide-react";
 import CompanyLayout from "../layouts/CompanyLayout";
 import api from "../../../secureApi";
+import ReportModal from "../../../components/ReportModal";
 
 export default function UserProfile() {
+
   const { jobSeekerId } = useParams();
   const [profile, setProfile] = useState(null);
   const [messageAllow, setMessageAllow] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
 
   const DEFAULT_AVATAR = "https://ui-avatars.com/api/?name=User";
 
@@ -78,7 +81,7 @@ export default function UserProfile() {
           </button>
 
           <div className="flex items-center gap-4">
-            {messageAllow && (
+            {/* {messageAllow && (
               <button
                 onClick={() => alert("Open message box here")}
                 className="text-primary hover:text-primaryDark"
@@ -86,10 +89,10 @@ export default function UserProfile() {
               >
                 <FaRegCommentDots size={20} />
               </button>
-            )}
+            )} */}
 
             <button
-              onClick={() => alert("Report feature")}
+              onClick={() => setIsOpen(true)}
               className="text-red-500 hover:text-red-400"
               title="Report"
             >
@@ -228,6 +231,15 @@ export default function UserProfile() {
           </div>
         </div>
       </div>
+      <ReportModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        pic={profile.profilePicture}
+        name={profile.fullName}
+        id={jobSeekerId}
+        axiosInstance={api}
+        url="/company/report" // API endpoint
+      />
     </CompanyLayout>
   );
 }

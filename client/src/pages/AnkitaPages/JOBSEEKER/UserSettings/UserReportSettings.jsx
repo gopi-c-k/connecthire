@@ -27,13 +27,6 @@ export default function UserReportSettings() {
     })();
   }, []);
 
-  // Delete report (client-side only)
-  const handleDelete = (id) => {
-    if (!window.confirm("Delete this report?")) return;
-    setReports((prev) => prev.filter((x) => x._id !== id));
-    // TODO: optionally call backend DELETE endpoint
-  };
-
   return (
     <div className="p-6 text-lightText">
       <h2 className="text-xl font-bold mb-4">Reported Company / Recruiter</h2>
@@ -48,7 +41,6 @@ export default function UserReportSettings() {
               <th className="px-3 py-2">Details</th>
               <th className="px-3 py-2">Created</th>
               <th className="px-3 py-2">Status</th>
-              <th className="px-3 py-2"></th>
             </tr>
           </thead>
           <tbody>
@@ -73,14 +65,6 @@ export default function UserReportSettings() {
                   {new Date(r.createdAt).toLocaleDateString()}
                 </td>
                 <td className="px-3 py-2">{r.status}</td>
-                <td className="px-3 py-2">
-                  <button
-                    onClick={() => handleDelete(r._id)}
-                    className="px-2 py-1 rounded bg-red-600 text-white text-xs hover:bg-red-700 transition"
-                  >
-                    Delete
-                  </button>
-                </td>
               </tr>
             ))}
           </tbody>

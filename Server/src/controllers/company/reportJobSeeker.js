@@ -4,9 +4,7 @@ import JobSeeker from "../../models/jobSeeker.js";
 
 export const reportJobSeeker = async (req, res) => {
   try {
-    const { jobSeekerId, reason, details } = req.body;
-
-
+    const { id, reason, details } = req.body;
     const reporterId = req.companyId || req.company?._id;
     if (!reporterId) {
       return res.status(401).json({ message: "Unauthorized. Company login required." });
@@ -17,11 +15,11 @@ export const reportJobSeeker = async (req, res) => {
       return res.status(400).json({ message: "Company information is missing." });
     }
 
-    if (!jobSeekerId || !reason) {
+    if (!id || !reason) {
       return res.status(400).json({ message: "Job seeker ID and reason are required." });
     }
 
-    const jobSeeker = await JobSeeker.findById(jobSeekerId);
+    const jobSeeker = await JobSeeker.findById(id);
     if (!jobSeeker) {
       return res.status(404).json({ message: "Job seeker not found." });
     }
@@ -30,7 +28,8 @@ export const reportJobSeeker = async (req, res) => {
     const newReport = new Report({
       reporter: reporterId,
       reporterModel: "Company",    
-      reportedUser: jobSeekerId,
+      reportedUser: id,
+      reportedUserModel: 'JobSeeker',
       reason,
       details
     });

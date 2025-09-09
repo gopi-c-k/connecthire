@@ -140,7 +140,7 @@ const CompanyProfile = () => {
                 onClose={() => setIsOpen(false)}
                 pic={profile.logo}
                 name={profile.name}
-                companyId={companyId}
+                id={companyId}
                 axiosInstance={api}
                 url="/jobseeker/report" // API endpoint
             />

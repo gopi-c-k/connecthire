@@ -4,7 +4,7 @@ import JobSeeker from "../../models/jobSeeker.js";
 
 export const reportCompany = async (req, res) => {
   try {
-    const { companyId, reason, details } = req.body;
+    const { id, reason, details } = req.body;
 
 
     const reporterId = req.jobSeeker?._id || req.jobSeeker;
@@ -17,11 +17,11 @@ export const reportCompany = async (req, res) => {
       return res.status(400).json({ message: "Job Seeker information is missing." });
     }
 
-    if (!companyId || !reason) {
+    if (!id || !reason) {
       return res.status(400).json({ message: "Company ID and reason are required." });
     }
 
-    const company = await Company.findById(companyId);
+    const company = await Company.findById(id);
     if (!company) {
       return res.status(404).json({ message: "Company not found." });
     }
@@ -30,7 +30,7 @@ export const reportCompany = async (req, res) => {
     const newReport = new Report({
       reporter: reporterId,
       reporterModel: "JobSeeker",    
-      reportedUser: companyId,
+      reportedUser: id,
       reportedUserModel: "Company",
       reason,
       details
