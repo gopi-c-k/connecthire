@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import api from "../../../secureApiForUser";
 import { FlagTriangleRight, ArrowLeft } from "lucide-react";
 import JobseekerLayout from "../layouts/JobseekerLayout";
+import ReportModal from "../../../components/ReportModal";
 
 const CompanyProfile = () => {
     const { companyId } = useParams();
@@ -10,6 +11,7 @@ const CompanyProfile = () => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const location = useLocation();
+    const [isOpen, setIsOpen] = useState(false);
 
     const BASE_URL = process.env.REACT_APP_BASE || "";
     const DEFAULT_LOGO =
@@ -64,7 +66,7 @@ const CompanyProfile = () => {
 
                     {/* ✅ Report Icon */}
                     <button
-                        onClick={() => alert("Reported this company")}
+                        onClick={() => setIsOpen(true)}
                         className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 shadow-soft"
                     >
                         <FlagTriangleRight size={18} />
@@ -133,6 +135,15 @@ const CompanyProfile = () => {
                     </div>
                 </div>
             </div>
+            <ReportModal
+                isOpen={isOpen}
+                onClose={() => setIsOpen(false)}
+                pic={profile.logo}
+                name={profile.name}
+                companyId={companyId}
+                axiosInstance={api}
+                url="/jobseeker/report" // API endpoint
+            />
         </JobseekerLayout>
     );
 };

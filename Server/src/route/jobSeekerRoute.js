@@ -9,6 +9,7 @@ import { getJobSeekerDashboard } from '../controllers/jobSeeker/jobSeekerDashBoa
 import { getJobsForJobSeeker } from '../controllers/jobSeeker/getJobsForJobSeeker.js';
 import { saveJob, getSavedJobs, unsaveJob } from '../controllers/jobSeeker/saveJobs.js';
 import { reportCompany } from '../controllers/jobSeeker/reportCompany.js';
+import { getReports } from '../controllers/jobSeeker/getReport.js';
 import { updatePrivacySettings, getPrivacySettings } from '../controllers/jobSeeker/privacySettingsController.js';
 import { getCompanyProfile } from '../controllers/company/companyProfileController.js';
 import { getConversationForJobSeeker } from '../controllers/jobSeeker/getConversation.js';
@@ -26,6 +27,7 @@ router.post('/save-job/:jobId', verifyMiddleware, verifyJobSeeker, saveJob);
 router.get('/saved-jobs', verifyMiddleware, verifyJobSeeker, getSavedJobs);
 router.delete('/save-job/:jobId', verifyMiddleware, verifyJobSeeker, unsaveJob);
 router.post('/report', verifyMiddleware, verifyJobSeeker, reportCompany);
+router.get('/report',verifyMiddleware,verifyJobSeeker,getReports);
 router.get('/privacy-settings', verifyMiddleware, verifyJobSeeker, getPrivacySettings);
 router.put('/privacy-settings', verifyMiddleware, verifyJobSeeker, updatePrivacySettings);
 router.get('/company-profile/:companyId', verifyMiddleware, verifyJobSeeker, getCompanyProfile);

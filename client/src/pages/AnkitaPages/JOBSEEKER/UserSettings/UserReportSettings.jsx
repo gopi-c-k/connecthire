@@ -1,23 +1,37 @@
 import React, { useEffect, useState } from "react";
-
+import api from "../../../../secureApiForUser";
 
 export default function UserReportSettings() {
   const [reports, setReports] = useState([]);
 
   // Load saved reports on mount
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("jobseeker_reports");
-      if (saved) setReports(JSON.parse(saved));
-    } catch (err) {
-      console.warn("Failed to load jobseeker reports", err);
-    }
+    (async () => {
+      try {
+        const saved = localStorage.getItem("jobseeker_reports");
+        const res = await api.get("/jobseeker/report");
+        console.log(res);
+        // Prefer live API data, fallback to localStorage
+        if (res.data?.success) {
+          setReports(res.data.data);
+          localStorage.setItem(
+            "jobseeker_reports",
+            JSON.stringify(res.data.data)
+          );
+        } else if (saved) {
+          setReports(JSON.parse(saved));
+        }
+      } catch (err) {
+        console.warn("Failed to load jobseeker reports", err);
+      }
+    })();
   }, []);
 
-  // Delete report
+  // Delete report (client-side only)
   const handleDelete = (id) => {
     if (!window.confirm("Delete this report?")) return;
-    setReports((prev) => prev.filter((x) => x.id !== id));
+    setReports((prev) => prev.filter((x) => x._id !== id));
+    // TODO: optionally call backend DELETE endpoint
   };
 
   return (
@@ -29,7 +43,7 @@ export default function UserReportSettings() {
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-800/40">
             <tr>
-              <th className="px-3 py-2">Target</th>
+              <th className="px-3 py-2">Reported User</th>
               <th className="px-3 py-2">Reason</th>
               <th className="px-3 py-2">Details</th>
               <th className="px-3 py-2">Created</th>
@@ -40,22 +54,29 @@ export default function UserReportSettings() {
           <tbody>
             {reports.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-4 text-center text-gray-400">
+                <td colSpan={6} className="p-4 text-center text-gray-400">
                   No reports yet
                 </td>
               </tr>
             )}
             {reports.map((r) => (
-              <tr key={r.id} className="border-t border-slate-700">
-                <td className="px-3 py-2">{r.targetName}</td>
+              <tr key={r._id} className="border-t border-slate-700">
+                <td className="px-3 py-2">
+                  {/* If backend populated reportedUser, show its name */}
+                  {typeof r.reportedUser === "object"
+                    ? r.reportedUser.name || r.reportedUser.companyName
+                    : r.reportedUser}
+                </td>
                 <td className="px-3 py-2">{r.reason}</td>
-                <td className="px-3 py-2">{r.details}</td>
-                <td className="px-3 py-2">{r.createdAt}</td>
+                <td className="px-3 py-2">{r.details || "-"}</td>
+                <td className="px-3 py-2">
+                  {new Date(r.createdAt).toLocaleDateString()}
+                </td>
                 <td className="px-3 py-2">{r.status}</td>
                 <td className="px-3 py-2">
                   <button
-                    onClick={() => handleDelete(r.id)}
-                    className="px-2 py-1 rounded bg-red-600 text-white text-xs"
+                    onClick={() => handleDelete(r._id)}
+                    className="px-2 py-1 rounded bg-red-600 text-white text-xs hover:bg-red-700 transition"
                   >
                     Delete
                   </button>

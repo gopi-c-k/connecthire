@@ -13,32 +13,25 @@ const reportSchema = new mongoose.Schema({
     },
     reportedUser: {
         type: mongoose.Schema.Types.ObjectId,
-        refPath: 'reporterModel',
+        refPath: 'reportedUserModel', // <---- changed
         required: true
     },
-    reason: {
+    reportedUserModel: { // <---- add this
         type: String,
         required: true,
-        trim: true
+        enum: ['User', 'JobSeeker', 'Company']
     },
-    details: {
-        type: String,
-        trim: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
+    reason: { type: String, required: true, trim: true },
+    details: { type: String, trim: true },
+    createdAt: { type: Date, default: Date.now },
     status: {
         type: String,
         enum: ['Pending', 'Reviewed', 'Resolved', 'Dismissed'],
         default: 'Pending'
     },
-    updateAt: {
-        type: Date,
-        default: Date.now
-    }
+    updateAt: { type: Date, default: Date.now }
 });
+
 
 const Report = mongoose.model('Report', reportSchema);
 export default Report;

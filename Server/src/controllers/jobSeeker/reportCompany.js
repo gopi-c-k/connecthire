@@ -31,6 +31,7 @@ export const reportCompany = async (req, res) => {
       reporter: reporterId,
       reporterModel: "JobSeeker",    
       reportedUser: companyId,
+      reportedUserModel: "Company",
       reason,
       details
     });
