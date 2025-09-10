@@ -1,7 +1,6 @@
-import Company from "../../models/company.js";
+import JobSeeker from "../../models/jobSeeker.js";
 import User from "../../models/user.js";
 import Notification from "../../models/notification.js";
-import Job from "../../models/job.js";
 import JobProposal from "../../models/jobProposal.js";
 
 export const deleteAccount = async (req, res) => {
@@ -11,24 +10,15 @@ export const deleteAccount = async (req, res) => {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    const company = await Company.findOne({ user: userId });
-
-    let jobs = [];
-    if (company) {
-      jobs = await Job.find({ company: company._id });
+    const jobSeeker = await JobSeeker.findOne({ user: userId });
+    if (jobSeeker) {
+      await Notification.deleteMany({ recipientId: jobSeeker._id });
+      await Notification.deleteMany({ senderId: jobSeeker._id });
+      await JobProposal.deleteMany({ jobSeeker: jobSeeker._id });
+      await jobSeeker.deleteOne();
     }
 
-    for (const job of jobs) {
-      await JobProposal.deleteMany({ job: job._id });
-      await job.deleteOne();
-    }
-
-    if (company) {
-      await Notification.deleteMany({ recipientId: company._id });
-      await Notification.deleteMany({ senderId: company._id });
-      await Company.findOneAndDelete({ user: userId });
-    }
-
+    
     const user = await User.findByIdAndDelete(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });

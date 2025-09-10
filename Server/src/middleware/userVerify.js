@@ -47,6 +47,9 @@ const verifyMiddleware = async (req, res, next) => {
             });
 
             user.refreshToken = newRefreshToken;
+            if(!user.status){
+              return res.status(403).json({ message: 'User account is not active' });
+            }
             await user.save();
 
             req.user = { userId: user._id };

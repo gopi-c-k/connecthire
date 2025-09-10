@@ -13,6 +13,8 @@ import { getReports } from '../controllers/jobSeeker/getReport.js';
 import { updatePrivacySettings, getPrivacySettings } from '../controllers/jobSeeker/privacySettingsController.js';
 import { getCompanyProfile } from '../controllers/company/companyProfileController.js';
 import { getConversationForJobSeeker } from '../controllers/jobSeeker/getConversation.js';
+import { deleteAccount } from '../controllers/jobSeeker/deleteAccount.js';
+import { deactivateAccount } from '../controllers/jobSeeker/deactivateAccount.js';
 
 // Notification Routes
 import { getNotifications } from '../controllers/jobSeeker/getNotification.js';
@@ -44,5 +46,8 @@ router.put('/notifications/mark-read', verifyMiddleware, verifyJobSeeker, markRe
 router.post('/notifications/delete', verifyMiddleware, verifyJobSeeker, deleteNotification);
 router.get('/notifications/count', verifyMiddleware, verifyJobSeeker, getNotificationCount);
 
+// Confidential Account Management
+router.delete('/delete-account', verifyMiddleware, verifyJobSeeker, deleteAccount);
+router.put('/deactivate-account', verifyMiddleware, verifyJobSeeker, deactivateAccount);
 
 export default router;

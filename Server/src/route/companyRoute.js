@@ -12,6 +12,8 @@ import { updateCompanyPrivacySettings, getCompanyPrivacySettings } from '../cont
 import { getJobSeekerProfile } from '../controllers/jobSeeker/getJobSeekerProfileController.js';
 import { getCompanyConversation } from '../controllers/company/getConversation.js';
 import { createConversation } from '../controllers/company/newConversation.js';
+import { deleteAccount } from '../controllers/company/deleteAccount.js';
+import { deactivateAccount } from '../controllers/company/deactivateAccount.js';
 
 // Notification Routes
 import { getNotifications } from '../controllers/company/getNotification.js';
@@ -39,6 +41,12 @@ router.get('/notifications', verifyMiddleware, verifyCompany, getNotifications);
 router.put('/notifications/mark-read', verifyMiddleware, verifyCompany, markReadNotifications);
 router.post('/notifications/delete', verifyMiddleware, verifyCompany, deleteNotification);
 router.get('/notifications/count', verifyMiddleware, verifyCompany, getNotificationCount);
+
+
+// Confidential Account Management
+router.delete('/delete-account', verifyMiddleware, verifyCompany, deleteAccount);
+router.put('/deactivate-account', verifyMiddleware, verifyCompany, deactivateAccount);
+
 export default router;
 
 
