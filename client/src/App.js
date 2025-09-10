@@ -81,13 +81,13 @@ function App() {
       <Routes>
         {/* Public + Main layout */}
         <Route element={<MainLayout />}>
-    <Route index element={<Home />} />
-    <Route path="/about" element={<About />} />
-    <Route path="/careers" element={<Careers />} />
-    <Route path="/contact" element={<Contact />} />
-    <Route path="/terms" element={<Terms />} />
-    <Route path="/privacy" element={<Privacy />} />
-  </Route>
+          <Route index element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+        </Route>
 
         {/* Auth */}
         <Route path="/user/login" element={<UserLogin />} />
@@ -145,22 +145,18 @@ function App() {
 
 
 
-        
-       {/* ---------- ADMIN ---------- */}
-<Route path="/admin/login" element={<AdminLogin />} />
 
-<Route path="/admin" element={<AdminLayout />}>
-  <Route index element={<AdminDashboard />} />
-  <Route path="employers" element={<AdminEmployersList />} />
-  <Route path="users" element={<AdminJobseekersList />} />
-  <Route path="jobs" element={<AdminJobsList />} />
-  <Route path="jobs/:id" element={<AdminJobDetail />} />
-  <Route path="reports" element={<AdminReports />} />
-</Route>
+        {/* ---------- ADMIN ---------- */}
+        <Route path="/admin/login" element={<AdminLogin />} />
 
-
-
-
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="company" element={<AdminEmployersList />} />
+          <Route path="jobseeker" element={<AdminJobseekersList />} />
+          <Route path="jobs" element={<AdminJobsList />} />
+          <Route path="jobs/:id" element={<AdminJobDetail />} />
+          <Route path="reports" element={<AdminReports />} />
+        </Route>
 
       </Routes>
     </Router>

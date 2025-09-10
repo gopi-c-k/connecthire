@@ -9,8 +9,8 @@ export default function AdminNavbar() {
 
   const links = [
     { name: "Dashboard", path: "" },        
-    { name: "Employers", path: "employers" },
-    { name: "Users", path: "users" },
+    { name: "JobSeeker", path: "jobseeker" },
+    { name: "Company", path: "company" },
     { name: "Jobs", path: "jobs" },
     { name: "Reports", path: "reports" },
   ];

@@ -6,6 +6,7 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   refreshToken: { type: String, default: null },
   role: { type: String, enum: ['jobseeker', 'company', 'admin'], required: true },
+  active : { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now }
 });
 

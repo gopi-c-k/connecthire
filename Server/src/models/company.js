@@ -44,6 +44,7 @@ const CompanySchema = new mongoose.Schema({
   allowApplicantsToMessage: { type: Boolean, default: true },
   receiveEmailNotifications: { type: Boolean, default: true },
   allowAnonymizedDataSharing: { type: Boolean, default: false },
+  active: { type: Boolean, default: true },
 });
 
 const Company = mongoose.model('Company', CompanySchema);

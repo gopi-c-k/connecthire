@@ -39,6 +39,14 @@ export const signIn = asyncHandler(async (req, res) => {
   }
   let user = await User.findOne({ email });
 
+  if (!user) {
+    return res.status(400).json({ message: "User does not exist" })
+  }
+
+  if(!user.active){
+    return res.status(403).json({ message: "User account is deactivated. Please contact support." })
+  }
+
   if (user.role != role) {
     return res.status(400).json({ message: "Invalid User Role" })
   }
