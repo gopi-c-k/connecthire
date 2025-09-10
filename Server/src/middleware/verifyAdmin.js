@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import User from '../models/user.js';
 
-export const verifyCompany = asyncHandler(async (req, res, next) => {
+export const verifyAdmin = asyncHandler(async (req, res, next) => {
     const user = await User.findById(req.user.userId);
     if (!user) {
         return res.status(404).json({ message: "Bad request: Invalid user" });

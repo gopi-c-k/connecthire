@@ -10,41 +10,42 @@ import { getAllJobProposal } from "../controllers/admin/getAllJobProposal.js";
 import { getAllReport } from "../controllers/admin/getAllReport.js";
 import { getReport } from "../controllers/admin/getReport.js";
 import { getJobSeeker } from "../controllers/admin/getJobSeeker.js";
-
+import { verifyAdmin } from "../middleware/verifyAdmin.js";
+import verifyMiddleware from "../middleware/userVerify.js";
 const router = express.Router();
 
 /**
  * 📝 User management
  */
-router.put("/users/:userId/deactivate", deactivateUser);
-router.delete("/users/:userId", deleteUser); 
+router.put("/users/:userId/deactivate", verifyAdmin, deactivateUser);
+router.delete("/users/:userId", verifyAdmin, deleteUser);
 
 /**
  * 📝 Companies
  */
-router.get("/companies", getAllCompany);
-router.get("/companies/:id", getCompany);
+router.get("/companies", verifyMiddleware, verifyAdmin, getAllCompany);
+router.get("/companies/:id", verifyMiddleware, verifyAdmin, getCompany);
 
 /**
  * 📝 Jobs
  */
-router.get("/jobs", getAllJob);
-router.get("/jobs/:id", getJob);
+router.get("/jobs", verifyMiddleware, verifyAdmin, getAllJob);
+router.get("/jobs/:id", verifyAdmin, getJob);
 
 /**
  * 📝 Job Seekers
  */
-router.get("/jobseekers/:id", getJobSeeker); 
+router.get("/jobseekers/:id", verifyMiddleware, verifyAdmin, getJobSeeker);
 
 /**
  * 📝 Job Proposals
  */
-router.get("/jobproposals", getAllJobProposal); 
+router.get("/jobproposals", verifyMiddleware, verifyAdmin, getAllJobProposal);
 
 /**
  * 📝 Reports
  */
-router.get("/reports", getAllReport);
-router.get("/reports/:id", getReport);
+router.get("/reports", verifyMiddleware, verifyAdmin, getAllReport);
+router.get("/reports/:id", verifyMiddleware, verifyAdmin, getReport);
 
 export default router;
