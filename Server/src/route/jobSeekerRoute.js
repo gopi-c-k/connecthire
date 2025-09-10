@@ -14,6 +14,11 @@ import { updatePrivacySettings, getPrivacySettings } from '../controllers/jobSee
 import { getCompanyProfile } from '../controllers/company/companyProfileController.js';
 import { getConversationForJobSeeker } from '../controllers/jobSeeker/getConversation.js';
 
+// Notification Routes
+import { getNotifications } from '../controllers/jobSeeker/getNotification.js';
+import { markReadNotifications } from '../controllers/jobSeeker/markReadNotification.js';
+import { deleteNotification } from '../controllers/jobSeeker/deleteNotification.js';
+
 
 const router = express.Router();
 
@@ -32,6 +37,10 @@ router.get('/privacy-settings', verifyMiddleware, verifyJobSeeker, getPrivacySet
 router.put('/privacy-settings', verifyMiddleware, verifyJobSeeker, updatePrivacySettings);
 router.get('/company-profile/:companyId', verifyMiddleware, verifyJobSeeker, getCompanyProfile);
 router.get('/conversations',verifyMiddleware,verifyJobSeeker,getConversationForJobSeeker);
+// Notification Routes
+router.get('/notifications', verifyMiddleware, verifyJobSeeker, getNotifications);
+router.put('/notifications/mark-read', verifyMiddleware, verifyJobSeeker, markReadNotifications);
+router.delete('/notifications', verifyMiddleware, verifyJobSeeker, deleteNotification);
 
 
 export default router;

@@ -13,6 +13,11 @@ import { getJobSeekerProfile } from '../controllers/jobSeeker/getJobSeekerProfil
 import { getCompanyConversation } from '../controllers/company/getConversation.js';
 import { createConversation } from '../controllers/company/newConversation.js';
 
+// Notification Routes
+import { getNotifications } from '../controllers/company/getNotification.js';
+import { markReadNotifications } from '../controllers/company/markReadNotification.js';
+import { deleteNotification } from '../controllers/company/deleteNotification.js';
+
 const router = express.Router();
 
 router.put('/profile', verifyMiddleware, verifyCompany, updateCompanyProfile);
@@ -28,6 +33,10 @@ router.get('/jobseeker-profile/:jobSeekerId', verifyMiddleware, verifyCompany, g
 router.get('/conversations', verifyMiddleware, verifyCompany, getCompanyConversation);
 router.post('/conversation', verifyMiddleware, verifyCompany, createConversation);
 
+// Notification Routes
+router.get('/notifications', verifyMiddleware, verifyCompany, getNotifications);
+router.put('/notifications/mark-read', verifyMiddleware, verifyCompany, markReadNotifications);
+router.delete('/notifications', verifyMiddleware, verifyCompany, deleteNotification);
 export default router;
 
 
