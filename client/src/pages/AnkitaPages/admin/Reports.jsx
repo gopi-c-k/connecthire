@@ -1,148 +1,163 @@
-
-import React, { useEffect, useState } from "react";
-import adminService from "../../../services/adminService";
+import React, { useEffect, useState, useMemo } from "react";
 import CustomSelect from "../../../components/CustomSelect";
+import api from "../../../secureApiForAdmin";
 
 export default function AdminReports() {
   const [reports, setReports] = useState([]);
   const [q, setQ] = useState("");
-  const [type, setType] = useState(""); 
+  const [type, setType] = useState(""); // user | employer | job
   const [page, setPage] = useState(1);
-  const limit = 20;
-  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-
-  const load = (opts = {}) => {
-    setLoading(true);
-    const { pageOverride } = opts;
-    const p = pageOverride || page;
-    adminService.getReports(p, limit, q, { type })
-      .then((res) => {
-        const payload = res.data;
-        setReports(payload.data || payload);
-        setTotalPages((payload.meta && payload.meta.totalPages) || 1);
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
-  };
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10; // items per page
 
   useEffect(() => {
-    load();
-    
-  }, [page, type]);
+    const fetchReports = async () => {
+      setLoading(true);
+      try {
+        const res = await api.get("/admin/reports");
+        setReports(res.data.data || []);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+      }
+      setLoading(false);
+    };
+    fetchReports();
+  }, []);
 
-  const onSubmitSearch = (e) => {
-    e.preventDefault();
-    setPage(1);
-    load({ pageOverride: 1 });
-  };
+  // Filter & search
+  const filteredReports = useMemo(() => {
+    return reports
+      .filter((r) =>
+        type ? r.reportedUserModel.toLowerCase() === type.toLowerCase() : true
+      )
+      .filter(
+        (r) =>
+          r.details.toLowerCase().includes(q.toLowerCase()) ||
+          (r.reporter?.fullName || "")
+            .toLowerCase()
+            .includes(q.toLowerCase()) ||
+          r._id.toLowerCase().includes(q.toLowerCase())
+      );
+  }, [reports, q, type]);
 
-  const resolve = (reportId) => {
-    if (!window.confirm("Resolve this report?")) return;
-    adminService.takeAction({ type: "resolve", targetType: "report", targetId: reportId })
-      .then(() => load())
-      .catch((err) => console.error(err));
-  };
+  // Frontend pagination
+  useEffect(() => {
+    setTotalPages(Math.max(1, Math.ceil(filteredReports.length / limit)));
+  }, [filteredReports]);
 
-  const escalate = (reportId) => {
-    if (!window.confirm("Escalate this report to higher review?")) return;
-    adminService.takeAction({ type: "escalate", targetType: "report", targetId: reportId })
-      .then(() => load())
-      .catch((err) => console.error(err));
-  };
-
-  const exportCSV = () => {
-    adminService.exportReports({ type, q })
-      .then((res) => {
-        const url = window.URL.createObjectURL(new Blob([res.data]));
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", "reports.csv");
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      })
-      .catch((err) => console.error(err));
-  };
+  const paginatedReports = filteredReports.slice(
+    (page - 1) * limit,
+    page * limit
+  );
 
   const pageText = `Page ${page} of ${totalPages}`;
 
+  // Example action handlers
+  const resolveReport = (id) => {
+    alert(`Resolve report ${id}`);
+  };
+
+  const escalateReport = (id) => {
+    alert(`Escalate report ${id}`);
+  };
+
   return (
     <div className="p-4 pb-32">
-      <h2 className="text-xl  text-white font-semibold mb-4">Take Action on Reported User...</h2>
+      <h2 className="text-xl text-white font-semibold mb-4">
+        Reported Users & Jobs
+      </h2>
 
-      {/* search + filters */}
-      <form onSubmit={onSubmitSearch} className="flex gap-3 items-center mb-4">
-        <div className="flex items-center flex-1 bg-white border rounded overflow-hidden">
+      {/* Search + Type Filter */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div className="flex flex-1 items-center bg-slate-700/50 rounded overflow-hidden">
           <input
-            className="flex-1 px-3 py-2 outline-none"
+            className="flex-1 px-3 py-2 text-white bg-transparent outline-none placeholder:text-gray-400"
             placeholder="Search by description, reporter, id..."
             value={q}
-            onChange={(e) => setQ(e.target.value)}
-            aria-label="search-reports"
+            onChange={(e) => {
+              setQ(e.target.value);
+              setPage(1);
+            }}
           />
-          <button
-            type="submit"
-            className="px-4 py-2 bg-bg text-white rounded-r hover:bg-bg-700 transition"
-            title="Search"
-          >
-            {loading ? "Searching..." : "Search"}
-          </button>
         </div>
 
         <div className="w-48">
           <CustomSelect
             value={type}
-            onChange={(v) => { setType(v); setPage(1); }}
+            onChange={(v) => {
+              setType(v);
+              setPage(1);
+            }}
             options={[
               { label: "All", value: "" },
-              { label: "User", value: "user" },
-              { label: "Employer", value: "employer" },
-              { label: "Job", value: "job" },
+              { label: "User", value: "JobSeeker" },
+              { label: "Employer", value: "Company" },
+              { label: "Job", value: "Job" },
             ]}
           />
         </div>
+      </div>
 
-        <button
-          type="button"
-          onClick={exportCSV}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
-          title="Export CSV"
-        >
-          Export
-        </button>
-      </form>
-
-      {/* results */}
+      {/* Reports List */}
       <div className="space-y-3">
-        {reports.length === 0 && !loading && <div className="text-sm text-gray-600">No reports.</div>}
-        {loading && <div className="text-sm text-gray-600">Loading...</div>}
-
-        {reports.map((r) => (
-          <div key={r.id || r._id} className="border rounded p-3 bg-white">
-            <div className="flex justify-between">
+        {loading && (
+          <div className="text-sm text-gray-400">Loading reports...</div>
+        )}
+        {!loading && paginatedReports.length === 0 && (
+          <div className="text-sm text-gray-400">No reports found.</div>
+        )}
+        {paginatedReports.map((r) => (
+          <div
+            key={r._id}
+            className="border rounded p-3 bg-slate-800/50 text-white"
+          >
+            <div className="flex justify-between flex-col sm:flex-row gap-2">
               <div className="max-w-3xl">
                 <div className="flex items-center gap-3">
-                  <strong className="truncate">{r.subject || `${r.type} ${r.targetId || ""}`}</strong>
-                  <span className="text-xs px-2 py-1 bg-gray-100 rounded text-gray-700">{r.status}</span>
+                  <strong className="truncate">{r.details}</strong>
+                  <span className="text-xs px-2 py-1 bg-gray-600 rounded text-white">
+                    {r.status}
+                  </span>
                 </div>
-                <div className="text-sm text-gray-600 mt-1">{r.reason}</div>
-                <div className="text-xs text-gray-500 mt-2">Reported by {r.reporterName || r.reporterId} • {new Date(r.createdAt || Date.now()).toLocaleString()}</div>
+                <div className="text-sm text-gray-300 mt-1">
+                  Reason: {r.reason}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  Reported by: {r.reporter?.fullName || "N/A"} ({r.reporterModel}
+                  ) • {new Date(r.createdAt).toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  Reported User: {r.reportedUser?.companyName || r.reportedUser?.user || "N/A"} ({r.reportedUserModel})
+                </div>
               </div>
 
-              <div className="flex flex-col gap-2">
-                <button onClick={() => resolve(r.id || r._id)} className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition">Resolve</button>
-                <button onClick={() => escalate(r.id || r._id)} className="px-3 py-1 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition">Escalate</button>
+              {/* Actions */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => resolveReport(r._id)}
+                  className="px-3 py-1 bg-indigo-600 rounded hover:bg-indigo-700 text-white text-sm"
+                >
+                  Resolve
+                </button>
+                <button
+                  onClick={() => escalateReport(r._id)}
+                  className="px-3 py-1 bg-yellow-600 rounded hover:bg-yellow-700 text-white text-sm"
+                >
+                  Escalate
+                </button>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* sticky blurred pagination footer */}
-      <div className="sticky bottom-0 left-0 right-0 mt-5 bg-gray-950/70 backdrop-blur supports-[backdrop-filter]:bg-gray-950/50 border-t border-gray-800">
+      {/* Pagination Footer */}
+      <div className="sticky bottom-0 left-0 right-0 mt-5 bg-gray-950/70 backdrop-blur border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="text-gray-300 text-sm order-2 sm:order-1">{pageText}</span>
+          <span className="text-gray-300 text-sm order-2 sm:order-1">
+            {pageText}
+          </span>
           <div className="flex gap-2 order-1 sm:order-2">
             <button
               disabled={page === 1}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Briefcase, Users, Flag, BarChart2 } from "lucide-react";
-import adminService from "../../../services/adminService";
+import api from "../../../secureApiForAdmin"; // your configured axios instance
 
 const StatCard = ({ icon, title, value, linkText, linkTo }) => (
   <div className="bg-slate-800/60 border border-slate-700 rounded-lg p-4">
@@ -34,49 +34,44 @@ export default function Dashboard() {
 
   const [latestReports, setLatestReports] = useState([]);
 
-  // fallback if backend is unavailable
-  const MOCK_SUMMARY = {
-    totalJobs: 128,
-    totalCompanies: 34,
-    totalJobseekers: 542,
-    totalReports: 7,
-  };
-
-  const MOCK_REPORTS = [
-    { id: "r1", subject: "duplicate job", reporter: "user@example.com" },
-    { id: "r2", subject: "fake employer", reporter: "test@abc.com" },
-    { id: "r3", subject: "spam posting", reporter: "xyz@demo.com" },
-  ];
-
   useEffect(() => {
     let mounted = true;
-    (async () => {
+
+    const fetchDashboard = async () => {
       setLoading(true);
       try {
-        const sResp = await adminService.getDashboardSummary().catch(() => ({ data: MOCK_SUMMARY }));
-        const sData = sResp?.data || MOCK_SUMMARY;
-
-        const rResp = await adminService.getReports(1, 3, "", {}).catch(() => ({ data: MOCK_REPORTS }));
-        const rPayload = rResp?.data;
-        const rList = Array.isArray(rPayload) ? rPayload : rPayload?.data || MOCK_REPORTS;
-
+        const response = await api.get("/admin/dashboard");
+        const data = response.data;
+        console.log(data);
         if (!mounted) return;
+
         setSummary({
-          totalJobs: sData.totalJobs ?? sData.jobs ?? 0,
-          totalCompanies: sData.totalCompanies ?? sData.companies ?? sData.employers ?? 0,
-          totalJobseekers: sData.totalJobseekers ?? sData.jobseekers ?? sData.users ?? 0,
-          totalReports: sData.totalReports ?? sData.reports ?? rList.length,
+          totalJobs: data.totalJobs || 0,
+          totalCompanies: data.totalCompanies || 0,
+          totalJobseekers: data.totalJobSeekers || 0,
+          totalReports: data.totalReports || 0,
         });
-        setLatestReports(rList.slice(0, 3));
+
+        const reports = Array.isArray(data.latestReports) ? data.latestReports : [];
+        setLatestReports(
+          reports.map((r) => ({
+            _id: r._id,
+            subject: r.reason,
+            reporter: r.reporter?.email || r.reporter?.name || "—",
+          }))
+        );
       } catch (err) {
         console.error("Dashboard load error:", err);
-        setSummary(MOCK_SUMMARY);
-        setLatestReports(MOCK_REPORTS);
       } finally {
         if (mounted) setLoading(false);
       }
-    })();
-    return () => (mounted = false);
+    };
+
+    fetchDashboard();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
@@ -129,14 +124,10 @@ export default function Dashboard() {
         ) : (
           <ul className="space-y-3">
             {latestReports.map((r) => (
-              <li key={r.id || r._id} className="flex items-start justify-between">
+              <li key={r._id} className="flex items-start justify-between">
                 <div>
-                  <div className="font-medium text-white">
-                    {r.subject || r.reason || `${r.type || "Report"} ${r.targetId || ""}`}
-                  </div>
-                  <div className="text-xs text-slate-400">
-                    Reporter: {r.reporterName || r.reporter || r.reporterId || "—"}
-                  </div>
+                  <div className="font-medium text-white">{r.subject}</div>
+                  <div className="text-xs text-slate-400">Reporter: {r.reporter}</div>
                 </div>
                 <div className="text-xs text-slate-300">
                   <Link to="/admin/reports" className="hover:underline">

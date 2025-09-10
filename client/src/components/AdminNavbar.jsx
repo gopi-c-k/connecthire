@@ -1,17 +1,17 @@
 // src/components/AdminNavbar.jsx
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import CustomSelect from "./CustomSelect"; 
-import { Grid,  LogOut } from "lucide-react";
+import CustomSelect from "./CustomSelect";
+import { Grid, LogOut } from "lucide-react";
 
 export default function AdminNavbar() {
   const navigate = useNavigate();
 
   const links = [
-    { name: "Dashboard", path: "" },        
+    { name: "Dashboard", path: "" },
     { name: "JobSeeker", path: "jobseeker" },
     { name: "Company", path: "company" },
-    
+    { name: "Job", path: "jobs" },
     { name: "Reports", path: "reports" },
   ];
 
@@ -47,8 +47,7 @@ export default function AdminNavbar() {
               to={link.path === "" ? "/admin" : `/admin/${link.path}`}
               end={link.path === ""} // Dashboard exact match
               className={({ isActive }) =>
-                `px-3 py-1 rounded-lg text-sm transition ${
-                  isActive ? "bg-primary text-white" : "text-gray-300 hover:bg-slate-800"
+                `px-3 py-1 rounded-lg text-sm transition ${isActive ? "bg-primary text-white" : "text-gray-300 hover:bg-slate-800"
                 }`
               }
             >

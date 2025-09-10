@@ -13,6 +13,7 @@ import { getJobSeeker } from "../controllers/admin/getJobSeeker.js";
 import { verifyAdmin } from "../middleware/verifyAdmin.js";
 import { getAllJobSeeker } from "../controllers/admin/getAllJobSeekers.js";
 import verifyMiddleware from "../middleware/userVerify.js";
+import { getDashboardData } from '../controllers/admin/adminDashBoard.js'
 const router = express.Router();
 
 /**
@@ -44,6 +45,7 @@ router.get("/jobseekers/:id", verifyMiddleware, verifyAdmin, getJobSeeker);
  */
 router.get("/jobproposals", verifyMiddleware, verifyAdmin, getAllJobProposal);
 
+router.get("/dashboard",verifyMiddleware,verifyAdmin,getDashboardData);
 /**
  * 📝 Reports
  */
