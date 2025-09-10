@@ -1,5 +1,6 @@
 import Conversation from "../../models/conversation.js";
 import Company from "../../models/company.js";
+import Notification from "../../models/notification.js";
 import JobSeeker from "../../models/jobSeeker.js";
 
 /**
@@ -58,6 +59,16 @@ export const createConversation = async (req, res) => {
 
         await conversation.save();
 
+        const notification = new Notification({
+            senderId: company._id,
+            senderModel: "Company",
+            recipientId: jobSeeker._id,
+            recipientModel: "JobSeeker",
+            type: "message",
+            content: `New conversation started by ${company.companyName}`,
+            link: `/user/messages`,
+        });
+        await notification.save();
         return res.status(201).json(conversation);
     } catch (error) {
         console.error("Error creating conversation:", error);

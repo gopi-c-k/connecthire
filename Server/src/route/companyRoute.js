@@ -17,6 +17,7 @@ import { createConversation } from '../controllers/company/newConversation.js';
 import { getNotifications } from '../controllers/company/getNotification.js';
 import { markReadNotifications } from '../controllers/company/markReadNotification.js';
 import { deleteNotification } from '../controllers/company/deleteNotification.js';
+import { getNotificationCount } from '../controllers/company/getNotificationCount.js';
 
 const router = express.Router();
 
@@ -36,7 +37,8 @@ router.post('/conversation', verifyMiddleware, verifyCompany, createConversation
 // Notification Routes
 router.get('/notifications', verifyMiddleware, verifyCompany, getNotifications);
 router.put('/notifications/mark-read', verifyMiddleware, verifyCompany, markReadNotifications);
-router.delete('/notifications', verifyMiddleware, verifyCompany, deleteNotification);
+router.post('/notifications/delete', verifyMiddleware, verifyCompany, deleteNotification);
+router.get('/notifications/count', verifyMiddleware, verifyCompany, getNotificationCount);
 export default router;
 
 

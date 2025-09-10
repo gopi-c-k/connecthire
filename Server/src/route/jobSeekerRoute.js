@@ -18,6 +18,7 @@ import { getConversationForJobSeeker } from '../controllers/jobSeeker/getConvers
 import { getNotifications } from '../controllers/jobSeeker/getNotification.js';
 import { markReadNotifications } from '../controllers/jobSeeker/markReadNotification.js';
 import { deleteNotification } from '../controllers/jobSeeker/deleteNotification.js';
+import { getNotificationCount } from '../controllers/jobSeeker/getNotificationCount.js';
 
 
 const router = express.Router();
@@ -40,7 +41,8 @@ router.get('/conversations',verifyMiddleware,verifyJobSeeker,getConversationForJ
 // Notification Routes
 router.get('/notifications', verifyMiddleware, verifyJobSeeker, getNotifications);
 router.put('/notifications/mark-read', verifyMiddleware, verifyJobSeeker, markReadNotifications);
-router.delete('/notifications', verifyMiddleware, verifyJobSeeker, deleteNotification);
+router.post('/notifications/delete', verifyMiddleware, verifyJobSeeker, deleteNotification);
+router.get('/notifications/count', verifyMiddleware, verifyJobSeeker, getNotificationCount);
 
 
 export default router;

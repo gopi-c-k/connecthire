@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { Menu, Bell, MessageSquare } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { logout } from "../services/authService"; 
+import { logout } from "../services/authService";
+import api from "../secureApiForUser";
 
 export default function JobseekerNavbar({ onMenuClick }) {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsCount, setNotificationsCount] = useState(0);
-  const [notifications, setNotifications] = useState([]); 
+
   const dropdownRef = useRef(null);
 
-  // Close profile dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -21,15 +21,18 @@ export default function JobseekerNavbar({ onMenuClick }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Dummy notification simulation
   useEffect(() => {
-    // TODO: Replace with websocket or API
-    const dummyNotifications = [
-      { title: "New Job Posted", message: "Google posted a new Frontend role", time: "10:45 AM" },
-      { title: "Interview Update", message: "Microsoft scheduled your interview", time: "Yesterday" },
-    ];
-    setNotifications(dummyNotifications);
-    setNotificationsCount(dummyNotifications.length);
+    const fetchNotificationsCount = async () => {
+      try {
+        const res = await api.get("/jobseeker/notifications/count");
+        setNotificationsCount(
+          res.data.data || 0
+        );
+      } catch (error) {
+        console.error("Error fetching notifications count:", error);
+      }
+    };
+    fetchNotificationsCount();
   }, []);
 
   const handleLogout = () => {

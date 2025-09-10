@@ -10,7 +10,7 @@ import CompanyMessages from "./Messages";
 const STATUS_BADGE = {
   applied: "bg-slate-700 text-slate-200",
   shortlisted: "bg-green-600 text-white",
-  interviewing: "bg-blue-600 text-white",
+  interviewed: "bg-blue-600 text-white",
   rejected: "bg-red-600 text-white",
   hired: "bg-purple-600 text-black",
 };
@@ -175,7 +175,7 @@ export default function ApplicantsHub() {
             <option value="">All Statuses</option>
             <option value="applied">Applied</option>
             <option value="shortlisted">Shortlisted</option>
-            <option value="interviewing">Interviewing</option>
+            <option value="interviewed">Interviewing</option>
             <option value="rejected">Rejected</option>
             <option value="hired">Hired</option>
           </select>
@@ -245,7 +245,7 @@ export default function ApplicantsHub() {
                       >
                         <option value="applied">Applied</option>
                         <option value="shortlisted">Shortlisted</option>
-                        <option value="interviewing">Interviewing</option>
+                        <option value="interviewed">Interviewing</option>
                         <option value="rejected">Rejected</option>
                         <option value="hired">Hired</option>
                       </select>
@@ -342,7 +342,7 @@ export default function ApplicantsHub() {
                           >
                             <option value="applied">Applied</option>
                             <option value="shortlisted">Shortlisted</option>
-                            <option value="interviewing">Interviewing</option>
+                            <option value="interviewed">Interviewing</option>
                             <option value="rejected">Rejected</option>
                             <option value="hired">Hired</option>
                           </select>

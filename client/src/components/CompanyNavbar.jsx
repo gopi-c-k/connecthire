@@ -2,7 +2,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Bell, Menu, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../services/authService"; // adjust path if needed
+import { logout } from "../services/authService";
+import api from "../secureApi";
 
 export default function CompanyNavbar({ onMenuClick }) {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function CompanyNavbar({ onMenuClick }) {
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
+  // ✅ Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -22,32 +23,22 @@ export default function CompanyNavbar({ onMenuClick }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // WebSocket for real-time notifications
+  // ✅ Fetch notifications count (no async directly in useEffect)
   useEffect(() => {
-    const token = localStorage.getItem("accessToken"); // ✅ use same key as authService
-    if (!token) return;
-
-    const socket = new WebSocket(
-      `wss://your-backend.com/ws/notifications?token=${token}`
-    );
-
-    socket.onmessage = (event) => {
+    const fetchNotificationsCount = async () => {
       try {
-        const data = JSON.parse(event.data);
-        if (data.type === "NOTIFICATION_COUNT") {
-          setNotificationsCount(data.count);
-        }
-      } catch (err) {
-        console.error("WebSocket message error:", err);
+        const res = await api.get("/company/notifications/count");
+        setNotificationsCount(
+          res.data.data || 0
+        );
+      } catch (error) {
+        console.error("Error fetching notifications count:", error);
       }
     };
-
-    socket.onerror = (err) => console.error("WebSocket error:", err);
-
-    return () => socket.close();
+    fetchNotificationsCount();
   }, []);
 
-  // Handle search
+  // ✅ Handle search
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -67,9 +58,9 @@ export default function CompanyNavbar({ onMenuClick }) {
     }
   };
 
-  // ✅ Logout via authService
+  // ✅ Logout
   const handleLogout = () => {
-    logout(); // clears accessToken etc.
+    logout();
     navigate("/company/login", { replace: true });
   };
 
@@ -111,7 +102,7 @@ export default function CompanyNavbar({ onMenuClick }) {
             <MessageSquare size={20} />
           </button>
 
-          {/* Notification Bell (clickable) */}
+          {/* Notification Bell */}
           <button
             onClick={() => navigate("/company/notifications")}
             className="relative"

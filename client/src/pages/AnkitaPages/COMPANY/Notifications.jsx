@@ -2,62 +2,76 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CompanyLayout from "../layouts/CompanyLayout";
+import api from "../../../secureApi";
 
 export default function CompanyNotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // TODO: replace with real API call: GET /api/company/notifications
-    const dummyNotifications = [
-      {
-        id: 1,
-        title: "New Application",
-        message: "Ankita Sharma applied for Frontend Developer (Job #234).",
-        time: "10:45 AM",
-        seen: false,
-        link: "/company/jobs/234/applicants", // go to applicants for that job
-      },
-      {
-        id: 2,
-        title: "Message Received",
-        message: "Rohit Verma sent you a message regarding Backend Engineer.",
-        time: "Yesterday",
-        seen: false,
-        link: "/company/messages", // open messages page
-      },
-      {
-        id: 3,
-        title: "Job Expiring",
-        message: "Your posting 'UI/UX Designer' will expire in 3 days.",
-        time: "2 days ago",
-        seen: true,
-        link: "/company/jobs", // go to manage jobs
-      },
-    ];
-
-    setNotifications(dummyNotifications);
+    const fetchNotifications = async () => {
+      try {
+        const res = await api.get("/company/notifications");
+        setNotifications(res.data.data || []);
+      } catch (err) {
+        console.error("Error fetching notifications", err);
+      }
+    };
+    fetchNotifications();
   }, []);
 
-  const handleClick = (id, link) => {
-    // mark single notification as seen 
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, seen: true } : n)));
+  // mark one notification as read
+  const handleClick = async (id, link) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+    );
 
-    // TODO: call API to mark seen: POST /api/company/notifications/:id/seen
+    try {
+      await api.put("/company/notifications/mark-read", {
+        notificationIds: [id],
+      });
+    } catch (err) {
+      console.error("Error marking notification read", err);
+    }
 
-    if (link) {
-      navigate(link);
+    if (link) navigate(link);
+  };
+
+  const handleMarkAllRead = async () => {
+    const ids = notifications.filter((n) => !n.isRead).map((n) => n._id);
+    if (ids.length === 0) return;
+
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+
+    try {
+      await api.put("/company/notifications/mark-read", {
+        notificationIds: ids,
+      });
+    } catch (err) {
+      console.error("Error marking all read", err);
     }
   };
 
-  const handleMarkAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, seen: true })));
-    // TODO: call API to mark all as read
+  const handleClearAll = async () => {
+    const notificationIds = notifications.map((n) => n._id);
+    setNotifications([]);
+
+    try {
+      await api.post("/company/notifications/delete", {
+        notificationIds
+      });
+    } catch (err) {
+      console.error("Error clearing notifications", err);
+    }
   };
 
-  const handleClearAll = () => {
-    setNotifications([]);
-    // TODO: call API to clear notifications if desired
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString();
+    } catch {
+      return "";
+    }
   };
 
   return (
@@ -67,13 +81,19 @@ export default function CompanyNotificationsPage() {
           <h2 className="text-2xl font-semibold">Notifications</h2>
 
           <div className="flex items-center gap-3">
-            {notifications.some((n) => !n.seen) && (
-              <button onClick={handleMarkAllRead} className="text-sm text-primary hover:underline">
+            {notifications.some((n) => !n.isRead) && (
+              <button
+                onClick={handleMarkAllRead}
+                className="text-sm text-primary hover:underline"
+              >
                 Mark all as read
               </button>
             )}
             {notifications.length > 0 && (
-              <button onClick={handleClearAll} className="text-sm text-muted hover:underline">
+              <button
+                onClick={handleClearAll}
+                className="text-sm text-muted hover:underline"
+              >
                 Clear all
               </button>
             )}
@@ -84,22 +104,36 @@ export default function CompanyNotificationsPage() {
           {notifications.length > 0 ? (
             notifications.map((n) => (
               <div
-                key={n.id}
-                className={`p-4 cursor-pointer transition ${n.seen ? "opacity-70" : "bg-darkGray"} hover:bg-mediumGray`}
-                onClick={() => handleClick(n.id, n.link)}
+                key={n._id}
+                className={`p-4 cursor-pointer transition ${
+                  n.isRead ? "opacity-70" : "bg-darkGray"
+                } hover:bg-mediumGray`}
+                onClick={() => handleClick(n._id, n.link)}
               >
                 <div className="flex justify-between items-center">
-                  <p className={`text-sm font-medium ${!n.seen ? "text-white font-bold" : "text-lightText"}`}>
-                    {n.title}
+                  <p
+                    className={`text-sm font-medium ${
+                      !n.isRead
+                        ? "text-white font-bold"
+                        : "text-lightText"
+                    }`}
+                  >
+                    {n.type.charAt(0).toUpperCase() + n.type.slice(1)}
                   </p>
-                  {!n.seen && <span className="w-2 h-2 bg-primary rounded-full"></span>}
+                  {!n.isRead && (
+                    <span className="w-2 h-2 bg-primary rounded-full"></span>
+                  )}
                 </div>
-                <p className="text-xs text-muted">{n.message}</p>
-                <span className="text-[10px] text-slate-500">{n.time}</span>
+                <p className="text-xs text-muted">{n.content}</p>
+                <span className="text-[10px] text-slate-500">
+                  {formatDate(n.createdAt)}
+                </span>
               </div>
             ))
           ) : (
-            <p className="p-4 text-sm text-muted text-center">No notifications</p>
+            <p className="p-4 text-sm text-muted text-center">
+              No notifications
+            </p>
           )}
         </div>
       </div>

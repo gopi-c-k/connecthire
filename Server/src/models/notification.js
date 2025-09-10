@@ -30,20 +30,19 @@ const NotificationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    jobId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Job',
-        default: null
-    },
-    conversationId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Conversation',
-        default: null
+    link: {
+        type: String,
+        default: null,
+        required: true
     },
     isRead: {
         type: Boolean,
         default: false
     },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
 })
 
 const Notification = mongoose.model("Notification", NotificationSchema);

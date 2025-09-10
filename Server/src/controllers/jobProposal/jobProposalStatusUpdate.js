@@ -1,4 +1,5 @@
 import JobProposal from "../../models/jobProposal.js";
+import Notification from "../../models/notification.js";
 export const updateJobProposalStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -25,6 +26,18 @@ export const updateJobProposalStatus = async (req, res) => {
     proposal.status = status;
     proposal.recentUpdate = Date.now();
     await proposal.save();
+
+    const notification = new Notification({
+      senderId: companyId,
+      recipientId: proposal.jobSeeker,
+      type: 'status',
+      senderModel: 'Company',
+      recipientModel: 'JobSeeker',
+      content: `Your job proposal status has been updated to "${status}".`,
+      link: `/user/applications`,
+      isRead: false,
+    });
+    await notification.save();
 
     res.status(200).json({ message: "Job proposal status updated successfully", proposal });
   } catch (error) {

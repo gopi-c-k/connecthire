@@ -1,6 +1,7 @@
 import JobProposal from "../../models/jobProposal.js";
 import Job from "../../models/job.js";
 import JobSeeker from "../../models/jobSeeker.js";
+import Notification from "../../models/notification.js";
 
 export const applyToJob = async (req, res) => {
   try {
@@ -47,6 +48,18 @@ export const applyToJob = async (req, res) => {
     job.applicants.push(newProposal._id);
     await job.save();
 
+    const notification = new Notification({
+      senderId: jobSeekerId,
+      senderModel: 'JobSeeker',
+      recipientId: companyId,
+      recipientModel: 'Company',
+      type: 'application',
+      content: `New application for your job posting: ${job.title}`,
+      link: `/company/job/${jobId}/applicants`,
+    });
+
+    await notification.save();
+    
     res.status(201).json({ message: "Application submitted successfully", proposal: newProposal });
   } catch (error) {
     console.error("Error applying to job:", error);
