@@ -11,6 +11,7 @@ import { getAllReport } from "../controllers/admin/getAllReport.js";
 import { getReport } from "../controllers/admin/getReport.js";
 import { getJobSeeker } from "../controllers/admin/getJobSeeker.js";
 import { verifyAdmin } from "../middleware/verifyAdmin.js";
+import { getAllJobSeeker } from "../controllers/admin/getAllJobSeekers.js";
 import verifyMiddleware from "../middleware/userVerify.js";
 const router = express.Router();
 
@@ -35,6 +36,7 @@ router.get("/jobs/:id", verifyAdmin, getJob);
 /**
  * 📝 Job Seekers
  */
+router.get('/jobseekers', verifyMiddleware, verifyAdmin, getAllJobSeeker);
 router.get("/jobseekers/:id", verifyMiddleware, verifyAdmin, getJobSeeker);
 
 /**

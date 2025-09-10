@@ -1,46 +1,80 @@
-// src/pages/AnkitaPages/admin/JobseekersList.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import adminService from "../../../services/adminService";
 import CustomSelect from "../../../components/CustomSelect";
+import api from "../../../secureApiForAdmin";
 
 export default function AdminJobseekersList() {
-  const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]); // full array from backend
+  const [users, setUsers] = useState([]); // sliced for current page
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState(""); 
+  const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const limit = 20;
-
-  const load = (opts = {}) => {
-    setLoading(true);
-    const p = opts.pageOverride || page;
-    // adjust method name if your service uses a different one (e.g. getJobseekers / getUsersList)
-    adminService
-      .getUsers(p, limit, q, { status })
-      .then((res) => {
-        const payload = res.data;
-        setUsers(payload.data || payload);
-        setTotalPages((payload.meta && payload.meta.totalPages) || 1);
-      })
-      .catch((err) => {
-        console.error("fetch users", err);
-        setUsers([]);
-        setTotalPages(1);
-      })
-      .finally(() => setLoading(false));
-  };
+  const limit = 20; // client-side page size
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, status]);
+  }, []);
+
+  useEffect(() => {
+    filterAndPaginate();
+  }, [allUsers, q, status, page]);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get("/admin/jobseekers");
+      const data = res.data?.data || [];
+      setAllUsers(data);
+    } catch (error) {
+      console.error("Error fetching jobseekers:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filterAndPaginate = () => {
+    // filter by q or status
+    let filtered = allUsers;
+    if (q) {
+      const lower = q.toLowerCase();
+      filtered = filtered.filter(
+        (u) =>
+          (u.fullName && u.fullName.toLowerCase().includes(lower)) ||
+          (u.user?.email && u.user.email.toLowerCase().includes(lower)) ||
+          (Array.isArray(u.skills) &&
+            u.skills.some((s) => s.toLowerCase().includes(lower)))
+      );
+    }
+
+    if (status) {
+      if (status === "active") {
+        filtered = filtered.filter((u) => u.user?.active === true);
+      } else if (status === "suspended") {
+        filtered = filtered.filter((u) => u.user?.active === false);
+      }
+      // add banned if needed
+    }
+
+    const total = filtered.length;
+    const pages = Math.max(1, Math.ceil(total / limit));
+    setTotalPages(pages);
+
+    // clamp page if it exceeds pages
+    const currentPage = Math.min(page, pages);
+    setPage(currentPage);
+
+    const start = (currentPage - 1) * limit;
+    const end = start + limit;
+    setUsers(filtered.slice(start, end));
+  };
 
   const handleSearch = (e) => {
     e?.preventDefault();
     setPage(1);
-    load({ pageOverride: 1 });
+    filterAndPaginate();
   };
 
   const takeAction = (userId, type) => {
@@ -56,7 +90,9 @@ export default function AdminJobseekersList() {
 
   return (
     <div className="p-4 pb-32">
-      <h2 className="text-xl text-white font-semibold mb-4">Jobseekers / Users</h2>
+      <h2 className="text-xl text-white font-semibold mb-4">
+        Jobseekers / Users
+      </h2>
 
       <form onSubmit={handleSearch} className="flex gap-2 mb-4 items-center">
         <input
@@ -70,16 +106,17 @@ export default function AdminJobseekersList() {
         <div className="w-48">
           <CustomSelect
             value={status}
-            onChange={(v) => { setStatus(v); setPage(1); }}
+            onChange={(v) => {
+              setStatus(v);
+              setPage(1);
+            }}
             options={[
               { label: "All", value: "" },
               { label: "Active", value: "active" },
-              { label: "Suspended", value: "suspended" },
               { label: "Banned", value: "banned" },
             ]}
           />
         </div>
-
       </form>
 
       <div className="overflow-x-auto bg-white/3 border border-slate-700 rounded">
@@ -96,74 +133,85 @@ export default function AdminJobseekersList() {
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={5} className="p-6 text-center text-sm text-gray-300">Loading...</td>
+                <td colSpan={5} className="p-6 text-center text-sm text-white">
+                  Loading...
+                </td>
               </tr>
             )}
 
             {!loading && users.length === 0 && (
               <tr>
-                <td colSpan={5} className="p-6 text-center text-sm text-gray-400">No users found.</td>
+                <td colSpan={5} className="p-6 text-center text-sm text-white">
+                  No users found.
+                </td>
               </tr>
             )}
 
-            {!loading && users.map((u) => (
-              <tr key={u.id || u._id} className="border-t border-slate-700">
-                <td className="p-3">
-                  <div className="font-medium text-sm">{u.name || u.fullName || "—"}</div>
-                  <div className="text-xs text-slate-400">{u.location || u.city || ""}</div>
-                </td>
-                <td className="p-3 text-sm">{u.email}</td>
-                <td className="p-3 text-sm">
-                  {u.resumeUrl ? (
-                    <a href={u.resumeUrl} target="_blank" rel="noreferrer" className="text-indigo-400 hover:underline text-sm">
-                      Resume
-                    </a>
-                  ) : (
-                    <span className="text-xs text-slate-400">No resume</span>
-                  )}
-                </td>
-                <td className="p-3 text-sm">{u.status || "active"}</td>
-                <td className="p-3 text-sm">
-                  <div className="inline-flex items-center gap-2">
-                    {/* Note: route uses 'users' prefix — change if your routes are different */}
-                    <Link to={`/admin/users/${u.id || u._id}`} className="text-indigo-400 hover:underline">View</Link>
+            {!loading &&
+              users.map((u) => {
+                const id = u.user?._id || u._id;
+                const name = u.fullName || u.user?.name || "—";
+                const email = u.user?.email || "";
+                const resumeLink = u.resume || "";
+                const statusLabel = u.user?.active === false ? "Suspended" : "Active";
 
-                    {u.status === "suspended" ? (
-                      <button
-                        onClick={() => takeAction(u.id || u._id, "restore")}
-                        className="px-2 py-1 text-sm bg-green-600 text-white rounded"
-                      >
-                        Restore
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => takeAction(u.id || u._id, "suspend")}
-                        className="px-2 py-1 text-sm bg-yellow-600 text-white rounded"
-                      >
-                        Suspend
-                      </button>
-                    )}
+                return (
+                  <tr key={id} className="border-t border-slate-700">
+                    <td className="p-3">
+                      <div className="font-medium text-sm text-white">{name}</div>
+                      <div className="text-xs text-white">{u.availability || ""}</div>
+                    </td>
+                    <td className="p-3 text-sm text-white">{email}</td>
+                    <td className="p-3 text-sm">
+                      {resumeLink ? (
+                        <a
+                          href={resumeLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-indigo-400 hover:underline text-sm"
+                        >
+                          Resume
+                        </a>
+                      ) : (
+                        <span className="text-xs text-white">No resume</span>
+                      )}
+                    </td>
+                    <td className="p-3 text-sm text-white">{statusLabel}</td>
+                    <td className="p-3 text-sm">
+                      <div className="inline-flex items-center gap-2">
+                        <Link
+                          to={`/admin/users/${id}`}
+                          className="text-indigo-400 hover:underline"
+                        >
+                          View
+                        </Link>
 
-                    <button
-                      onClick={() => {
-                        if (!window.confirm("Delete user? This is irreversible.")) return;
-                        takeAction(u.id || u._id, "delete");
-                      }}
-                      className="px-2 py-1 text-sm bg-red-600 text-white rounded"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                        
+                        <button
+                          onClick={() => {
+                            if (!window.confirm("Delete user? This is irreversible."))
+                              return;
+                            takeAction(id, "delete");
+                          }}
+                          className="px-2 py-1 text-sm bg-red-600 text-white rounded"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
+
         </table>
       </div>
 
       <div className="sticky bottom-0 left-0 right-0 mt-5 bg-gray-950/70 backdrop-blur supports-[backdrop-filter]:bg-gray-950/50 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="text-gray-300 text-sm order-2 sm:order-1">{pageText}</span>
+          <span className="text-gray-300 text-sm order-2 sm:order-1">
+            {pageText}
+          </span>
           <div className="flex gap-2 order-1 sm:order-2">
             <button
               disabled={page <= 1}
