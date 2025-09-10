@@ -11,7 +11,7 @@ export default function AdminNavbar() {
     { name: "Dashboard", path: "" },        
     { name: "JobSeeker", path: "jobseeker" },
     { name: "Company", path: "company" },
-    { name: "Jobs", path: "jobs" },
+    
     { name: "Reports", path: "reports" },
   ];
 
