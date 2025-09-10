@@ -22,7 +22,10 @@ const verifyMiddleware = async (req, res, next) => {
           if (!user) {
             return res.status(403).json({ message: 'Invalid refresh token' });
           }
-
+          console.log(user);
+          if (!user.active) {
+            return res.status(403).json({ message: 'User account is not active' });
+          }
           jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (refreshErr, refreshDecoded) => {
             if (refreshErr) {
               return res.status(403).json({ message: 'Invalid refresh token' });
@@ -47,14 +50,11 @@ const verifyMiddleware = async (req, res, next) => {
             });
 
             user.refreshToken = newRefreshToken;
-            if(!user.status){
-              return res.status(403).json({ message: 'User account is not active' });
-            }
+
             await user.save();
 
             req.user = { userId: user._id };
             req.user.msgRole = user.role;
-            console.log("Fr"+user.role);
             return next();
           });
         } catch (refreshCatchErr) {

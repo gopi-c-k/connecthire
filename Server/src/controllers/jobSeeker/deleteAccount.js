@@ -2,6 +2,8 @@ import JobSeeker from "../../models/jobSeeker.js";
 import User from "../../models/user.js";
 import Notification from "../../models/notification.js";
 import JobProposal from "../../models/jobProposal.js";
+import Conversation from "../../models/conversation.js";
+import Message from "../../models/message.js";
 
 export const deleteAccount = async (req, res) => {
   try {
@@ -18,7 +20,14 @@ export const deleteAccount = async (req, res) => {
       await jobSeeker.deleteOne();
     }
 
-    
+    let conversations = [];
+    if (jobSeeker) {
+      conversations = await Conversation.find({ jobSeekerId: jobSeeker._id });
+    }
+    for (const convo of conversations) {
+      await Message.deleteMany({ conversationId: convo._id });
+      await convo.deleteOne();
+    }
     const user = await User.findByIdAndDelete(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });

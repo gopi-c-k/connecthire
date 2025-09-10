@@ -20,7 +20,10 @@ export const verifyCompany = asyncHandler(async (req, res, next) => {
             companyName: user.name || "",
         });
     }
+    if (!company.active) {
 
+        return res.status(403).json({ message: 'User account is not active' });
+    }
     req.company = company;
     req.companyId = company._id;
     next();

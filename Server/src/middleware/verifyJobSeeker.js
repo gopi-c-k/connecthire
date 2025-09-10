@@ -29,11 +29,13 @@ export const verifyJobSeeker = asyncHandler(async (req, res, next) => {
     if (!jobSeeker) {
       jobSeeker = await JobSeeker.create({
         user: user._id,
-        fullName: user.name || '', 
+        fullName: user.name || '',
         contact: { email: user.email }
       });
     }
-
+    if (!jobSeeker.active) {
+      return res.status(403).json({ message: 'User account is not active' });
+    }
     req.jobSeeker = jobSeeker;
     next();
 

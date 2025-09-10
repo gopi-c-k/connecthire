@@ -1,15 +1,22 @@
 import React from "react";
+import api from "../../../../secureApiForUser";
 
 export default function UserDangerSettings() {
-  const handleDeactivate = () => {
-    if (window.confirm("Are you sure you want to deactivate your account?")) {
-      alert("Account deactivated (frontend only)");
+  const handleDeactivate = async () => {
+    if (window.confirm("Are you sure you want to deactivate your jobseeker account? If you want to deactivate your account, mail us at help@connecthire.com")) {
+      await api.put("/jobseeker/deactivate-account");
+      alert("JobSeeker account deactivated");
     }
   };
 
-  const handleDelete = () => {
-    if (window.confirm("⚠️ This will permanently delete your account. Continue?")) {
-      alert("Account deleted (frontend only)");
+  const handleDelete = async () => {
+    if (
+      window.confirm(
+        "⚠️ This will permanently delete your jobseeker account and all associated data.Not recoverable Continue?"
+      )
+    ) {
+      await api.delete("/jobseeker/delete-account");
+      alert("Company account deleted");
     }
   };
 

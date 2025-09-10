@@ -1,19 +1,22 @@
 import React from "react";
+import api from "../../../../secureApi";
 
 export default function CompanyDangerSettings() {
-  const handleDeactivate = () => {
-    if (window.confirm("Are you sure you want to deactivate your company account?")) {
-      alert("Company account deactivated (frontend only)");
+  const handleDeactivate = async() => {
+    if (window.confirm("Are you sure you want to deactivate your company account? If you want to deactivate your account, mail us at help@connecthire.com")) {
+      await api.put("/company/deactivate-account");
+      alert("Company account deactivated");
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (
       window.confirm(
-        "⚠️ This will permanently delete your company account and all associated data. Continue?"
+        "⚠️ This will permanently delete your company account and all associated data.Not recoverable Continue?"
       )
     ) {
-      alert("Company account deleted (frontend only)");
+      await api.delete("/company/delete-account");
+      alert("Company account deleted");
     }
   };
 
