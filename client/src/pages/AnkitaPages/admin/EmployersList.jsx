@@ -195,7 +195,7 @@ export default function AdminEmployersList() {
                   <td className="p-3 text-sm">
                     <div className="inline-flex items-center gap-2">
                       <Link
-                        to={`/admin/employers/${em.id}`}
+                        to={`/admin/company/${em.id}`}
                         className="text-indigo-400 hover:underline"
                       >
                         View

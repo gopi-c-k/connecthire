@@ -150,7 +150,7 @@ export default function AdminJobseekersList() {
 
             {!loading &&
               users.map((u) => {
-                const id = u.user?._id || u._id;
+                const id = u._id;
                 const name = u.fullName || u.user?.name || "—";
                 const email = u.user?.email || "";
                 const resumeLink = u.resume || "";
@@ -181,7 +181,7 @@ export default function AdminJobseekersList() {
                     <td className="p-3 text-sm">
                       <div className="inline-flex items-center gap-2">
                         <Link
-                          to={`/admin/users/${id}`}
+                          to={`/admin/jobseeker/${id}`}
                           className="text-indigo-400 hover:underline"
                         >
                           View

@@ -95,8 +95,7 @@ export default function JobsList() {
                 options={[
                   { label: "All", value: "all" },
                   { label: "Open", value: "open" },
-                  { label: "Closed", value: "closed" },
-                  { label: "Draft", value: "draft" },
+                  { label: "Closed", value: "close" }
                 ]}
               />
             </div>

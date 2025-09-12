@@ -32,7 +32,7 @@ router.get("/companies/:id", verifyMiddleware, verifyAdmin, getCompany);
  * 📝 Jobs
  */
 router.get("/jobs", verifyMiddleware, verifyAdmin, getAllJob);
-router.get("/jobs/:id", verifyAdmin, getJob);
+router.get("/jobs/:id", verifyMiddleware, verifyAdmin, getJob);
 
 /**
  * 📝 Job Seekers

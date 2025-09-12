@@ -63,6 +63,8 @@ import AdminJobseekersList from "./pages/AnkitaPages/admin/JobseekersList";
 import AdminJobsList from "./pages/AnkitaPages/admin/JobsList";
 import AdminJobDetail from "./pages/AnkitaPages/admin/JobDetail";
 import AdminReports from "./pages/AnkitaPages/admin/Reports";
+import AdminJobSeeker from "./pages/AnkitaPages/admin/JobSeeker";
+import AdminCompany from "./pages/AnkitaPages/admin/Company";
 
 //-----Mainlayout Footer------
 import About from "./pages/AnkitaPages/About";
@@ -155,6 +157,8 @@ function App() {
           <Route path="jobseeker" element={<AdminJobseekersList />} />
           <Route path="jobs" element={<AdminJobsList />} />
           <Route path="jobs/:id" element={<AdminJobDetail />} />
+          <Route path="jobseeker/:id" element={<AdminJobSeeker />} />
+          <Route path="company/:id" element={<AdminCompany />} />
           <Route path="reports" element={<AdminReports />} />
         </Route>
 
