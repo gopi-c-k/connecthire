@@ -4,21 +4,67 @@ import Company from "../../models/company.js";
 import JobSeeker from "../../models/jobSeeker.js";
 import Report from "../../models/report.js";
 
-// GET /admin/dashboard
 export const getDashboardData = async (req, res) => {
   try {
-    // Get total counts
     const totalJobs = await Job.countDocuments();
     const totalCompanies = await Company.countDocuments();
     const totalJobSeekers = await JobSeeker.countDocuments();
     const totalReports = await Report.countDocuments();
 
-    // Get latest reports (limit 7)
-    const latestReports = await Report.find()
+    // full populate (no field selection here)
+    const reports = await Report.find()
       .sort({ createdAt: -1 })
       .limit(7)
-      .populate('reporter', 'name email')
-      .populate('reportedUser', 'name email companyName'); // depending on type
+      .populate('reporter')       
+      .populate('reportedUser');
+
+    const latestReports = reports.map(r => {
+      let reporterData = {};
+      if (r.reporterModel === 'User') {
+        reporterData = {
+          name: r.reporter?.name,
+          email: r.reporter?.email
+        };
+      } else if (r.reporterModel === 'JobSeeker') {
+        reporterData = {
+          name: r.reporter?.fullName,
+          email: r.reporter?.user?.email
+        };
+      } else if (r.reporterModel === 'Company') {
+        reporterData = {
+          name: r.reporter?.companyName,
+          email: r.reporter?.user?.email
+        };
+      }
+
+      let reportedUserData = {};
+      if (r.reportedUserModel === 'User') {
+        reportedUserData = {
+          name: r.reportedUser?.name,
+          email: r.reportedUser?.email
+        };
+      } else if (r.reportedUserModel === 'JobSeeker') {
+        reportedUserData = {
+          name: r.reportedUser?.fullName,
+          email: r.reportedUser?.user?.email
+        };
+      } else if (r.reportedUserModel === 'Company') {
+        reportedUserData = {
+          name: r.reportedUser?.companyName,
+          email: r.reportedUser?.user?.email
+        };
+      }
+
+      return {
+        _id: r._id,
+        reason: r.reason,
+        details: r.details,
+        status: r.status,
+        createdAt: r.createdAt,
+        reporter: reporterData,
+        reportedUser: reportedUserData
+      };
+    });
 
     res.status(200).json({
       totalJobs,
@@ -32,3 +78,4 @@ export const getDashboardData = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+

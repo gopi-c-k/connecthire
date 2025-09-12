@@ -124,11 +124,11 @@ export default function AdminReports() {
                   Reason: {r.reason}
                 </div>
                 <div className="text-xs text-gray-400 mt-1">
-                  Reported by: {r.reporter?.fullName || "N/A"} ({r.reporterModel}
+                  Reported by: {r.reporter?.name || "N/A"} ({r.reporterModel}
                   ) • {new Date(r.createdAt).toLocaleString()}
                 </div>
                 <div className="text-xs text-gray-400 mt-1">
-                  Reported User: {r.reportedUser?.companyName || r.reportedUser?.user || "N/A"} ({r.reportedUserModel})
+                  Reported User: {r.reportedUser?.name || r.reportedUser?.user || "N/A"} ({r.reportedUserModel})
                 </div>
               </div>
 

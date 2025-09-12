@@ -77,12 +77,11 @@ export default function AdminEmployersList() {
   };
 
   const takeAction = (employerId, type) => {
-    const ok = window.confirm(`Confirm ${type} employer ${employerId}?`);
+    const ok = window.confirm(`Confirm ${type} company ${employerId}?`);
     if (!ok) return;
     adminService
       .takeAction({ type, targetType: "employer", targetId: employerId })
       .then(() => {
-        // remove from state or refetch
         setAllEmployers((prev) =>
           prev.map((em) =>
             em.id === employerId

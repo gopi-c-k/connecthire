@@ -114,6 +114,7 @@ export default function AdminJobseekersList() {
               { label: "All", value: "" },
               { label: "Active", value: "active" },
               { label: "Banned", value: "banned" },
+              { label: "Suspended", value: "suspended" },
             ]}
           />
         </div>
@@ -185,8 +186,22 @@ export default function AdminJobseekersList() {
                         >
                           View
                         </Link>
+                        {u.status === "suspended" ? (
+                          <button
+                            onClick={() => takeAction(u._id, "restore")}
+                            className="px-2 py-1 text-sm bg-green-600 text-white rounded"
+                          >
+                            Restore
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => takeAction(u._id, "suspend")}
+                            className="px-2 py-1 text-sm bg-yellow-600 text-white rounded"
+                          >
+                            Suspend
+                          </button>
+                        )}
 
-                        
                         <button
                           onClick={() => {
                             if (!window.confirm("Delete user? This is irreversible."))
