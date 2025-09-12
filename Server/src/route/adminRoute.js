@@ -1,6 +1,7 @@
 import express from "express";
 
 import { deactivateUser } from "../controllers/admin/deactivateUser.js";
+import { activateUser } from "../controllers/admin/activateUser.js";
 import { deleteUser } from "../controllers/admin/deleteUser.js";
 import { getAllCompany } from "../controllers/admin/getAllCompany.js";
 import { getCompany } from "../controllers/admin/getCompany.js";
@@ -14,13 +15,15 @@ import { verifyAdmin } from "../middleware/verifyAdmin.js";
 import { getAllJobSeeker } from "../controllers/admin/getAllJobSeekers.js";
 import verifyMiddleware from "../middleware/userVerify.js";
 import { getDashboardData } from '../controllers/admin/adminDashBoard.js'
+import { updateReportStatus } from "../controllers/admin/updateReportStatus.js";
 const router = express.Router();
 
 /**
  * 📝 User management
  */
-router.put("/users/:userId/deactivate", verifyAdmin, deactivateUser);
-router.delete("/users/:userId", verifyAdmin, deleteUser);
+router.put("/users/:userId/deactivate", verifyMiddleware, verifyAdmin, deactivateUser);
+router.put("/users/:userId/activate", verifyMiddleware, verifyAdmin, activateUser);
+router.delete("/users/:userId", verifyMiddleware, verifyAdmin, deleteUser);
 
 /**
  * 📝 Companies
@@ -45,11 +48,12 @@ router.get("/jobseekers/:id", verifyMiddleware, verifyAdmin, getJobSeeker);
  */
 router.get("/jobproposals", verifyMiddleware, verifyAdmin, getAllJobProposal);
 
-router.get("/dashboard",verifyMiddleware,verifyAdmin,getDashboardData);
+router.get("/dashboard", verifyMiddleware, verifyAdmin, getDashboardData);
 /**
  * 📝 Reports
  */
 router.get("/reports", verifyMiddleware, verifyAdmin, getAllReport);
 router.get("/reports/:id", verifyMiddleware, verifyAdmin, getReport);
+router.put("/reports/:reportId/status", verifyMiddleware, verifyAdmin, updateReportStatus);
 
 export default router;

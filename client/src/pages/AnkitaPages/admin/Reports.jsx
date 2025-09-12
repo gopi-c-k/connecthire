@@ -9,8 +9,9 @@ export default function AdminReports() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
-  const limit = 10; // items per page
+  const limit = 10;
 
+  // fetch reports
   useEffect(() => {
     const fetchReports = async () => {
       setLoading(true);
@@ -25,7 +26,6 @@ export default function AdminReports() {
     fetchReports();
   }, []);
 
-  // Filter & search
   const filteredReports = useMemo(() => {
     return reports
       .filter((r) =>
@@ -33,7 +33,7 @@ export default function AdminReports() {
       )
       .filter(
         (r) =>
-          r.details.toLowerCase().includes(q.toLowerCase()) ||
+          r.details?.toLowerCase().includes(q.toLowerCase()) ||
           (r.reporter?.fullName || "")
             .toLowerCase()
             .includes(q.toLowerCase()) ||
@@ -41,7 +41,6 @@ export default function AdminReports() {
       );
   }, [reports, q, type]);
 
-  // Frontend pagination
   useEffect(() => {
     setTotalPages(Math.max(1, Math.ceil(filteredReports.length / limit)));
   }, [filteredReports]);
@@ -53,13 +52,19 @@ export default function AdminReports() {
 
   const pageText = `Page ${page} of ${totalPages}`;
 
-  // Example action handlers
-  const resolveReport = (id) => {
-    alert(`Resolve report ${id}`);
-  };
-
-  const escalateReport = (id) => {
-    alert(`Escalate report ${id}`);
+  // status update
+  const handleStatusChange = async (reportId, newStatus) => {
+    try {
+      await api.put(`/admin/reports/${reportId}/status`, { status: newStatus });
+      setReports((prev) =>
+        prev.map((r) =>
+          r._id === reportId ? { ...r, status: newStatus } : r
+        )
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("Failed to update report status");
+    }
   };
 
   return (
@@ -114,38 +119,38 @@ export default function AdminReports() {
           >
             <div className="flex justify-between flex-col sm:flex-row gap-2">
               <div className="max-w-3xl">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <strong className="truncate">{r.details}</strong>
-                  <span className="text-xs px-2 py-1 bg-gray-600 rounded text-white">
-                    {r.status}
-                  </span>
+
+                  {/* Status Dropdown */}
+                  <select
+                    className="text-xs px-2 py-1 bg-gray-600 rounded text-white"
+                    value={r.status}
+                    onChange={(e) =>
+                      handleStatusChange(r._id, e.target.value)
+                    }
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Reviewed">Reviewed</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Dismissed">Dismissed</option>
+                  </select>
                 </div>
+
                 <div className="text-sm text-gray-300 mt-1">
                   Reason: {r.reason}
                 </div>
                 <div className="text-xs text-gray-400 mt-1">
-                  Reported by: {r.reporter?.name || "N/A"} ({r.reporterModel}
-                  ) • {new Date(r.createdAt).toLocaleString()}
+                  Reported by:{" "}
+                  {r.reporter?.fullName || r.reporter?.name || "N/A"} (
+                  {r.reporterModel}) •{" "}
+                  {new Date(r.createdAt).toLocaleString()}
                 </div>
                 <div className="text-xs text-gray-400 mt-1">
-                  Reported User: {r.reportedUser?.name || r.reportedUser?.user || "N/A"} ({r.reportedUserModel})
+                  Reported User:{" "}
+                  {r.reportedUser?.fullName || r.reportedUser?.name || "N/A"} (
+                  {r.reportedUserModel})
                 </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => resolveReport(r._id)}
-                  className="px-3 py-1 bg-indigo-600 rounded hover:bg-indigo-700 text-white text-sm"
-                >
-                  Resolve
-                </button>
-                <button
-                  onClick={() => escalateReport(r._id)}
-                  className="px-3 py-1 bg-yellow-600 rounded hover:bg-yellow-700 text-white text-sm"
-                >
-                  Escalate
-                </button>
               </div>
             </div>
           </div>

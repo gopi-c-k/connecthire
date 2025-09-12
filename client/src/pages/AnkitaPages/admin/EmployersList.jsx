@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import adminService from "../../../services/adminService";
 import CustomSelect from "../../../components/CustomSelect";
 import api from "../../../secureApiForAdmin";
 
@@ -19,6 +18,7 @@ export default function AdminEmployersList() {
       try {
         setLoading(true);
         const res = await api.get("/admin/companies");
+        console.log("Fetched companies:", res.data);
         const companies = res.data.data.map((c) => ({
           id: c._id,
           companyName: c.companyName,
@@ -26,6 +26,7 @@ export default function AdminEmployersList() {
           email: c.user?.email || "N/A",
           status: c.active ? "active" : "suspended",
           logo: c.companyLogo,
+          userId: c.user?._id,
         }));
         setAllEmployers(companies);
       } catch (error) {
@@ -76,29 +77,34 @@ export default function AdminEmployersList() {
     setPage(1);
   };
 
-  const takeAction = (employerId, type) => {
-    const ok = window.confirm(`Confirm ${type} company ${employerId}?`);
-    if (!ok) return;
-    adminService
-      .takeAction({ type, targetType: "employer", targetId: employerId })
-      .then(() => {
+  const updateCompanyStatus = async (userId, companyId, newStatus) => {
+    console.log("Updating company status:", companyId, newStatus);
+    if (window.confirm(`Are you sure you want to ${newStatus} this company?`)) {
+      try {
+        await api.put(`/admin/users/${userId}/${newStatus === 'active' ? 'activate' : 'deactivate'}`);
         setAllEmployers((prev) =>
           prev.map((em) =>
-            em.id === employerId
-              ? {
-                ...em,
-                status:
-                  type === "suspend"
-                    ? "suspended"
-                    : type === "restore"
-                      ? "active"
-                      : em.status,
-              }
-              : em
+            em.id === companyId ? { ...em, status: newStatus === 'active' ? 'restore' : "suspended" } : em
           )
         );
-      })
-      .catch((err) => console.error("action", err));
+      } catch (error) {
+        console.error("Error updating company status:", error);
+        alert("Failed to update company status. Please try again.");
+      }
+    }
+
+  };
+
+  const deleteCompany = async (userId, companyId) => {
+    if (window.confirm("Are you sure you want to delete this company? This action is irreversible.")) {
+      try {
+        await api.delete(`/admin/users/${userId}`);
+        setAllEmployers((prev) => prev.filter((em) => em.id !== companyId));
+      } catch (error) {
+        console.error("Error deleting company:", error);
+        alert("Failed to delete company. Please try again.");
+      }
+    }
   };
 
   const pageText = `Page ${page} of ${totalPages}`;
@@ -162,7 +168,7 @@ export default function AdminEmployersList() {
                   colSpan={4}
                   className="p-6 text-center text-sm text-white"
                 >
-                  No employers found.
+                  No companies found.
                 </td>
               </tr>
             )}
@@ -203,14 +209,14 @@ export default function AdminEmployersList() {
 
                       {em.status === "suspended" ? (
                         <button
-                          onClick={() => takeAction(em.id, "restore")}
+                          onClick={() => updateCompanyStatus(em.userId, em.id, "active")}
                           className="px-2 py-1 text-sm bg-green-600 text-white rounded"
                         >
                           Restore
                         </button>
                       ) : (
                         <button
-                          onClick={() => takeAction(em.id, "suspend")}
+                          onClick={() => updateCompanyStatus(em.userId, em.id, "deactive")}
                           className="px-2 py-1 text-sm bg-yellow-600 text-white rounded"
                         >
                           Suspend
@@ -218,10 +224,7 @@ export default function AdminEmployersList() {
                       )}
 
                       <button
-                        onClick={() => {
-                          if (!window.confirm("Delete employer? This is irreversible.")) return;
-                          takeAction(em.id, "delete");
-                        }}
+                        onClick={() => { deleteCompany(em.userId, em.id) }}
                         className="px-2 py-1 text-sm bg-red-600 text-white rounded"
                       >
                         Delete

@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import adminService from "../../../services/adminService";
 import CustomSelect from "../../../components/CustomSelect";
 import api from "../../../secureApiForAdmin";
 
 export default function AdminJobseekersList() {
-  const [allUsers, setAllUsers] = useState([]); // full array from backend
-  const [users, setUsers] = useState([]); // sliced for current page
+  const [allUsers, setAllUsers] = useState([]);
+  const [users, setUsers] = useState([]);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const limit = 20; // client-side page size
+  const limit = 20; // page size
 
   useEffect(() => {
     load();
@@ -36,8 +35,9 @@ export default function AdminJobseekersList() {
   };
 
   const filterAndPaginate = () => {
-    // filter by q or status
     let filtered = allUsers;
+
+    // text search
     if (q) {
       const lower = q.toLowerCase();
       filtered = filtered.filter(
@@ -49,20 +49,19 @@ export default function AdminJobseekersList() {
       );
     }
 
+    // status filter
     if (status) {
       if (status === "active") {
         filtered = filtered.filter((u) => u.user?.active === true);
       } else if (status === "suspended") {
         filtered = filtered.filter((u) => u.user?.active === false);
       }
-      // add banned if needed
     }
 
     const total = filtered.length;
     const pages = Math.max(1, Math.ceil(total / limit));
     setTotalPages(pages);
 
-    // clamp page if it exceeds pages
     const currentPage = Math.min(page, pages);
     setPage(currentPage);
 
@@ -77,13 +76,35 @@ export default function AdminJobseekersList() {
     filterAndPaginate();
   };
 
-  const takeAction = (userId, type) => {
-    const ok = window.confirm(`Confirm ${type} user ${userId}?`);
-    if (!ok) return;
-    adminService
-      .takeAction({ type, targetType: "user", targetId: userId })
-      .then(() => load())
-      .catch((err) => console.error("action", err));
+  const updateJobSeeker = async (userId, jobseekerId, action) => {
+    const label = action === "activate" ? "activate" : "deactivate";
+    if (window.confirm(`Are you sure you want to ${label} this user?`)) {
+      try {
+        await api.put(`/admin/users/${userId}/${label}`);
+        setAllUsers((prev) =>
+          prev.map((em) =>
+            em._id === jobseekerId
+              ? { ...em, user: { ...em.user, active: action === "activate" } }
+              : em
+          )
+        );
+      } catch (error) {
+        console.error("Error updating jobseeker:", error);
+        alert("Failed to update jobseeker status. Please try again.");
+      }
+    }
+  };
+
+  const deleteJobSeeker = async (userId, jobseekerId) => {
+    if (window.confirm("Are you sure you want to delete this user? This is irreversible.")) {
+      try {
+        await api.delete(`/admin/users/${userId}`);
+        setAllUsers((prev) => prev.filter((em) => em._id !== jobseekerId));
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        alert("Failed to delete user. Please try again.");
+      }
+    }
   };
 
   const pageText = `Page ${page} of ${totalPages}`;
@@ -113,7 +134,6 @@ export default function AdminJobseekersList() {
             options={[
               { label: "All", value: "" },
               { label: "Active", value: "active" },
-              { label: "Banned", value: "banned" },
               { label: "Suspended", value: "suspended" },
             ]}
           />
@@ -154,7 +174,8 @@ export default function AdminJobseekersList() {
                 const name = u.fullName || u.user?.name || "—";
                 const email = u.user?.email || "";
                 const resumeLink = u.resume || "";
-                const statusLabel = u.user?.active === false ? "Suspended" : "Active";
+                const active = u.user?.active !== false;
+                const statusLabel = active ? "Active" : "Suspended";
 
                 return (
                   <tr key={id} className="border-t border-slate-700">
@@ -186,28 +207,29 @@ export default function AdminJobseekersList() {
                         >
                           View
                         </Link>
-                        {u.status === "suspended" ? (
+
+                        {active ? (
                           <button
-                            onClick={() => takeAction(u._id, "restore")}
-                            className="px-2 py-1 text-sm bg-green-600 text-white rounded"
-                          >
-                            Restore
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => takeAction(u._id, "suspend")}
+                            onClick={() =>
+                              updateJobSeeker(u.user?._id, id, "deactivate")
+                            }
                             className="px-2 py-1 text-sm bg-yellow-600 text-white rounded"
                           >
                             Suspend
                           </button>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              updateJobSeeker(u.user?._id, id, "activate")
+                            }
+                            className="px-2 py-1 text-sm bg-green-600 text-white rounded"
+                          >
+                            Restore
+                          </button>
                         )}
 
                         <button
-                          onClick={() => {
-                            if (!window.confirm("Delete user? This is irreversible."))
-                              return;
-                            takeAction(id, "delete");
-                          }}
+                          onClick={() => deleteJobSeeker(u.user?._id, id)}
                           className="px-2 py-1 text-sm bg-red-600 text-white rounded"
                         >
                           Delete
@@ -218,10 +240,10 @@ export default function AdminJobseekersList() {
                 );
               })}
           </tbody>
-
         </table>
       </div>
 
+      {/* Pagination */}
       <div className="sticky bottom-0 left-0 right-0 mt-5 bg-gray-950/70 backdrop-blur supports-[backdrop-filter]:bg-gray-950/50 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span className="text-gray-300 text-sm order-2 sm:order-1">
