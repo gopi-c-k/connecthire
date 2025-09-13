@@ -7,8 +7,8 @@ import UserSignup from "./pages/AnkitaPages/Register/UserSignup";
 import CompanyLogin from "./pages/AnkitaPages/Login/CompanyLogin";
 import CompanySignup from "./pages/AnkitaPages/Register/CompanySignup";
 import CompanyDashboard from "./pages/AnkitaPages/COMPANY/CompanyDashboard";
-import JobSeekerProfile from "./pages/AnkitaPages/COMPANY/JobSeekerProfile";
-
+import JobseekerProfile from "./pages/AnkitaPages/COMPANY/JobseekerProfile";
+import JobseekersList from "./pages/AnkitaPages/COMPANY/JobseekersList";
 
 import SettingsLayout from "./pages/AnkitaPages/COMPANY/Settings/SettingsLayout.jsx";
 import AccountSettings from "./pages/AnkitaPages/COMPANY/Settings/AccountSettings";
@@ -99,10 +99,13 @@ function App() {
         <Route path="/company-dashboard" element={<CompanyDashboard />} />
         <Route path="/company/messages" element={<CompanyMessages />} />
         <Route path="/company/notifications" element={<CompanyNotificationsPage />} />
-        <Route path="/company/jobseeker-profile/:jobSeekerId" element={<JobSeekerProfile />} />
+        
+        <Route path="/company/jobseekers" element={<JobseekersList />} />
+        <Route path="/company/jobseeker/:jobSeekerId" element={<JobseekerProfile />} />
+
         <Route path="/company/Settings" element={<SettingsLayout />}>
-          <Route index element={<CompanyProfile />} />
-          <Route path="profile" element={<CompanyProfile />} />
+        <Route index element={<CompanyProfile />} />
+        <Route path="profile" element={<CompanyProfile />} />
 
           <Route path="danger" element={<DangerSettings />} />
           <Route path="reports" element={<ReportSettings />} />

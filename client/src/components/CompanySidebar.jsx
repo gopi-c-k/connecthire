@@ -10,6 +10,7 @@ const links = [
   { name: "Applicants", icon: Users, path: "/company/jobs/applicants" },
   
   { name: "Messages", icon: MessageSquare, path: "/company/messages" },
+  { name: "Jobseekers", icon: Users, path: "/company/jobseekers" },
 
   { name: "Settings", icon: Settings, path: "/company/settings" },
 ];
@@ -35,7 +36,7 @@ export default function CompanySidebar() {
           <NavLink
             key={link.name}
             to={link.path}
-            end={link.exact}
+            end={true}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-slate-800 transition ${
                 isActive ? "bg-slate-800 text-green-400" : "text-gray-300"
