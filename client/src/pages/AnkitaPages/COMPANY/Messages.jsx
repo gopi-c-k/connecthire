@@ -1,117 +1,189 @@
+// src/pages/AnkitaPages/COMPANY/CompanyMessages.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { Search, Send, ArrowLeft, ExternalLink } from "lucide-react";
-import { useNavigate } from "react-router-dom"; // for navigation
-import api from '../../../secureApi'; // axios wrapper
+import { Search, Send, ArrowLeft } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import api from '../../../secureApi'; // axios wrapper (teammate will wire backend)
 
 const formatTime = (date) =>
   new Date(date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
 export default function CompanyMessages({ initialConversationId = null }) {
-  const navigate = useNavigate();
+  
+  const location = useLocation();
   const [conversations, setConversations] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [search, setSearch] = useState("");
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef(null);
 
-  // Load conversations from backend
+  // preselect id can come from navigate state or ?to= query
+  const preselectIdFromState = location.state?.to || null;
+  const preselectNameFromState = location.state?.name || null; // optional nicer label
+  const preselectIdFromQuery = new URLSearchParams(location.search).get("to");
+  const preselectId = preselectIdFromState || preselectIdFromQuery || null;
+
+  // helper: open conversation and load messages (safe fallback if messages endpoint fails)
+  const openConversation = async (conv) => {
+    if (!conv) return;
+    try {
+      // try to fetch messages for conversation id
+      const res = await api.get(`/messages/${conv.id}`);
+      const msgs = Array.isArray(res.data)
+        ? res.data.map(m => ({
+            from: m.senderModel === "Company" ? "company" : "jobseeker",
+            text: m.messageText,
+            time: formatTime(m.sentAt),
+            seen: m.isRead
+          }))
+        : [];
+      setActiveChat({ ...conv, messages: msgs });
+    } catch (err) {
+      // backend might not be ready — open UI with empty messages (frontend-only)
+      console.warn("Could not load messages, opening chat with empty messages:", err);
+      setActiveChat({ ...conv, messages: conv.messages || [] });
+    }
+  };
+
+  // fetch conversations and auto-open preselect if provided
   useEffect(() => {
+    let mounted = true;
+
     const fetchConversations = async () => {
       try {
         const res = await api.get("/company/conversations");
-        const convos = res.data.map(c => ({
-          id: c._id,
-          candidateName: c.jobSeekerId?.fullName,
-          jobTitle: c.jobId?.title || "",
-          jobId: c.jobId?._id,
-          avatar: c.jobSeekerId?.profilePicture || "/default-avatar.png",
-          lastMessage: c?.lastMessage?.text || "",
-          lastMessageTime: c.lastMessage?.sentAt ? formatTime(c.lastMessage.sentAt) : "",
-          messages: []
-        }));
+        const convos = Array.isArray(res.data)
+          ? res.data.map(c => ({
+              id: c._id,
+              jobSeekerId: c.jobSeekerId?._id || null,
+              candidateName: c.jobSeekerId?.fullName || c.candidateName || "Candidate",
+              jobTitle: c.jobId?.title || "",
+              jobId: c.jobId?._id,
+              avatar: c.jobSeekerId?.profilePicture || "/default-avatar.png",
+              lastMessage: c?.lastMessage?.text || "",
+              lastMessageTime: c.lastMessage?.sentAt ? formatTime(c.lastMessage.sentAt) : "",
+              messages: []
+            }))
+          : [];
+
+        if (!mounted) return;
         setConversations(convos);
 
-        // If initialConversationId provided, open it
+        // priority: initialConversationId prop -> preselectId (state/query)
         if (initialConversationId) {
-          const conv = convos.find(c => c.id === initialConversationId);
-          if (conv) openConversation(conv);
+          const found = convos.find(c => c.id === initialConversationId || c.jobSeekerId === initialConversationId);
+          if (found) {
+            openConversation(found);
+            return;
+          }
         }
 
+        if (preselectId) {
+          // try find by conversation id or jobSeekerId
+          let found = convos.find(c => c.id === preselectId || c.jobSeekerId === preselectId);
+          if (found) {
+            openConversation(found);
+            return;
+          }
+
+          // not found in fetched convos — create a local temporary conversation (frontend-only fallback)
+          // prefer a nicer name if passed via state
+          const tempConv = {
+            id: `local-${preselectId}-${Date.now()}`, // local temporary id
+            jobSeekerId: preselectId,
+            candidateName: preselectNameFromState || `Candidate ${preselectId}`,
+            jobTitle: "",
+            jobId: null,
+            avatar: "/default-avatar.png",
+            lastMessage: "",
+            lastMessageTime: "",
+            messages: []
+          };
+
+          // add to top and open it immediately
+          setConversations(prev => [tempConv, ...prev]);
+          openConversation(tempConv);
+
+          // Optionally: fire off backend create request in background (teammate can enable)
+          // try { await api.post("/company/conversations", { jobSeekerId: preselectId }); } catch(e){/*ignore*/}
+
+        }
       } catch (err) {
-        console.error("Failed to load conversations:", err);
+        console.error("Failed to load conversations (frontend fallback):", err);
+        // If fetch failed entirely, still open a local convo if preselectId present
+        if (preselectId) {
+          const tempConv = {
+            id: `local-${preselectId}-${Date.now()}`,
+            jobSeekerId: preselectId,
+            candidateName: preselectNameFromState || `Candidate ${preselectId}`,
+            jobTitle: "",
+            jobId: null,
+            avatar: "/default-avatar.png",
+            lastMessage: "",
+            lastMessageTime: "",
+            messages: []
+          };
+          setConversations([tempConv]);
+          openConversation(tempConv);
+        }
       }
     };
 
     fetchConversations();
-  }, [initialConversationId]);
 
-  // Auto-scroll when active chat or messages change
+    return () => {
+      mounted = false;
+    };
+    // intentionally include preselectId so effect re-runs if navigation state/query changes
+  }, [initialConversationId, preselectId, preselectNameFromState]);
+
+  // auto-scroll when active chat changes
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
   }, [activeChat]);
 
-  // Open a conversation and load messages
-  const openConversation = async (conv) => {
-    try {
-      const res = await api.get(`/messages/${conv.id}`);
-      const msgs = res.data.map(m => ({
-        from: m.senderModel === "Company" ? "company" : "jobseeker",
-        text: m.messageText,
-        time: formatTime(m.sentAt),
-        seen: m.isRead
-      }));
-      setActiveChat({ ...conv, messages: msgs });
-    } catch (err) {
-      console.error("Failed to load messages:", err);
-    }
-  };
-
-  // Send a message
+  // send message (backend will handle actual save; frontend updates optimistic)
   const handleSend = async () => {
     if (!newMessage.trim() || !activeChat) return;
 
+    // optimistic message object
+    const tempMsg = {
+      from: "company",
+      text: newMessage.trim(),
+      time: formatTime(new Date()),
+      seen: false
+    };
+
+    // update UI
+    setActiveChat(prev => ({
+      ...prev,
+      messages: [...(prev.messages || []), tempMsg],
+      lastMessage: tempMsg.text,
+      lastMessageTime: tempMsg.time
+    }));
+
+    setConversations(prev =>
+      prev.map(c =>
+        c.id === activeChat.id ? { ...c, lastMessage: tempMsg.text, lastMessageTime: tempMsg.time } : c
+      )
+    );
+
+    setNewMessage("");
+
     try {
-      const res = await api.post(`/messages/${activeChat.id}`, {
-        messageText: newMessage.trim()
-      });
-
+      // try to send to backend (if teammate wires it later)
+      const res = await api.post(`/messages/${activeChat.id}`, { messageText: tempMsg.text });
       const saved = res.data;
-      const msgObj = {
-        from: "company",
-        text: saved.messageText,
-        time: formatTime(saved.sentAt),
-        seen: saved.isRead
-      };
-
-      // Update active chat messages
-      setActiveChat(prev => ({
-        ...prev,
-        messages: [...prev.messages, msgObj],
-        lastMessage: msgObj.text,
-        lastMessageTime: msgObj.time
-      }));
-
-      // Update conversations list
-      setConversations(prev =>
-        prev.map(c =>
-          c.id === activeChat.id
-            ? { ...c, lastMessage: msgObj.text, lastMessageTime: msgObj.time }
-            : c
-        )
-      );
-
-      setNewMessage("");
+      // replace last optimistic message with server-saved message details if needed
+      // (simple approach: no replacement; adjust later when backend returns message id)
     } catch (err) {
-      console.error("Failed to send message:", err);
+      console.warn("Failed to persist message to backend (frontend-only mode):", err);
+      // keep optimistic message — teammate can implement retry/flagging later
     }
   };
 
-  // Filtered conversations for search
   const filteredConvos = conversations.filter(c =>
-    c.candidateName.toLowerCase().includes(search.toLowerCase()) ||
-    c.jobTitle.toLowerCase().includes(search.toLowerCase())
+    (c.candidateName || "").toLowerCase().includes(search.toLowerCase()) ||
+    (c.jobTitle || "").toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -134,11 +206,10 @@ export default function CompanyMessages({ initialConversationId = null }) {
 
         <div className="flex-1 overflow-y-auto">
           {filteredConvos.map(c => (
-
             <div
               key={c.id}
               onClick={() => openConversation(c)}
-              className={`flex items-center gap-3 p-3 cursor-pointer border-b border-darkGray ${activeChat?.id === c.id ? "bg-primary/20" : "hover:bg-surface"}`} 
+              className={`flex items-center gap-3 p-3 cursor-pointer border-b border-darkGray ${activeChat?.id === c.id ? "bg-primary/20" : "hover:bg-surface"}`}
             >
               <img src={c.avatar} alt={c.candidateName} className="w-10 h-10 rounded-full object-cover" />
               <div className="flex-1">
@@ -168,22 +239,15 @@ export default function CompanyMessages({ initialConversationId = null }) {
                   <h3 className="font-semibold">{activeChat.candidateName}</h3>
                 </div>
               </div>
-              <button
-                onClick={() => navigate(`/company/job/${activeChat.jobId}`)}
-                className="flex items-center gap-1 bg-primary text-white px-3 py-1 rounded hover:bg-primaryLight text-sm"
-              >
-                <ExternalLink className="w-4 h-4" /> Job Details
-              </button>
+
+              
             </div>
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {activeChat.messages.map((m, i) => (
+              {(activeChat.messages || []).map((m, i) => (
                 <div key={i} className={`flex ${m.from === "company" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-xs px-3 py-2 rounded-2xl text-sm shadow-soft ${m.from === "company"
-                      ? "bg-primary text-white rounded-br-none"
-                      : "bg-surface text-lightText rounded-bl-none"
-                    }`}>
+                  <div className={`max-w-xs px-3 py-2 rounded-2xl text-sm shadow-soft ${m.from === "company" ? "bg-primary text-white rounded-br-none" : "bg-surface text-lightText rounded-bl-none"}`}>
                     <p>{m.text}</p>
                     <div className="flex justify-between items-center mt-1">
                       <span className="text-[10px] text-lightGray">{m.time}</span>
