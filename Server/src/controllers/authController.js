@@ -3,6 +3,10 @@ import User from '../models/user.js';
 import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import admin from '../../firebase.js';
+
+dotenv.config();
+
 
 dotenv.config();
 
@@ -13,8 +17,8 @@ const generateTokens = (res, userId) => {
 
   res.cookie('accessToken', accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'development',
-    sameSite: 'none',
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
     maxAge: 15 * 60 * 1000,
   });
 
@@ -27,6 +31,150 @@ const generateTokens = (res, userId) => {
 
   return { accessToken, refreshToken };
 };
+
+// @desc    Sign in or register via Firebase ID token
+// @route   POST /user/auth/firebase
+// @access  Public
+export const firebaseAuth = asyncHandler(async (req, res) => {
+  const { idToken, role , username } = req.body;
+
+
+  if (!idToken) {
+    res.status(400);
+    throw new Error('Firebase ID token required');
+  }
+
+  // Verify ID token
+  const decoded = await admin.auth().verifyIdToken(idToken);
+  const { uid, email, name, picture } = decoded;
+  const signInProvider = decoded.firebase?.sign_in_provider;
+
+  let provider = 'password';
+  if (signInProvider === 'google.com') provider = 'google';
+  else if (signInProvider === 'phone') provider = 'phone';
+
+
+
+  // Find or create user
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    user = await User.create({
+      name: username || name || 'User',
+      email,
+      provider,
+      password: null, // no password
+      role: role,
+      active: true,
+    });
+  }
+
+  if(user.role != role){
+    return res.status(400).json({ message: 'Invalid User Role' });
+  }
+
+  if (!user.active) {
+    return res.status(403).json({ message: 'User account is deactivated. Please contact support.' });
+  }
+
+  // Issue your own JWTs
+  const { accessToken, refreshToken } = generateTokens(res, user._id);
+  user.refreshToken = refreshToken;
+  await user.save();
+
+  res.status(200).json({
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    message: 'Login successful',
+    accessToken,
+  });
+});
+
+
+// @desc    Refresh access token
+// @route   POST /user/auth/refresh
+// @access  Public
+export const refreshToken = asyncHandler(async (req, res) => {
+  const tokenFromCookie = req.cookies.refreshToken;
+  if (!tokenFromCookie) {
+    res.status(401);
+    throw new Error('No refresh token provided');
+  }
+
+  const user = await User.findOne({ refreshToken: tokenFromCookie });
+  if (!user) {
+    res.status(403);
+    throw new Error('Invalid refresh token');
+  }
+
+  try {
+    jwt.verify(tokenFromCookie, process.env.REFRESH_TOKEN_SECRET);
+
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(res, user._id);
+
+    user.refreshToken = newRefreshToken;
+    await user.save();
+
+    res.status(200).json({
+      name: user.name,
+      email: user.email,
+      userId: user.userId,
+      profilePicture: user.profilePicture?.data
+        ? `data:${user.profilePicture.contentType};base64,${user.profilePicture.data.toString('base64')}`
+        : null,
+      message: 'Access token refreshed',
+      accessToken,
+    });
+  } catch (err) {
+    res.status(403);
+    throw new Error('Error verifying refresh token');
+  }
+});
+
+
+
+// @desc    Change password for logged-in user
+// @route   PUT /user/auth/change-password
+// @access  Private
+export const changePassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  if (!oldPassword || !newPassword) {
+    res.status(400);
+    throw new Error('Old and new password are required');
+  }
+
+  // Find the logged-in user (assumes req.user is set by auth middleware)
+  const user = await User.findById(req.user.userId);
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  // Check old password
+  const isMatch = await bcrypt.compare(oldPassword, user.password);
+  if (!isMatch) {
+    res.status(401);
+    throw new Error('Old password is incorrect');
+  }
+
+  // Hash and set new password
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  user.password = hashedPassword;
+
+  // Optionally invalidate refresh token for security
+  user.refreshToken = null;
+
+  await user.save();
+
+  // Clear old cookies
+  res.clearCookie('accessToken', { httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === 'production' });
+  res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === 'production' });
+
+  res.status(200).json({ message: 'Password changed successfully. Please login again.' });
+});
 
 // @desc    Login user
 // @route   POST user/auth/signin
@@ -71,143 +219,3 @@ export const signIn = asyncHandler(async (req, res) => {
     throw new Error('Invalid email or password');
   }
 });
-
-// @desc    Refresh access token
-// @route   POST /user/auth/refresh
-// @access  Public
-export const refreshToken = asyncHandler(async (req, res) => {
-  const tokenFromCookie = req.cookies.refreshToken;
-  if (!tokenFromCookie) {
-    res.status(401);
-    throw new Error('No refresh token provided');
-  }
-
-  const user = await User.findOne({ refreshToken: tokenFromCookie });
-  if (!user) {
-    res.status(403);
-    throw new Error('Invalid refresh token');
-  }
-
-  try {
-    jwt.verify(tokenFromCookie, process.env.REFRESH_TOKEN_SECRET);
-
-    const { accessToken, refreshToken: newRefreshToken } = generateTokens(res, user._id);
-
-    user.refreshToken = newRefreshToken;
-    await user.save();
-
-    res.status(200).json({
-      name: user.name,
-      email: user.email,
-      userId: user.userId,
-      profilePicture: user.profilePicture?.data
-        ? `data:${user.profilePicture.contentType};base64,${user.profilePicture.data.toString('base64')}`
-        : null,
-      message: 'Access token refreshed',
-      accessToken,
-    });
-  } catch (err) {
-    res.status(403);
-    throw new Error('Error verifying refresh token');
-  }
-});
-
-// @desc    Logout user
-// @route   POST /user/auth/logout
-// @access  Public
-export const logout = asyncHandler(async (req, res) => {
-  const tokenFromCookie = req.cookies.refreshToken;
-
-  if (tokenFromCookie) {
-    const user = await User.findOne({ refreshToken: tokenFromCookie });
-    if (user) {
-      user.refreshToken = null;
-      user.online = false;
-      user.lastSeen = new Date();
-      await user.save();
-    }
-  }
-
-  res.clearCookie('accessToken', { httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === 'production' });
-  res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === 'production' });
-
-  res.status(200).json({ message: 'Logged out successfully' });
-});
-
-// @desc    Register a new user
-// @route   POST /api/users/signup
-// @access  Public
-export const signUp = asyncHandler(async (req, res) => {
-  const { name, email, password, role } = req.body;
-
-  // Check if user already exists
-  const userExists = await User.findOne({ email });
-  if (userExists) {
-    res.status(400).json({ message: "User already exists" });
-    // throw new Error("User already exists");
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const user = await User.create({
-    name,
-    email,
-    password: hashedPassword,
-    role: role || "jobseeker",
-  });
-
-  if (user) {
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      message: "User registered successfully",
-    });
-  } else {
-    res.status(400);
-    throw new Error("Invalid user data");
-  }
-});
-
-// @desc    Change password for logged-in user
-// @route   PUT /user/auth/change-password
-// @access  Private
-export const changePassword = asyncHandler(async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
-
-  if (!oldPassword || !newPassword) {
-    res.status(400);
-    throw new Error('Old and new password are required');
-  }
-
-  // Find the logged-in user (assumes req.user is set by auth middleware)
-  const user = await User.findById(req.user.userId);
-  if (!user) {
-    res.status(404);
-    throw new Error('User not found');
-  }
-
-  // Check old password
-  const isMatch = await bcrypt.compare(oldPassword, user.password);
-  if (!isMatch) {
-    res.status(401);
-    throw new Error('Old password is incorrect');
-  }
-
-  // Hash and set new password
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-  user.password = hashedPassword;
-
-  // Optionally invalidate refresh token for security
-  user.refreshToken = null;
-
-  await user.save();
-
-  // Clear old cookies
-  res.clearCookie('accessToken', { httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === 'production' });
-  res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'none', secure: process.env.NODE_ENV === 'production' });
-
-  res.status(200).json({ message: 'Password changed successfully. Please login again.' });
-});
-

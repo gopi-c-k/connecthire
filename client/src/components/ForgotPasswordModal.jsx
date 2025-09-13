@@ -1,9 +1,10 @@
 // src/components/ForgotPasswordModal.jsx
 import React, { useState } from "react";
 import Button from "./Button";
-import { requestPasswordReset } from "../services/authService";
+import { auth } from "../firebase"; // make sure the path is correct
+import { sendPasswordResetEmail } from "firebase/auth";
 
-const ForgotPasswordModal = ({ onClose, role = "jobseeker" }) => {
+const ForgotPasswordModal = ({ onClose }) => {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState({ loading: false, message: "", error: "" });
 
@@ -17,15 +18,14 @@ const ForgotPasswordModal = ({ onClose, role = "jobseeker" }) => {
     }
 
     try {
-      // send email + role; service  
-      const res = await requestPasswordReset(email, role);
+      // Send Firebase password reset email
+      await sendPasswordResetEmail(auth, email);
       setStatus({
         loading: false,
-        message: res?.message || "If the email exists, a reset link was sent.",
+        message: "If this email exists, a password reset link has been sent.",
       });
     } catch (err) {
-      //  error even if backend not implemented 
-      const msg = err?.message || "Request failed. Backend may not be available yet.";
+      const msg = err?.message || "Failed to send reset link. Please try again.";
       setStatus({ loading: false, error: msg });
     }
   };

@@ -1,14 +1,17 @@
 // src/pages/AnkitaPages/Login/UserLogin.jsx
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import InputWithIcon from "../../../components/InputWithIcon";
 import Button from "../../../components/Button";
-import api from "../.././../secureApiForUser";
+import api from "../../../secureApiForUser";
 import ForgotPasswordModal from "../../../components/ForgotPasswordModal";
-import { loginWithGoogle } from "../../../services/authService";
+import { auth, googleProvider } from "../../../firebase";
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
 
-/* Google SVG icon (same as CompanyLogin) */
 const GoogleIcon = () => (
   <svg
     width="18"
@@ -41,146 +44,13 @@ const UserLogin = () => {
   const [form, setForm] = useState({
     email: "",
     password: "",
-    role: "jobseeker",
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
 
-  // track GIS ready/initialized
-  const [googleReady, setGoogleReady] = useState(false);
-  const googleInitializedRef = useRef(false);
-  const handleGoogleResponseRef = useRef(null);
-
-  // --- Google response handler ---
-  useEffect(() => {
-    handleGoogleResponseRef.current = async (response) => {
-      if (!response || !response?.credential) {
-        console.log(
-          "Google sign-in cancelled or no credential returned.",
-          response
-        );
-        setError("Sign in failed — please try again later");
-        return;
-      }
-
-      setIsLoading(true);
-      setError("");
-
-      try {
-        const data = await loginWithGoogle(response.credential);
-        if (data?.accessToken)
-          localStorage.setItem("accessToken", data.accessToken);
-        localStorage.setItem("role", "jobseeker");
-        if (data?.id) localStorage.setItem("userId", data.id);
-        navigate("/user/dashboard");
-      } catch (err) {
-        console.error("Google login error:", err);
-        setError(
-          err?.message ||
-            err?.response?.data?.message ||
-            "Google sign-in failed"
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-  }, [navigate]);
-
-  // --- Load & initialize GSI ---
-  useEffect(() => {
-    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-    if (!clientId) {
-      console.warn("Missing REACT_APP_GOOGLE_CLIENT_ID in .env");
-      return;
-    }
-
-    const initGoogle = () => {
-      if (!window.google) return false;
-      try {
-        if (!googleInitializedRef.current) {
-          window.google.accounts.id.initialize({
-            client_id: clientId,
-            callback: (resp) =>
-              handleGoogleResponseRef.current &&
-              handleGoogleResponseRef.current(resp),
-            ux_mode: "popup",
-          });
-          googleInitializedRef.current = true;
-          setGoogleReady(true);
-          return true;
-        }
-      } catch (err) {
-        console.warn("Google init error:", err);
-        setGoogleReady(false);
-      }
-      return false;
-    };
-
-    if (window.google && initGoogle()) return;
-
-    const scriptId = "google-identity-services";
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement("script");
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.id = scriptId;
-      script.onload = () => {
-        initGoogle();
-      };
-      script.onerror = () => {
-        console.warn("Failed to load Google Identity Services script.");
-        setGoogleReady(false);
-      };
-      document.head.appendChild(script);
-    } else {
-      const t = setTimeout(() => initGoogle(), 500);
-      return () => clearTimeout(t);
-    }
-  }, []);
-
-  // --- Trigger Google prompt ---
-  const handleGoogleButtonClick = () => {
-    setError("");
-    if (!googleInitializedRef.current) {
-      setError("Google Sign-In is loading. Please wait a moment and try again.");
-      return;
-    }
-
-    try {
-      window.google.accounts.id.disableAutoSelect?.();
-
-      window.google.accounts.id.prompt((notification) => {
-        if (
-          notification &&
-          typeof notification.isDismissedMoment === "function" &&
-          notification.isDismissedMoment()
-        ) {
-          // Force React re-render on next tick
-          setTimeout(() => {
-            
-            setError("Sign in failed — please try again later");
-          }, 0);
-        }
-      });
-    } catch (err) {
-      setTimeout(
-        () =>
-          setError("Google Sign-In is not available right now. Try again."),
-        0
-      );
-      console.warn("Prompt error:", err);
-    }
-  };
-
-  // --- Email/password handlers ---
-  const handleChange = (e) => {
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
-    setError("");
-  };
-
+  // handle email/password login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -195,27 +65,18 @@ const UserLogin = () => {
     }
 
     setIsLoading(true);
-
-    const baseURL = process.env.REACT_APP_BASE;
-    if (!baseURL) {
-      setError("API base URL is not defined. Check REACT_APP_BASE in your .env.");
-      console.error("Missing REACT_APP_BASE in .env");
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const payload = { ...form, role: "jobseeker" };
-      const res = await api.post("/user/signin", payload);
+      // Firebase sign-in
+      const userCred = await signInWithEmailAndPassword(
+        auth,
+        form.email,
+        form.password
+      );
+      const idToken = await userCred.user.getIdToken();
 
-      let data = {};
-      try {
-        data = res.data;
-      } catch {}
-
-      if (res.status !== 200) {
-        throw new Error(data?.message || "Login failed");
-      }
+      // Send ID token to your backend
+      const res = await api.post("/user/auth/firebase", { idToken, role: "jobseeker" });
+      const data = res.data;
 
       if (data.accessToken) {
         localStorage.setItem("accessToken", data.accessToken);
@@ -229,6 +90,38 @@ const UserLogin = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // handle Google login
+  const handleGoogleButtonClick = async () => {
+    setError("");
+    setIsLoading(true);
+    try {
+      const userCred = await signInWithPopup(auth, googleProvider);
+      const idToken = await userCred.user.getIdToken();
+
+      const res = await api.post("/user/auth/firebase", { idToken, role: "jobseeker" });
+      const data = res.data;
+
+      if (data.accessToken) {
+        localStorage.setItem("accessToken", data.accessToken);
+      }
+      localStorage.setItem("role", "jobseeker");
+      if (data.id) localStorage.setItem("userId", data.id);
+
+      navigate("/user/dashboard");
+    } catch (err) {
+      setError(
+        err?.response?.data?.message || err.message || "Google sign-in failed"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+    setError("");
   };
 
   return (
@@ -319,7 +212,6 @@ const UserLogin = () => {
 
       {showForgot && (
         <ForgotPasswordModal
-          role="jobseeker"
           onClose={() => setShowForgot(false)}
         />
       )}
