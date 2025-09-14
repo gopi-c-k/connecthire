@@ -14,8 +14,14 @@ export const verifyMsg = asyncHandler(async (req, res, next) => {
     // find company or jobseeker profile
     const company = await Company.findOne({ user: user._id });
     const jobSeeker = await JobSeeker.findOne({ user: user._id });
-
-    // get conversation
+    if (!company && !jobSeeker) {
+        return res.status(404).json({ message: 'No profile found for this user' });
+    }
+    if(jobSeeker.messageAllowed === 'anyone' || jobSeeker.messageAllowed === 'recruiters'){
+        // allow to message
+        next();
+        return;
+    }
     const { conversationId } = req.params;
     const conversation = await Conversation.findById(conversationId);
     if (!conversation) {

@@ -7,7 +7,7 @@ import UserSignup from "./pages/AnkitaPages/Register/UserSignup";
 import CompanyLogin from "./pages/AnkitaPages/Login/CompanyLogin";
 import CompanySignup from "./pages/AnkitaPages/Register/CompanySignup";
 import CompanyDashboard from "./pages/AnkitaPages/COMPANY/CompanyDashboard";
-import JobseekerProfile from "./pages/AnkitaPages/COMPANY/JobseekerProfile";
+import JobseekerProfile from "./pages/AnkitaPages/COMPANY/JobSeekerProfile";
 import JobseekersList from "./pages/AnkitaPages/COMPANY/JobseekersList";
 
 import SettingsLayout from "./pages/AnkitaPages/COMPANY/Settings/SettingsLayout.jsx";

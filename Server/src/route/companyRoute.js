@@ -14,6 +14,7 @@ import { getCompanyConversation } from '../controllers/company/getConversation.j
 import { createConversation } from '../controllers/company/newConversation.js';
 import { deleteAccount } from '../controllers/company/deleteAccount.js';
 import { deactivateAccount } from '../controllers/company/deactivateAccount.js';
+import { getAllJobSeekers } from '../controllers/company/getAllJobSeeker.js';
 
 // Notification Routes
 import { getNotifications } from '../controllers/company/getNotification.js';
@@ -35,6 +36,7 @@ router.put('/privacy-settings', verifyMiddleware, verifyCompany, updateCompanyPr
 router.get('/jobseeker-profile/:jobSeekerId', verifyMiddleware, verifyCompany, getJobSeekerProfile);
 router.get('/conversations', verifyMiddleware, verifyCompany, getCompanyConversation);
 router.post('/conversation', verifyMiddleware, verifyCompany, createConversation);
+router.get('/jobseekers', verifyMiddleware, verifyCompany, getAllJobSeekers);
 
 // Notification Routes
 router.get('/notifications', verifyMiddleware, verifyCompany, getNotifications);

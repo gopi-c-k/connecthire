@@ -225,7 +225,7 @@ export default function ApplicantsHub() {
                         </div>
                       )}
                       <div>
-                        <Link to={`/company/jobseeker-profile/${a.seeker?.id}`}>
+                        <Link to={`/company/jobseeker/${a.seeker?.id}`}>
                           <h3 className="font-semibold">{a.seeker?.name}</h3>
                         </Link>
                         <p className="text-xs text-muted">{a.jobTitle}</p>
@@ -317,7 +317,7 @@ export default function ApplicantsHub() {
                               {a.seeker?.name?.[0]}
                             </div>
                           )}
-                          <Link to={`/company/jobseeker-profile/${a.seeker?.id}`}>
+                          <Link to={`/company/jobseeker/${a.seeker?.id}`}>
                             <span>{a.seeker?.name}</span>
                           </Link>
                         </td>
