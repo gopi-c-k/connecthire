@@ -17,9 +17,9 @@ const AuthModal = ({ type, onClose }) => {
     console.log("Selected Role:", selectedRole);
     console.log("Route to Navigate:", path);
 
-    
+
     navigate(path);
-    
+
     setTimeout(() => {
       onClose();
     }, 100); // slight delay to avoid unmount issue
@@ -32,23 +32,22 @@ const AuthModal = ({ type, onClose }) => {
           {type === "login" ? "Sign In As" : "Sign Up As"}
         </h2>
 
-       <select
-  className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm text-gray-800 shadow-sm 
+        <select
+          className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm text-gray-800 shadow-sm 
              focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition"
-  value={selectedRole}
-  onChange={(e) => setSelectedRole(e.target.value)}
->
-  <option value="">-- Select Role --</option>
-  <option value="user">Jobseeker</option>
-  <option value="company">Company</option>
-  {type === "login" && <option value="admin">Admin</option>}
-</select>
+          value={selectedRole}
+          onChange={(e) => setSelectedRole(e.target.value)}
+        >
+          <option value="">-- Select Role --</option>
+          <option value="user">Jobseeker</option>
+          <option value="company">Company</option>
+        </select>
 
 
-        
 
-         <Button onClick={handleContinue} className="w-full">
-             Continue
+
+        <Button onClick={handleContinue} className="w-full">
+          Continue
         </Button>
 
 
